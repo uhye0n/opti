@@ -144,8 +144,8 @@ img{display:block}
 
 /* ---- home */
 .home-bar{min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.home-tabs{display:flex;gap:8px}
-.home-rk{margin-left:auto;max-width:100%}
+.home-rk{margin-left:auto;max-width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.ctl{display:contents}
 .home-cols{display:flex;gap:48px;padding-top:8px}
 .home-left,.home-right{flex:1 1 0;min-width:0}
 .home-left{display:flex;flex-direction:column}
@@ -274,6 +274,7 @@ button.op-hero{cursor:pointer}
 .dcols{display:flex;flex-wrap:wrap;align-items:flex-start;gap:32px 40px;padding-top:12px}
 .drail{flex:1 1 232px;max-width:320px;min-width:0;display:flex;flex-direction:column;gap:4px}
 .rail-select{display:none;width:100%;height:var(--control-md);padding:0 12px;background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-md);font:inherit;font-size:14px;font-weight:500}
+@media (min-width:901px){ .drail{order:2} }
 @media (max-width:900px){ .drail{max-width:none;flex-basis:100%} .drail .op-rail{display:none} .rail-select{display:block} }
 .op-rail{display:flex;flex-direction:column;gap:var(--space-2);padding-bottom:10px}
 .op-rail-label{padding:var(--space-6) var(--space-10) var(--space-2);font-size:12px;font-weight:700;color:var(--text-meta)}
@@ -416,7 +417,7 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pn-list .op-chip{flex:none}
 .pn-bar{display:flex;align-items:flex-start;gap:8px}
 .pn-bar .pn-list{flex:0 1 auto;min-width:0}
-.pnsel{position:relative;flex:none}
+.pnsel{position:relative;flex:none;margin-left:auto}
 .pnsel .op-chip.is-on{background:var(--text);color:var(--bg);font-weight:700}
 .pnsel .op-chip.is-on .caret{color:var(--bg)}
 .pnpop{position:absolute;right:0;top:40px;z-index:30;width:296px;max-width:calc(100vw - 16px);padding:10px;display:flex;flex-direction:column;gap:8px}
@@ -557,8 +558,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   <section id="homeView" aria-label="한눈에 보기">
     <div class="home-bar">
-      <div class="home-tabs" id="homeTabs" role="group" aria-label="영웅 티어"></div>
-      <div class="home-rk" id="rkHome"></div>
+      <div class="home-rk"><span class="ctl" id="homeCtl"></span><span id="rkHome"></span></div>
     </div>
     <div class="home-cols">
       <section class="home-left scroll" id="homeLeft" aria-label="영웅 티어"></section>
@@ -659,7 +659,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       <section class="msec" id="ms6">
         <h2>화면 표시</h2>
         <dl class="mdl">
-          <dt>요약 탭</dt><dd>역할마다 S·A 티어 영웅만 보여 줍니다. 나머지 티어는 돌격·공격·지원 탭에 있습니다.</dd>
+          <dt>한눈에 보기</dt><dd>역할마다 S·A 티어 영웅만 보여 줍니다. 모든 티어는 맵·영웅 상세에 있습니다.</dd>
           <dt>맵 카드</dt><dd>큰 얼굴은 그 맵에서 역할별 지수가 가장 높은 돌격 1명·공격 2명·지원 2명이고, 작은 얼굴은 그다음 두 명입니다. 역할마다 따로 뽑으므로 실제로 함께 쓰인 조합은 아닙니다.</dd>
           <dt>주황 표시</dt><dd>그 맵 지수가 전체 맵 지수보다 6 이상 높은 영웅입니다(둘 다 반올림해 비교). 지수가 가장 높은 영웅이 아니라, 평소보다 이 맵에서 유독 강한 영웅을 뜻합니다. 얼굴에 주황 테두리와 작은 표식이 붙고, 지수가 주황색으로 바뀝니다.<br>
           6은 0.6 표준편차로 A 티어 폭(7점)에 가까워 "한 티어쯤 올라간다"는 뜻입니다. 2026년 11월 데이터에서 영웅·맵 칸의 약 3~13%가 이 기준을 넘어, 맵 카드마다 많아야 한두 명에게 붙습니다. 3이면 칸의 10~27%에 붙어 너무 흔하고, 9면 1~6%뿐이라 놓치는 맵이 많습니다.</dd>
@@ -701,7 +701,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   const TIERS = ['S','A','B','C','D'];
   let DEFAULT_W = {wr:50, pr:30, br:20};   // replaced by the patch-tuned weights in data/index.json
   const HOT = 6;                       // this map's index this much above the all-maps index = unusually strong here
-  const TABS = [['summary','요약'],['tank','돌격'],['damage','공격'],['support','지원']];
+  const TABS = [['summary','요약']];
   const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
   const ERR_IMG = `onerror="this.onerror=null;this.src='${BLANK}'"`;
 
@@ -1042,7 +1042,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const hit = (...names) => names.some(x => x && (onlyCho ? norm(chosung(x)).includes(n) : norm(x).includes(n)));
     const heroes = H.map((h, i) => i).filter(i => hit(H[i].name, H[i].id.replace(/-/g, ' ')))
       .sort((a, b) => MR[H[b].role]['all-maps'][b] - MR[H[a].role]['all-maps'][a]).slice(0, 5);
-    const maps = [{id:'all-maps', name:'전체 맵 종합', short:'', mode:'종합'}].concat(MAPS.slice().sort((a, b) => (B.N[b.id] || 0) - (B.N[a.id] || 0)))
+    const maps = [].concat(MAPS.slice().sort((a, b) => (B.N[b.id] || 0) - (B.N[a.id] || 0)))
       .filter(m => hit(m.name, m.short, m.id === 'all-maps' ? '' : m.id.replace(/-/g, ' '))).slice(0, 5);
     return {heroes, maps};
   }
@@ -1111,18 +1111,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function homeLeftHTML(z){
     const [size, cw, rg, cg] = z, gap = `${rg}px ${cg}px`;
     let left = '';
-    if (state.tab === 'summary') {
+    {
       for (const [r, label] of ROLES) {
         const order = ranked('all-maps', r);
         const rows = ['S', 'A'].map(t => [t, order.filter(i => tierOf(MR[r]['all-maps'][i]) === t)]).filter(x => x[1].length);
         left += `<div class="hgroup"><h2>${label}</h2>` + (rows.length ? rows.map(([t, hs]) =>
           `<div class="hrow">${badge(t)}<div class="hrow-heroes" style="gap:${gap}">${hs.map(i => heroLink(i, r, size, cw)).join('')}</div></div>`).join('') : `<span class="none">해당 영웅 없음</span>`) + `</div>`;
-      }
-    } else {
-      const r = state.tab, order = ranked('all-maps', r);
-      for (const t of TIERS) {
-        const hs = order.filter(i => tierOf(MR[r]['all-maps'][i]) === t);
-        left += `<div class="ttier">${badge(t)}<div class="ttier-heroes" style="gap:${gap}">${hs.length ? hs.map(i => heroLink(i, r, size, cw)).join('') : '<span class="none" style="align-self:center">해당 영웅 없음</span>'}</div></div>`;
       }
     }
     return left;
@@ -1141,8 +1135,13 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     }
   }
   function renderHome(){
-    $('homeTabs').innerHTML = TABS.map(([k, l]) => `<button type="button" class="op-chip" data-tab="${k}" aria-pressed="${state.tab === k}">${l}</button>`).join('');
+    $('dBar').innerHTML = '';                     // one set of controls in the page at a time (they carry ids)
+    $('homeCtl').innerHTML = ctlHTML();
     $('rkHome').innerHTML = rankBar('home');
+    if (state.wOpen) paintWeights();
+    renderHomeBody();
+  }
+  function renderHomeBody(){
     fitHomeLeft();
 
     let right = `<h2 class="hright-title" id="mapsTitle">맵별 메타</h2>`;
@@ -1197,21 +1196,28 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (f >= 0 && idx.includes(f)) return f;
     return idx.slice().sort((a, b) => mm[b] - mm[a])[0];
   }
-  function renderBar(){
+  function ctlHTML(){
     const w = state.w;
-    let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
-    h += `<div class="dbar-r">`;
-    h += `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
+    let h = `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
     h += `<div class="wsel"><button type="button" class="op-chip" data-act="w-toggle" aria-expanded="${state.wOpen}">지수 가중치<span class="op-chip-value" id="wLabel">${w.wr} · ${w.pr} · ${w.br}</span>${CARET}</button>`;
     if (state.wOpen) {
       h += `<div class="op-pop wpop" role="group" aria-label="지수 가중치: 손잡이 두 개로 100을 승률·픽률·밴률에 나눕니다">`
         + `<div class="wrow"><span class="reset-slot" id="wReset">${wResetBtn()}</span><div class="wsplit"><div class="wtrack" id="wTrack"></div><input type="range" min="0" max="100" step="1" id="wA" value="${w.wr}" aria-label="승률과 픽률의 경계"><input type="range" min="0" max="100" step="1" id="wB" value="${w.wr + w.pr}" aria-label="픽률과 밴률의 경계"></div></div>`
         + `<div class="wvals"><span>승률 <b id="oWr">${w.wr}</b></span><span>픽률 <b id="oPr">${w.pr}</b></span><span>밴률 <b id="oBr">${w.br}</b></span></div></div>`;
     }
-    h += `</div>${rankBar('detail')}</div>`;
+    return h + `</div>`;
+  }
+  function renderBar(){
+    let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
+    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}</div>`;
+    $('homeCtl').innerHTML = '';
     $('dBar').innerHTML = h;
     if (state.wOpen) paintWeights();
     fitPops();
+  }
+  function paintCtl(){
+    if (state.view === 'home') { $('homeCtl').innerHTML = ctlHTML(); if (state.wOpen) paintWeights(); fitPops(); }
+    else renderBar();
   }
   function paintWeights(){
     const w = state.w;
@@ -1713,6 +1719,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   let raf = 0;
   const saveState = () => store.set('state', {server:state.server, w:state.wCustom ? state.w : null, wc:state.wCustom, smooth:state.smooth});
+  // the home screen redraws its hero column and map cards while a weight handle is dragged
+  const lightHome = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const flip = flipFirst(); compute(); renderHomeBody(); flipPlay(flip); saveState(); }); };
+  const lightView = () => state.view === 'home' ? lightHome() : lightDetail();
   const lightDetail = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const fk = focusKey(); const flip = flipFirst(); compute(); renderRail(); renderMain(); restoreFocus(fk); flipPlay(flip); saveState(); }); };
 
   // ---------------------------------------------------------------- events
@@ -1751,7 +1760,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { popIn('.srv-pop'); const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
     if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
     if (d.act === 'smooth') { state.smooth = !state.smooth; render(); return; }
-    if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; renderBar(); if (state.wOpen) popIn('.wpop'); return; }
+    if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; paintCtl(); if (state.wOpen) popIn('.wpop'); return; }
     if (d.act === 'rk-toggle') { state.rkOpen = state.rkOpen === d.where ? null : d.where; paintRank(); if (state.rkOpen) popIn('.rkpop'); const b = document.querySelector(`.rksel[data-rk="${d.where}"] [data-act="rk-toggle"]`); if (b) b.focus(); return; }
     if (d.act === 'w-reset') { state.w = Object.assign({}, DEFAULT_W); state.wCustom = false; render(); return; }
     if (d.tab) { state.tab = d.tab; render(); return; }
@@ -1774,7 +1783,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (a > b) { if (e.target.id === 'wA') b = a; else a = b; $('wA').value = a; $('wB').value = b; }
     state.w = {wr:a, pr:b - a, br:100 - b};
     state.wCustom = !(a === DEFAULT_W.wr && b - a === DEFAULT_W.pr);
-    paintWeights(); lightDetail();
+    paintWeights(); lightView();
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
