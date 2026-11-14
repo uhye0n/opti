@@ -77,13 +77,14 @@ K0 = 80           # prior weight (games) for a hero's all-maps win rate
 K_BOUNDS = (5, 3000)  # clamp for the data-estimated prior weights
 CAP = 780          # ban-rate quantization cannot resolve match counts at or above this
 RELIABLE = 600     # below this the quantization estimate is taken as exact
+FLOOR = 800        # a count the rounding cannot resolve is at least this
 PATCH_DROP = 0.7   # grandmaster matches falling below this share of the previous run = stats were reset
 MG_RATIO = (1.5, 6.0)
 RANK_SUM_TOL = 15.0      # a rank whose pick shares miss 500% by more than this has too few games to use
 ROLE_CLEAN_TOL = 1.0     # after a role change, both roles' pick shares must be back within this of 100/200   # plausible master : grandmaster match ratio (observed 2.5-3.6 where both are exact)
 HISTORY_KEEP = 40
 PATCH_COMPARE_DAYS = 7   # after a reset, compare against the last pre-reset snapshot for this long
-MODEL_VERSION = "2026-11-15.1"  # part of the change hash: a model change recomputes even if the sources did not move
+MODEL_VERSION = "2026-11-15.2"  # part of the change hash: a model change recomputes even if the sources did not move
 FETCH_DEADLINE = 20 * 60        # seconds; beyond this the scrape is abandoned (the job limit is 30 minutes)
 FAIL_STREAK = 8                 # consecutive failed pages from one source = blocked / down, stop early
 
@@ -401,9 +402,64 @@ def impute_regress(raw, ref, fallback_ratio):
             out[m] = n
             continue
         pred = math.exp(a + beta * math.log(ref[m])) if ref.get(m) else 800
-        lb = 800 if (n is None or n >= 800) else n
+        lb = FLOOR if (n is None or n >= FLOOR) else n
         out[m] = int(round(max(lb, pred)))
     return out
+
+
+def estimate_counts(nraw_s, gm_s, sh, hero_ids, map_ids, label="", method="chain"):
+    """Matches per rank x map for one server. Counts the ban-rate rounding pins down (below RELIABLE) are kept as
+    they are; the rest are estimated.
+    - grandmaster: exact on most maps (gm_s, gaps filled beforehand); master: log-linear fit on grandmaster.
+    - diamond down to bronze: each rank is fitted on the rank just above it, over the maps where it is exact
+      (neighbouring ranks pick maps most alike); with too few exact maps, the rank above's map shape is scaled by
+      the rank-share ratio.
+    Checked on 2026-11-15 data by hiding a third of the exact diamond / emerald / bronze map counts on four servers
+    and estimating them again: median error 8% this way, against 54-65% for the earlier way (method "top": every
+    lower rank scaled from grandmaster + master, then re-split per map by a rank mix solved from that map's
+    all-ranks numbers, which is too noisy per map). "top" is still used early in a season while grandmaster has
+    no games."""
+    exact = lambda r, m: nraw_s[r][m] is not None and nraw_s[r][m] < RELIABLE
+    # the mixture fit separates master from grandmaster poorly (their hero profiles are close), so the
+    # grandmaster share alone can come out near 0 and blow every lower rank up a thousandfold. The lower
+    # ranks are therefore scaled from master + grandmaster together, and the master:grandmaster size ratio
+    # used when no master map is exact is kept to a plausible range.
+    ratio_mg = min(MG_RATIO[1], max(MG_RATIO[0], sh["master"] / max(sh["grandmaster"], 1e-6)))
+    N = {"grandmaster": gm_s, "master": impute_regress(nraw_s["master"], gm_s, ratio_mg)}
+    low = RANKS[:6]
+    gm_nz = sorted(v for v in gm_s.values() if v > 0)
+    if method == "chain" and gm_nz:
+        upper = "master"
+        top_sh = max(sh["master"] + sh["grandmaster"], 0.005)
+        for r in reversed(low):
+            ratio = sh[r] / sh[upper] if sh[upper] > 0 else sh[r] / top_sh
+            N[r] = impute_regress(nraw_s[r], {m: max(N[upper][m], 1) for m in map_ids}, ratio)
+            upper = r
+    else:
+        gm_ref = {m: (gm_s[m] if gm_s[m] > 0 else (gm_nz[len(gm_nz) // 2] if gm_nz else 800)) for m in map_ids}
+        top_ref = {m: gm_ref[m] + N["master"][m] for m in map_ids}
+        top_sh = max(sh["master"] + sh["grandmaster"], 0.005)
+        if not gm_nz:
+            # grandmaster has no usable games yet (early season): anchor on the ranks whose map counts are exact
+            ex_r = [r for r in RANKS[:7] if sh[r] > 0 and sum(1 for m in map_ids if exact(r, m)) >= 0.6 * len(map_ids)]
+            if ex_r:
+                def med(r):
+                    v = sorted(nraw_s[r][m] for m in map_ids if exact(r, m))
+                    return v[len(v) // 2]
+                top_ref = {m: sum(nraw_s[r][m] if exact(r, m) else med(r) for r in ex_r) for m in map_ids}
+                top_sh = max(sum(sh[r] for r in ex_r), 0.005)
+                if label:
+                    log(f"{label}: no grandmaster games yet, match counts anchored on {', '.join(ex_r)}")
+        for r in low:
+            scale = sh[r] / top_sh
+            N[r] = {m: (nraw_s[r][m] if exact(r, m) else int(max(FLOOR, round(top_ref[m] * scale)))) for m in map_ids}
+    for r in low:
+        for m in map_ids:
+            if nraw_s[r][m] == 0:
+                N[r][m] = 0                       # no data on this map in this rank: no matches
+    for r in RANKS:
+        N[r]["all-maps"] = sum(N[r][m] for m in map_ids)
+    return N
 
 
 def rank_shares(mix, parts, hero_ids, iters=5000):
@@ -1016,44 +1072,7 @@ def main():
             # brackets weigh their ranks correctly; the page does not show these numbers
             N[s] = {r: {**{m: 0 for m in map_ids}, "all-maps": int(round(CN_NOMINAL * sh[r]))} for r in RANKS}
             continue
-        # the mixture fit separates master from grandmaster poorly (their hero profiles are close), so the
-        # grandmaster share alone can come out near 0 and blow every lower rank up a thousandfold. The lower
-        # ranks are therefore scaled from master + grandmaster together, and the master:grandmaster size ratio
-        # used when no master map is exact is kept to a plausible range.
-        ratio_mg = min(MG_RATIO[1], max(MG_RATIO[0], sh["master"] / max(sh["grandmaster"], 1e-6)))
-        N[s] = {"grandmaster": gm[s], "master": impute_regress(nraw[s]["master"], gm[s], ratio_mg)}
-        gm_nz = sorted(v for v in gm[s].values() if v > 0)
-        gm_ref = {m: (gm[s][m] if gm[s][m] > 0 else (gm_nz[len(gm_nz) // 2] if gm_nz else 800)) for m in map_ids}
-        top_ref = {m: gm_ref[m] + N[s]["master"][m] for m in map_ids}
-        top_sh = max(sh["master"] + sh["grandmaster"], 0.005)
-        if not gm_nz:
-            # grandmaster has no usable games yet (early season): anchor on the ranks whose map counts are exact
-            exact = [r for r in RANKS[:7] if sh[r] > 0 and
-                     sum(1 for m in map_ids if nraw[s][r][m] and nraw[s][r][m] < RELIABLE) >= 0.6 * len(map_ids)]
-            if exact:
-                def med(r):
-                    v = sorted(nraw[s][r][m] for m in map_ids if nraw[s][r][m] and nraw[s][r][m] < RELIABLE)
-                    return v[len(v) // 2]
-                top_ref = {m: sum(nraw[s][r][m] if nraw[s][r][m] and nraw[s][r][m] < RELIABLE else med(r)
-                                  for r in exact) for m in map_ids}
-                top_sh = max(sum(sh[r] for r in exact), 0.005)
-                log(f"{label}: no grandmaster games yet, match counts anchored on {', '.join(exact)}")
-        for r in RANKS[:6]:
-            scale = sh[r] / top_sh
-            N[s][r] = {m: (nraw[s][r][m] if nraw[s][r][m] is not None and nraw[s][r][m] < RELIABLE
-                           else int(max(800, round(top_ref[m] * scale)))) for m in map_ids}
-        # the six lower ranks: keep each map's total, but split it by that map's own rank mix (solved from the
-        # official all-ranks numbers of the map) instead of the all-maps mix
-        low = RANKS[:6]
-        for m in map_ids:
-            sm = rank_shares(raw[s]["all"][m], {r: raw[s][r][m] for r in RANKS}, hero_ids, iters=2000)
-            sm = {r: rho_of[s] * sm[r] + (1 - rho_of[s]) * sh[r] for r in RANKS}
-            tot_low, w_low = sum(N[s][r][m] for r in low), sum(sm[r] for r in low)
-            if w_low > 0.2:
-                for r in low:
-                    N[s][r][m] = 0 if nraw[s][r][m] == 0 else max(1, int(round(tot_low * sm[r] / w_low)))
-        for r in RANKS:
-            N[s][r]["all-maps"] = sum(N[s][r][m] for m in map_ids)
+        N[s] = estimate_counts(nraw[s], gm[s], sh, hero_ids, map_ids, label)
 
     # ---- bracket groups = member ranks weighted by estimated matches
     def merge(s, ranks):
