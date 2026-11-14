@@ -277,7 +277,7 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .wsplit input{position:absolute;left:calc(var(--knob) / -2);right:calc(var(--knob) / -2);width:calc(100% + var(--knob));top:0;height:16px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;pointer-events:none}
 .wsplit input::-webkit-slider-runnable-track{height:16px;background:transparent}
 .wsplit input::-moz-range-track{height:16px;background:transparent}
-.wsplit input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:var(--knob);height:var(--knob);margin-top:0;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--surface-pop);cursor:pointer}
+.wsplit input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:var(--knob);height:var(--knob);margin-top:calc((16px - var(--knob)) / 2);border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--surface-pop);cursor:pointer}
 .wsplit input::-moz-range-thumb{pointer-events:auto;width:var(--knob);height:var(--knob);border:0;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--surface-pop);cursor:pointer}
 .wsplit input:focus-visible{outline:none}
 .wsplit input:focus-visible::-webkit-slider-thumb{outline:2px solid var(--text);outline-offset:3px}
@@ -336,7 +336,10 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .tr-metrics{margin-left:auto;display:flex;gap:4px}
 .panel{padding:16px 16px 12px;background:var(--surface-panel);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:8px}
 .panel svg{display:block;max-width:100%;height:auto}
-.tr-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.tr-read{color:var(--text-secondary)}
+.tr-read b{margin-right:6px;color:var(--text)}
+.tr-read .op-tier{margin-right:6px;vertical-align:-3px}
+.tr-foot{min-height:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .tr-empty{padding:24px 0;color:var(--text-meta)}
 .tr-plot{position:relative}
 .tr-plot svg{touch-action:pan-y;cursor:crosshair}
@@ -1338,14 +1341,19 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     // trend
     const METRICS = [['mi','지수'],['pr','픽률'],['wr','승률'],['br','밴률']];
     if (shown >= 0) h += `<section class="dsec tight" aria-labelledby="trTitle" style="gap:12px"><div class="tr-head"><h2 id="trTitle">영웅 추이</h2><span class="selchip">${avatar(hero, 24)}${esc(H[hero].name)}</span><div class="tr-metrics" role="group" aria-label="지표">${METRICS.map(([k, l]) => `<button type="button" class="op-chip" data-metric="${k}" aria-pressed="${state.metric === k}">${l}</button>`).join('')}</div></div>`;
-    if (shown >= 0) h += `<span class="dhint">티어표나 아래 표에서 영웅을 누르면 바뀌어요. 하루 한 번 저장한 전체 맵 기록이에요.</span><div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
+    if (shown >= 0) h += `<div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
     // scatter
     h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><div class="scatter">${scatterHTML(idx, cells, mm, shown)}</div></section>`;
     // table
     h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><div class="twrap">${tableHTML(idx, cells, mm, ALL, shown, isAll)}</div></section>`;
+    const hadTrend = !!$('trendBox');
     $('dMain').innerHTML = h;
     renderHeat(idx, shown);
-    if (shown >= 0) { bindTrend(hero); loadTrend(hero); }
+    if (shown >= 0) {
+      bindTrend(hero); drawIn(hero); loadTrend(hero);
+      const sec = $('trendBox').closest('section');
+      if (!hadTrend && sec && sec.animate && !reduceMotion) sec.animate([{opacity:0, transform:'translateY(6px)'}, {opacity:1, transform:'none'}], {duration:220, easing:'cubic-bezier(.2,.8,.2,1)'});
+    } else trendKey = '';
   }
 
   // ---- hero trend (daily all-maps archive of this server and rank range)
@@ -1374,8 +1382,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   let trendKey = '';
   function paintTrend(hero){
     const box = $('trendBox'); if (!box) return;
-    box.innerHTML = trendHTML(hero); bindTrend(hero);
-    // the line draws itself in from the left when a different hero or metric is shown
+    box.innerHTML = trendHTML(hero); bindTrend(hero); drawIn(hero);
+  }
+  // the line draws itself in from the left when a different hero, metric or range is shown
+  function drawIn(hero){
+    const box = $('trendBox'); if (!box) return;
     const k = `${hero}|${state.metric}|${arcKey()}`, pl = box.querySelector('polyline');
     if (pl && k !== trendKey && !reduceMotion && pl.getTotalLength) {
       const len = pl.getTotalLength();
@@ -1383,26 +1394,27 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     }
     if (pl) trendKey = k;
   }
+  // the line under the chart reads out one day: the latest one, or the day under the pointer
+  function trRead(k){
+    const v = TR.rows[k]; if (!v) return '';
+    const t = tierOf(v[0]);
+    return `<span class="tr-read"><b>${md(TR.days[k].d)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${Math.round(v[0])} · 픽률 ${v[1].toFixed(1)}% · 승률 ${v[2] == null ? '—' : v[2].toFixed(1) + '%'} · 밴률 ${v[3].toFixed(1)}%</span>`;
+  }
   function bindTrend(hero){
     const box = $('trendBox'), svg = box && box.querySelector('svg');
     if (!svg || !TR) return;
-    const tip = box.querySelector('.tr-tip'), cross = svg.querySelector('.tr-x'), dot = svg.querySelector('.tr-dot');
+    const foot = box.querySelector('.tr-foot'), cross = svg.querySelector('.tr-x'), dot = svg.querySelector('.tr-dot');
     const show = ev => {
       const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * TR.W;
       let best = -1;
-      TR.rows.forEach((v, k) => { if (v && (best < 0 || Math.abs(TR.X(k) - sx) < Math.abs(TR.X(best) - sx))) best = k; });
+      TR.rows.forEach((v, k) => { if (v && v[TR.K] != null && (best < 0 || Math.abs(TR.X(k) - sx) < Math.abs(TR.X(best) - sx))) best = k; });
       if (best < 0) return;
       const v = TR.rows[best], px = TR.X(best), py = TR.Y(v[TR.K]);
       cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.style.opacity = 1;
       dot.setAttribute('cx', px); dot.setAttribute('cy', py); dot.style.opacity = 1;
-      const t = tierOf(v[0]);
-      tip.innerHTML = `<b>${md(TR.days[best].d)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${Math.round(v[0])}<br>픽률 ${v[1].toFixed(1)}% · 승률 ${v[2] == null ? '—' : v[2].toFixed(1) + '%'} · 밴률 ${v[3].toFixed(1)}%`;
-      tip.hidden = false;
-      const left = px / TR.W * r.width, top = py / 150 * r.height;
-      tip.style.left = Math.min(Math.max(0, left + 14), r.width - tip.offsetWidth) + 'px';
-      tip.style.top = Math.max(0, top - tip.offsetHeight - 12) + 'px';
+      if (foot) foot.innerHTML = trRead(best);
     };
-    const hide = () => { tip.hidden = true; cross.style.opacity = 0; dot.style.opacity = 0; };
+    const hide = () => { if (foot) foot.innerHTML = trRead(TR.last); cross.style.opacity = 0; dot.style.opacity = 0; };
     svg.addEventListener('pointermove', show); svg.addEventListener('pointerdown', show); svg.addEventListener('pointerleave', hide);
   }
   function currentHero(){
@@ -1419,25 +1431,27 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const vs = tr.filter(v => v != null);
     if (vs.length < 2) return `<div class="tr-empty">기록이 쌓이는 중이에요. 하루에 한 번 기록되고 이틀째부터 선으로 이어져요.</div>`;
     const vLo = Math.min(...vs), vHi = Math.max(...vs), pad = vHi === vLo ? 1 : 0;
-    const W = Math.max(300, plotW() - 32);
-    const X = k => 10 + k * (W - 20) / (tr.length - 1), Y = v => 16 + (vHi + pad - v) * 108 / (vHi - vLo + 2 * pad);
+    const W = Math.max(300, plotW() - 32), L = 44;
+    const X = k => L + k * (W - L - 10) / (tr.length - 1), Y = v => 22 + (vHi + pad - v) * 98 / (vHi - vLo + 2 * pad);
     const pts = []; let firstK = -1, lastK = 0;
     tr.forEach((v, k) => { if (v != null) { pts.push(X(k).toFixed(1) + ',' + Y(v).toFixed(1)); lastK = k; if (firstK < 0) firstK = k; } });
     const num = v => K === 0 ? String(Math.round(v)) : v.toFixed(1) + '%';
-    const show = v => K === 0 ? '지수 ' + Math.round(v) : `${label} ${v.toFixed(1)}%`;
     const meta = ARC[state.server + '/meta'] || {};
     const ps = (D.meta.patchStart || [...(meta.patches || [])].pop() || '').slice(0, 10);
     let pk = -1;
     if (ps && days.length && ps > days[0].d && ps <= days[days.length - 1].d) days.forEach((d, k) => { if (d.d < ps) pk = k + 0.5; });
-    TR = {days, K, X, Y, W, rows:days.map(d => (d.h && d.h[H[hero].id]) || null)};
+    TR = {days, K, X, Y, W, last:lastK, rows:days.map(d => (d.h && d.h[H[hero].id]) || null)};
+    const F = 'font-family="Pretendard Variable, Pretendard, sans-serif" font-size="10"';
     let g = `<div class="tr-plot"><svg viewBox="0 0 ${W} 150" width="${W}" height="150" style="max-width:100%;height:auto" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
-    g += `<line x1="0" y1="${Y(vHi)}" x2="${W}" y2="${Y(vHi)}" stroke="#26262B" stroke-width="1"/><line x1="0" y1="${Y(vLo)}" x2="${W}" y2="${Y(vLo)}" stroke="#26262B" stroke-width="1"/>`;
-    if (pk >= 0) g += `<line x1="${X(pk)}" y1="6" x2="${X(pk)}" y2="132" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/>`;
+    // highest and lowest value as the scale, the first and last day under the line, the patch above its dashed line
+    for (const v of (vHi === vLo ? [vHi] : [vHi, vLo])) g += `<line x1="${L}" y1="${Y(v)}" x2="${W}" y2="${Y(v)}" stroke="#26262B" stroke-width="1"/><text x="${L - 8}" y="${(Y(v) + 3.5).toFixed(1)}" fill="#5A5A62" text-anchor="end" ${F}>${num(v)}</text>`;
+    g += `<text x="${X(firstK)}" y="146" fill="#5A5A62" text-anchor="start" ${F}>${md(days[firstK].d)}</text><text x="${X(lastK)}" y="146" fill="#5A5A62" text-anchor="end" ${F}>${md(days[lastK].d)}</text>`;
+    if (pk >= 0) g += `<line x1="${X(pk)}" y1="16" x2="${X(pk)}" y2="128" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/><text x="${X(pk)}" y="10" fill="#8A8A92" text-anchor="middle" ${F}>${md(ps)} 패치</text>`;
     g += `<polyline points="${pts.join(' ')}" fill="none" stroke="#F2F2F3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
     g += `<circle cx="${X(lastK)}" cy="${Y(tr[lastK])}" r="5" fill="var(--accent)" stroke="#151518" stroke-width="2"/>`;
-    g += `<line class="tr-x" x1="0" x2="0" y1="6" y2="132" stroke="#A1A1A8" stroke-width="1" style="opacity:0"/><circle class="tr-dot" r="4" fill="#F2F2F3" stroke="#151518" stroke-width="2" style="opacity:0"/>`;
-    g += `<rect x="0" y="0" width="${W}" height="150" fill="transparent"/></svg><div class="tr-tip" hidden></div></div>`;
-    g += `<div class="tr-foot"><span>${md(days[firstK].d)} · ${show(tr[firstK])}</span><span>${pk >= 0 ? `점선 = 패치 시작 ${md(ps)} · ` : ''}범위 ${num(vLo)}~${num(vHi)}</span><span>${md(days[lastK].d)} · ${show(tr[lastK])}</span></div>`;
+    g += `<line class="tr-x" x1="0" x2="0" y1="16" y2="128" stroke="#A1A1A8" stroke-width="1" style="opacity:0"/><circle class="tr-dot" r="4" fill="#F2F2F3" stroke="#151518" stroke-width="2" style="opacity:0"/>`;
+    g += `<rect x="0" y="0" width="${W}" height="150" fill="transparent"/></svg></div>`;
+    g += `<div class="tr-foot" aria-live="polite">${trRead(lastK)}</div>`;
     return g;
   }
 
@@ -1460,7 +1474,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (ax >= L && ax <= R) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#3A3A40" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="${T - 10}" fill="#8A8A92" font-size="10" text-anchor="middle" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
     s += `<text x="${L - 8}" y="${T - 14}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>승률</text><text x="${R}" y="${Bt + 16}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>픽률</text>`;
     // size key, top right, in words: the portraits themselves are the circles
-    s += `<text x="${R}" y="${T - 10}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>얼굴이 클수록 밴률 높음</text>`;
+    s += `<text x="${R}" y="${T - 10}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>크기 = 밴률</text>`;
     const RING = {S:'var(--accent)', A:'#C4C4CA', B:'#8A8A92', C:'#4A4A50', D:'#2C2C31'};
     // portraits sized by ban rate (largest drawn first so small ones stay visible); the ring is the tier
     const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:11 + Math.sqrt(Math.max(0, v.br)) * 1.25, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
