@@ -785,7 +785,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       a.setAttribute('href', hrefOf(a.dataset.nav));
       if (a.closest('.nav')) { if (a.dataset.nav === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
     }
-    const servers = INDEX ? INDEX.servers : [];
+    // menu order follows when each region got its own servers; Korea stays the default selection
+    const ORDER = ['asia', 'europe', 'americas', 'china', 'kr'];
+    const servers = INDEX ? INDEX.servers.slice().sort((x, y) => (ORDER.indexOf(x.id) + 99) % 99 - (ORDER.indexOf(y.id) + 99) % 99) : [];
     const cur = servers.find(s => s.id === state.server) || {label:''};
     $('srvBox').innerHTML = `<button type="button" class="srv-btn" data-act="srv-toggle" aria-expanded="${state.srvOpen}" aria-haspopup="true" aria-label="서버: ${esc(cur.label)}">${esc(cur.label)} ▾</button>`
       + (state.srvOpen ? `<div class="op-pop srv-pop" role="group" aria-label="서버 선택">${servers.map(s => `<button type="button" class="srv-item" data-server-pick="${s.id}" aria-pressed="${s.id === state.server}">${esc(s.label)}</button>`).join('')}</div>` : '');
@@ -1290,7 +1292,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   document.body.dataset.view = state.view;
   fetch('data/index.json?t=' + Math.floor(Date.now() / 6e5), {cache:'no-cache'})
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    .then(idx => { INDEX = idx; if (!INDEX.servers.some(s => s.id === state.server)) state.server = INDEX.servers[0].id; renderHeader(); return sync(); })
+    .then(idx => { INDEX = idx; if (!INDEX.servers.some(s => s.id === state.server)) state.server = INDEX.servers.some(s => s.id === 'kr') ? 'kr' : INDEX.servers[0].id; renderHeader(); return sync(); })
     .catch(fail);
 })();
 </script>
