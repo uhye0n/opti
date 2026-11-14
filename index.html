@@ -537,7 +537,6 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:160ms;animation-timing-function:var(--ease-out)}
-::view-transition-group(*){animation-duration:320ms;animation-timing-function:var(--ease-out)}
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
@@ -1729,15 +1728,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     opts = opts || {};
     const changed = state.view !== view;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
-    if (D && B && changed && document.startViewTransition && !reduceMotion) {
-      // the same hero's face is one element across the two screens, so it travels instead of fading
-      const tag = on => { for (const a of document.querySelectorAll('#homeLeft [data-go-hero] .op-avatar, .trow [data-hero] .op-avatar')) {
-        const el = a.closest('[data-go-hero],[data-hero]'), id = el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
-        a.style.viewTransitionName = on && id && a.offsetParent ? 'hf-' + id : ''; } };
-      tag(true);
-      const t = document.startViewTransition(() => { tag(false); render({push:true, top:true}); tag(true); });
-      t.finished.finally(() => tag(false));
-    }
+    if (D && B && changed && document.startViewTransition && !reduceMotion) document.startViewTransition(() => render({push:true, top:true}));
     else if (D && B) render({push:changed || opts.push, top:changed});
     else writeURL(changed);
   }
