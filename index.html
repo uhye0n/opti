@@ -43,6 +43,7 @@
   --avatar-20:20px;--avatar-24:24px;--avatar-28:28px;--avatar-32:32px;--avatar-40:40px;--avatar-56:56px;--avatar-60:60px;--avatar-64:64px;
   --rank-cell:50px;--knob:14px;--ring-knob:0 0 0 3px var(--bg);
   --opacity-out:.3;--opacity-low:.45;
+  --dur-fast:120ms;--dur:180ms;--dur-move:280ms;--ease-out:cubic-bezier(.2,.8,.2,1);
   --ring-hot:0 0 0 2px var(--accent);--ring-hot-sm:0 0 0 1.5px var(--accent);
   --shadow-pop:0 8px 24px rgba(0,0,0,.5);
 }
@@ -205,6 +206,7 @@ button.op-hero{cursor:pointer}
 .op-map .is-hot .op-map-mi,.op-map-reserve.is-hot,.op-hero-mi.is-hot{color:var(--accent);font-weight:700}
 .op-map-reserve.is-hot .op-avatar,.mchip.is-hot .op-avatar{box-shadow:var(--ring-hot-sm)}
 .hot-face{position:relative;display:block;flex-shrink:0}
+.is-low .op-avatar,.is-low .hot-pin{opacity:var(--opacity-low)}
 .hot-pin{position:absolute;left:50%;bottom:calc(100% + 3px);width:12px;height:7px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M2 1.5h8L6 5.5z' fill='%23F99E1A' stroke='%23F99E1A' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;pointer-events:none}
 .hot-face.is-sel .hot-pin{bottom:calc(100% + 6px)}
 .hot-pin.sm{width:8px;height:5px;bottom:calc(100% + 2.5px)}   /* 1px above the 1.5px ring, like the large pin above its 2px ring */
@@ -499,6 +501,25 @@ a:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible,
   .op-map,.op-map *{-webkit-touch-callout:none}
 }
 .tap-tip{position:absolute;z-index:95;max-width:260px;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);color:var(--text);font-size:12px;line-height:1.5;pointer-events:none}
+
+
+/* ---- motion: short, calm, transform / opacity / colour only; off when the system asks for less motion */
+button,a,.op-chip,.op-tab,.srv-item,.pnpop-item,.pnpop-year,.op-rail-item,.mchip,.op-range-reset,.op-switch,.srv-btn,.op-map-img,.op-avatar,.dtable tr{
+  -webkit-tap-highlight-color:transparent;
+  transition:background-color var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out),filter var(--dur) var(--ease-out)}
+.op-chip:active,.srv-btn:active,.mchip:active,.op-range-reset:active,.pnpop-year:active,.op-switch:active{transform:scale(.97)}
+.op-map:hover .op-map-img{filter:brightness(1.12)}
+a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px)}
+[aria-expanded="true"] > .caret{transform:rotate(180deg)}
+.caret{transition:transform var(--dur) var(--ease-out)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes riseIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sc-tip:not([hidden]),.tap-tip{animation:fadeIn var(--dur-fast) var(--ease-out)}
+#searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
+details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:160ms;animation-timing-function:var(--ease-out)}
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
 body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailView,body:not([data-view="method"]) #methodView,body:not([data-view="patch"]) #patchView{display:none}
@@ -1141,11 +1162,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
         body += `<div class="op-map-roles">` + ROLES.map(([r]) => {
           const order = ranked(m.id, r), top = order.slice(0, SLOTS[r]), more = order.slice(SLOTS[r], SLOTS[r] + 2);
           const info = i => { const here = Math.round(MR[r][m.id][i]), usual = Math.round(MR[r]['all-maps'][i]); const hot = here - usual >= HOT;
-            return {here, usual, hot, tip:`${H[i].name} · 이 맵 지수 ${here}` + (hot ? ` (전체 맵 지수 ${usual}보다 ${here - usual} 높음)` : '')}; };
+            const low = !isHidden() && B.cells[m.id][i][6] < 100;
+            return {here, usual, hot, low, tip:`${H[i].name} · 이 맵 지수 ${here}` + (hot ? ` (전체 맵 지수 ${usual}보다 ${here - usual} 높음)` : '') + (low ? ' · 표본이 적어요' : '')}; };
           return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
-              return `<div class="op-map-pick${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}"><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></div>`; }).join('')}</div>`
+              return `<div class="op-map-pick${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" title="${esc(x.tip)}"><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></div>`; }).join('')}</div>`
             + `<div class="op-map-more">${more.map(i => { const x = info(i);
-              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}">${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
+              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" title="${esc(x.tip)}">${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
         }).join('') + `</div>`;
       }
       return `<a class="op-map" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"><div class="op-map-head"><span class="op-map-name">${esc(m.name)}</span><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></a>`;
@@ -1290,7 +1312,18 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       .then(() => { if (arcKey() === k && state.view === 'detail') { const sel = currentHero(); if (sel != null) paintTrend(sel); } });
   }
   let TR = null;   // what the trend chart shows, for the pointer readout
-  function paintTrend(hero){ const box = $('trendBox'); if (!box) return; box.innerHTML = trendHTML(hero); bindTrend(hero); }
+  let trendKey = '';
+  function paintTrend(hero){
+    const box = $('trendBox'); if (!box) return;
+    box.innerHTML = trendHTML(hero); bindTrend(hero);
+    // the line draws itself in from the left when a different hero or metric is shown
+    const k = `${hero}|${state.metric}|${arcKey()}`, pl = box.querySelector('polyline');
+    if (pl && k !== trendKey && !reduceMotion && pl.getTotalLength) {
+      const len = pl.getTotalLength();
+      pl.animate([{strokeDasharray:`${len}`, strokeDashoffset:len}, {strokeDasharray:`${len}`, strokeDashoffset:0}], {duration:520, easing:'cubic-bezier(.2,.8,.2,1)'});
+    }
+    if (pl) trendKey = k;
+  }
   function bindTrend(hero){
     const box = $('trendBox'), svg = box && box.querySelector('svg');
     if (!svg || !TR) return;
@@ -1561,6 +1594,45 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     el.innerHTML = h;
   }
 
+  // ---------------------------------------------------------------- motion helpers
+  // a popup grows out of the control that opened it; only on opening (re-renders while open stay still)
+  function popIn(sel){
+    if (reduceMotion) return;
+    const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent);
+    if (!el || !el.animate) return;
+    el.animate([{opacity:0, transform:'translateY(-4px) scale(.98)'}, {opacity:1, transform:'none'}], {duration:180, easing:'cubic-bezier(.2,.8,.2,1)'});
+  }
+  // reorders: remember where keyed elements were, and after a re-render let them travel to their new place
+  // (heroes in the tier lists, the selected tab's underline); new ones fade in
+  const FLIP_SETS = [['#homeLeft [data-go-hero]', 'goHero'], ['.trow [data-hero]', 'hero'], ['#dRail [data-map]', 'map'],
+                     ['.op-tabs [aria-selected="true"]', null]];
+  function flipFirst(){
+    if (reduceMotion) return null;
+    const snap = [];
+    for (const [sel, key] of FLIP_SETS) {
+      const m = new Map();
+      for (const el of document.querySelectorAll(sel)) { if (el.offsetParent) m.set(key ? el.dataset[key] : 'sel', el.getBoundingClientRect()); }
+      snap.push(m);
+    }
+    return snap;
+  }
+  function flipPlay(snap){
+    if (!snap) return;
+    FLIP_SETS.forEach(([sel, key], k) => {
+      const before = snap[k];
+      if (!before.size) return;
+      for (const el of document.querySelectorAll(sel)) {
+        if (!el.offsetParent || !el.animate) continue;
+        const r0 = before.get(key ? el.dataset[key] : 'sel'), r = el.getBoundingClientRect();
+        if (!r0) { if (key) el.animate([{opacity:0}, {opacity:1}], {duration:200, easing:'ease-out'}); continue; }
+        const dx = r0.left - r.left, dy = r0.top - r.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
+        if (Math.abs(dy) > window.innerHeight) continue;            // far jumps would just streak across the screen
+        el.animate([{transform:`translate(${dx}px, ${dy}px)`}, {transform:'none'}], {duration:280, easing:'cubic-bezier(.2,.8,.2,1)'});
+      }
+    });
+  }
+
   // ---------------------------------------------------------------- render
   const FOCUS_KEYS = ['data-patch','data-pn-year','data-pnf','data-tab','data-mode','data-role','data-map','data-hero','data-sort','data-metric','data-act','data-slider','data-server-pick','data-go-hero','data-go-map','data-cell','data-nav'];
   function focusKey(){
@@ -1575,6 +1647,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     opts = opts || {};
     if (!D || !B) return;
     const fk = focusKey();
+    const flip = (document.body.dataset.view === state.view && !opts.top) ? flipFirst() : null;
     $('loadError').hidden = true;
     document.body.dataset.view = state.view;
     compute();
@@ -1586,6 +1659,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if ($('q').value) renderSearch();
     restoreFocus(fk);
     fitPops();
+    flipPlay(flip);
     setTitle();
     saveState();
     writeURL(!!opts.push);
@@ -1595,12 +1669,13 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     opts = opts || {};
     const changed = state.view !== view;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
-    if (D && B) render({push:changed || opts.push, top:changed});
+    if (D && B && changed && document.startViewTransition && !reduceMotion) document.startViewTransition(() => render({push:true, top:true}));
+    else if (D && B) render({push:changed || opts.push, top:changed});
     else writeURL(changed);
   }
   let raf = 0;
   const saveState = () => store.set('state', {server:state.server, w:state.wCustom ? state.w : null, wc:state.wCustom, smooth:state.smooth});
-  const lightDetail = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const fk = focusKey(); compute(); renderRail(); renderMain(); restoreFocus(fk); saveState(); }); };
+  const lightDetail = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const fk = focusKey(); const flip = flipFirst(); compute(); renderRail(); renderMain(); restoreFocus(fk); flipPlay(flip); saveState(); }); };
 
   // ---------------------------------------------------------------- events
   document.addEventListener('click', e => {
@@ -1626,7 +1701,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.act === 'pn-toggle') {
       // opening only shows the list; the page changes when a patch is picked
       state.pnOpen = !state.pnOpen; state.pnYear = null;
-      renderPatch();
+      renderPatch(); if (state.pnOpen) popIn('.pnpop');
       const on = document.querySelector('.pnpop-item[aria-pressed="true"]') || document.querySelector('.pnpop-item');
       if (on) { on.scrollIntoView({block:'nearest'}); on.focus({preventScroll:true}); }
       return;
@@ -1635,11 +1710,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.pickHero) { pick({kind:'hero', id:d.pickHero}); return; }
     if (d.pickMap) { pick({kind:'map', id:d.pickMap}); return; }
     if (d.serverPick) { state.srvOpen = false; if (d.serverPick !== state.server) { state.server = d.serverPick; sync(); } else renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); return; }
-    if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
+    if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { popIn('.srv-pop'); const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
     if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
     if (d.act === 'smooth') { state.smooth = !state.smooth; render(); return; }
-    if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; renderBar(); return; }
-    if (d.act === 'rk-toggle') { state.rkOpen = state.rkOpen === d.where ? null : d.where; paintRank(); const b = document.querySelector(`.rksel[data-rk="${d.where}"] [data-act="rk-toggle"]`); if (b) b.focus(); return; }
+    if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; renderBar(); if (state.wOpen) popIn('.wpop'); return; }
+    if (d.act === 'rk-toggle') { state.rkOpen = state.rkOpen === d.where ? null : d.where; paintRank(); if (state.rkOpen) popIn('.rkpop'); const b = document.querySelector(`.rksel[data-rk="${d.where}"] [data-act="rk-toggle"]`); if (b) b.focus(); return; }
     if (d.act === 'w-reset') { state.w = Object.assign({}, DEFAULT_W); state.wCustom = false; render(); return; }
     if (d.tab) { state.tab = d.tab; render(); return; }
     if (d.mode) { state.mode = d.mode; render(); const l = $('mlist'); if (l) l.scrollTop = 0; return; }
