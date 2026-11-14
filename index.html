@@ -175,13 +175,25 @@ button.op-hero{cursor:pointer}
 .op-tab-ink{position:absolute;bottom:-1px;height:2px;background:var(--text);transform-origin:left center;pointer-events:none}
 .op-tab-count{font-size:12px;font-weight:500;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-tabs-meta{margin-left:auto;align-self:center;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
-.mlist{padding:6px 0 28px}
+.mlist{margin:0 calc(-1 * var(--space-8));padding:6px var(--space-8) 28px 0}
+.mlist > .op-map{margin:0}
 .mfade{position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(rgba(14,14,16,0),var(--bg));pointer-events:none}
 .hnote{margin:12px 0 0;color:var(--text-meta);font-size:14px}
-.op-map{display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) 0;text-decoration:none;color:var(--text)}
+.op-map{position:relative;display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) var(--space-8);border-radius:var(--radius-lg);color:var(--text);
+  transition:background-color var(--dur-fast) var(--ease-out)}
+.op-map-name{color:inherit;text-decoration:none}
+.op-map-name::after{content:"";position:absolute;inset:0;border-radius:inherit}          /* the map link covers the card */
+.op-map-name:focus-visible{outline:none}
+.op-map:has(.op-map-name:focus-visible){outline:2px solid var(--text);outline-offset:-2px}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.035)}
+.op-map-pick,.op-map-reserve{position:relative;z-index:1;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
+.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar{transform:translateY(-2px)}
+.op-map-pick:hover .op-map-label > span:first-child{text-decoration:underline;text-underline-offset:2px}
+.op-map-reserve:hover{color:var(--text)}
+.op-map-pick:focus-visible,.op-map-reserve:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 .op-map-head{display:flex;align-items:baseline;gap:var(--space-8)}
 .op-map-name{font-size:16px;font-weight:700}
-.op-map:hover .op-map-name{text-decoration:underline}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-name{text-decoration:underline}
 .op-map-sub{font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-map-body{display:flex;gap:var(--space-12)}
 .op-map-img{width:167px;height:94px;flex-shrink:0;border-radius:var(--radius-lg);object-fit:cover;background:var(--surface-thumb)}
@@ -512,7 +524,7 @@ button,a,.op-chip,.op-tab,.srv-item,.pnpop-item,.pnpop-year,.op-rail-item,.mchip
   transition:background-color var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out),filter var(--dur) var(--ease-out)}
 .op-chip:active,.srv-btn:active,.mchip:active,.op-range-reset:active,.pnpop-year:active,.op-switch:active{transform:scale(.97)}
-.op-map:hover .op-map-img{filter:brightness(1.12)}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-img{filter:brightness(1.12)}
 a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px)}
 [aria-expanded="true"] > .caret{transform:rotate(180deg)}
 .caret{transition:transform var(--dur) var(--ease-out)}
@@ -1165,13 +1177,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
           const info = i => { const here = Math.round(MR[r][m.id][i]), usual = Math.round(MR[r]['all-maps'][i]); const hot = here - usual >= HOT;
             const low = !isHidden() && B.cells[m.id][i][6] < 100;
             return {here, usual, hot, low, tip:`${H[i].name} · 이 맵 지수 ${here}` + (hot ? ` (전체 맵 지수 ${usual}보다 ${here - usual} 높음)` : '') + (low ? ' · 표본이 적어요' : '')}; };
+          const heroHref = i => esc(hrefOf('detail', {map:m.id, role:r, focus:H[i].id}));
+          const heroAttrs = (i, x) => `href="${heroHref(i)}" data-go-hero="${esc(H[i].id)}" data-hero-map="${esc(m.id)}" title="${esc(x.tip)}" aria-label="${esc(x.tip)}"`;
           return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
-              return `<div class="op-map-pick${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" title="${esc(x.tip)}"><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></div>`; }).join('')}</div>`
+              return `<a class="op-map-pick${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></a>`; }).join('')}</div>`
             + `<div class="op-map-more">${more.map(i => { const x = info(i);
-              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" title="${esc(x.tip)}">${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
+              return `<a class="op-map-reserve${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}>${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</a>`; }).join('')}</div></div>`;
         }).join('') + `</div>`;
       }
-      return `<a class="op-map" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"><div class="op-map-head"><span class="op-map-name">${esc(m.name)}</span><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></a>`;
+      return `<div class="op-map"><div class="op-map-head"><a class="op-map-name" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기">${esc(m.name)}</a><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></div>`;
     };
     right += `<div class="mlist scroll" id="mlist">${rows.map(card).join('')}<div class="mlist-foot">${FOOT}</div></div><span class="mfade" aria-hidden="true"></span>`;
     $('homeRight').innerHTML = right;
@@ -1739,7 +1753,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.nav) { go(d.nav); return; }
     if (d.act === 'skip') { $('main').focus({preventScroll:false}); return; }
     if (d.toc) { const s = $(d.toc); if (s) { s.scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); s.querySelector('h2').setAttribute('tabindex', '-1'); s.querySelector('h2').focus({preventScroll:true}); } return; }
-    if (d.goHero) { const h = H.find(x => x.id === d.goHero); if (h) { state.map = 'all-maps'; state.role = h.role; state.focus = h.id; go('detail'); } return; }
+    if (d.goHero) { const h = H.find(x => x.id === d.goHero); if (h) { state.map = d.heroMap || 'all-maps'; state.role = h.role; state.focus = h.id; go('detail'); } return; }
     if (d.goMap) { state.map = d.goMap; state.focus = null; go('detail'); return; }
     if (d.patch) { state.patch = d.patch; state.pnOpen = false; render(); return; }
     if (d.pnYear) { state.pnYear = d.pnYear; renderPatch(); const b = document.querySelector(`[data-pn-year="${d.pnYear}"]`); if (b) b.focus(); return; }
