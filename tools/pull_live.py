@@ -7,7 +7,17 @@ import os
 import sys
 import urllib.request
 
-SITE = os.environ.get("SITE_URL", "https://uhye0n.github.io/OW-TIER-LIST/")
+def _site():
+    """The project site of this repository (follows a rename): https://<owner>.github.io/<repo>/."""
+    if os.environ.get("SITE_URL"):
+        return os.environ["SITE_URL"]
+    owner, _, repo = os.environ.get("GITHUB_REPOSITORY", "uhye0n/OW-TIER-LIST").partition("/")
+    if repo.lower() == f"{owner.lower()}.github.io":
+        return f"https://{owner.lower()}.github.io/"
+    return f"https://{owner.lower()}.github.io/{repo}/"
+
+
+SITE = _site()
 OUT = sys.argv[1] if len(sys.argv) > 1 else "data"
 
 
