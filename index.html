@@ -195,6 +195,7 @@ button.op-hero{cursor:pointer}
 .hot-face{position:relative;display:block;flex-shrink:0}
 .hot-pin{position:absolute;left:50%;bottom:calc(100% + 3px);width:12px;height:7px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M2 1.5h8L6 5.5z' fill='%23F99E1A' stroke='%23F99E1A' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;pointer-events:none}
 .hot-face.is-sel .hot-pin{bottom:calc(100% + 6px)}
+.hot-pin.sm{width:8px;height:5px;bottom:calc(100% + 1px)}   /* fits the 6px gap between the name row and the reserve row */
 
 /* home fits one screen when there is room for the two columns */
 @media (min-width:1024px) and (min-height:600px){
@@ -1088,7 +1089,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
           return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
               return `<div class="op-map-pick${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}"><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></div>`; }).join('')}</div>`
             + `<div class="op-map-more">${more.map(i => { const x = info(i);
-              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}">${H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
+              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}">${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
         }).join('') + `</div>`;
       }
       return `<a class="op-map" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"><div class="op-map-head"><span class="op-map-name">${esc(m.name)}</span><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></a>`;
