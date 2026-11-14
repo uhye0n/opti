@@ -29,8 +29,8 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 KST = timezone(timedelta(hours=9))
 
 # sections that do not change competitive play: the Stadium mode and bug fixes
-SKIP_SECTION = re.compile(r"스타디움|버그 수정|아케이드|이벤트")
-ROLE_SECTION = re.compile(r"^(돌격|공격|지원)( 영웅)?$")
+SKIP_SECTION = re.compile(r"스타디움|버그 수정|아케이드|이벤트|6대6|Stadium|Bug Fix|Arcade|Event|6v6", re.I)
+ROLE_SECTION = re.compile(r"^(돌격|공격|지원)( 영웅)?$|^(Tank|Damage|Support)( Heroes| Hero)?( Updates)?$", re.I)
 # stats where a smaller number is better for the hero (everything else: bigger is better)
 LOWER_BETTER = re.compile(
     r"재사용 대기\s?시간|대기시간|시전 시간|회복 시간|재장전 시간|장전 시간|탄 퍼짐|산탄 범위|확산|지연 시간|"
@@ -39,17 +39,29 @@ LOWER_BETTER = re.compile(
 # words that make a line's direction unclear: it changes something for the enemy or reshapes a mechanic
 UNCLEAR = re.compile(r"완화|적에게 적용|제거되었|신규|이제 |더 이상|추가되었|변경되었|대신|\(6대6\)|6대6")
 CHANGE = re.compile(r"(?:에서\s*[\d.,~]+\s*[^\s]*?\s*(?:으로|로)\s*|[\d.,]+\s*%\s*)(증가|감소)했습니다")
+# the English pages (some months have no Korean translation)
+LOWER_BETTER_EN = re.compile(r"cooldown|cast time|recovery|spread|ultimate cost|ult cost|delay|charge time|reload time|"
+                             r"hitbox|self.damage|damage taken|fuse|wind.?up|startup|\bcost\b|experience required", re.I)
+UNCLEAR_EN = re.compile(r"\bnew\b|removed|\bnow\b|no longer|\badded|instead|6v6|rework|replaced|reverted", re.I)
+CHANGE_EN = re.compile(r"\b(increased|decreased|reduced|lowered|raised)\b[^.]*?(?:\bfrom\s+[\d.,]+[^.]*?\bto\s+[\d.,]+|\bby\s+[\d.,]+\s*%)", re.I)
 
 
 def direction(line):
-    if UNCLEAR.search(line):
+    if re.search(r"[가-힣]", line):
+        if UNCLEAR.search(line):
+            return 0
+        m = CHANGE.search(line)
+        if not m:
+            return 0
+        up = 1 if m.group(1) == "증가" else -1
+        return -up if LOWER_BETTER.search(line[:m.start()]) else up
+    if UNCLEAR_EN.search(line):
         return 0
-    m = CHANGE.search(line)
+    m = CHANGE_EN.search(line)
     if not m:
         return 0
-    up = 1 if m.group(1) == "증가" else -1
-    stat = line[:m.start()]
-    return -up if LOWER_BETTER.search(stat) else up
+    up = 1 if m.group(1).lower() in ("increased", "raised") else -1
+    return -up if LOWER_BETTER_EN.search(line[:m.start()]) else up
 
 
 class Tree(HTMLParser):
@@ -132,7 +144,7 @@ def parse_hero(node, names):
     for g in groups:
         ls = []
         for t in g["lines"]:
-            if "6대6" in t:
+            if "6대6" in t or "6v6" in t.lower():
                 continue                     # 6v6 only: the stats here are 5v5 role queue
             d = direction(t)
             ls.append({"t": t, "d": d})
@@ -155,10 +167,13 @@ def parse_hero(node, names):
     else:
         verdict = "change"
     clear = verdict in ("buff", "nerf") and zero == 0
-    return {"name": name, "id": names.get(name), "verdict": verdict, "clear": clear, "groups": out}
+    return {"name": name, "id": names.get(name) or names.get(latin_key(name)), "verdict": verdict, "clear": clear, "groups": out}
 
 
 TITLE_DATE = re.compile(r"(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일")
+TITLE_DATE_EN = re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})")
+MONTHS_EN = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october",
+             "november", "december"]
 
 
 def parse_page(src, names):
@@ -171,7 +186,9 @@ def parse_page(src, names):
         title_n = find_all(p, lambda x: "PatchNotes-patchTitle" in cls(x))
         title = norm(text(title_n[0])) if title_n else ""
         m = TITLE_DATE.search(title)
-        live = f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}" if m else pid
+        me = TITLE_DATE_EN.search(title)
+        live = (f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}" if m else
+                f"{me.group(3)}-{MONTHS_EN.index(me.group(1).lower()) + 1:02d}-{int(me.group(2)):02d}" if me else pid)
         heroes, sections, section, skip, rework = [], [], "", False, False
         for el in walk(p):
             c = cls(el)
@@ -181,7 +198,7 @@ def parse_page(src, names):
                     section, rework = s, False    # a role heading inherits the mode (e.g. Stadium) above it
                 else:
                     section, skip = s, bool(SKIP_SECTION.search(s))
-                    rework = "개편" in s
+                    rework = "개편" in s or "rework" in s.lower()
                 if not skip and s not in sections:
                     sections.append(s)
             elif "PatchNotesHeroUpdate" in c and not skip:
@@ -190,7 +207,7 @@ def parse_page(src, names):
                     h["section"] = section
                     if rework:
                         h["verdict"], h["clear"] = "rework", False   # a rework is neither a buff nor a nerf
-                    elif "타점" in section:
+                    elif "타점" in section or "hitbox" in section.lower():
                         # hitbox sizes: shown, but too small to call a buff or a nerf
                         h["verdict"], h["clear"] = "hitbox", False
                         for g in h["groups"]:
@@ -227,8 +244,16 @@ def fetch(url):
     return r.stdout.decode("utf-8", errors="replace")
 
 
+def latin_key(name):
+    """'Soldier: 76' / 'Lúcio' / 'Junkerqueen' -> 'soldier76' / 'lucio' / 'junkerqueen' (matched against ids)."""
+    import unicodedata
+    t = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]", "", t)
+
+
 def hero_names():
-    """Korean hero names -> ids from the stored archives (every server, retired role entries excluded)."""
+    """Korean hero names -> ids from the stored archives (every server, retired role entries excluded); English
+    names match ids with the punctuation taken out."""
     names, roles = {}, {}
     arc = os.path.join(ROOT, "archive")
     for s in sorted(os.listdir(arc)) if os.path.isdir(arc) else []:
@@ -240,6 +265,7 @@ def hero_names():
             if "~" in hid or not h.get("name"):
                 continue
             names.setdefault(h["name"], hid)
+            names.setdefault(latin_key(hid), hid)
             roles.setdefault(hid, h.get("role"))
     return names, roles
 
@@ -282,6 +308,9 @@ def main():
                 src = open(os.path.join(a.html, key + ".html"), encoding="utf-8").read()
             else:
                 src = fetch(f"{BASE}live/{y}/{m}/")
+                if "PatchNotes-patch" not in src:
+                    # no Korean page for this month: the English one
+                    src = fetch(f"{BASE.replace('/ko-kr/', '/en-us/')}live/{y}/{m}/")
         except (OSError, RuntimeError) as e:
             print(f"patch notes {key}: {e}", file=sys.stderr)
             continue
@@ -302,7 +331,7 @@ def main():
     for p in keep.values():
         for h in p["heroes"]:
             if not h.get("id"):
-                h["id"] = names.get(h["name"])
+                h["id"] = names.get(h["name"]) or names.get(latin_key(h["name"]))
             if not h.get("id"):
                 unknown.add(h["name"])
             h["role"] = roles.get(h.get("id"))
