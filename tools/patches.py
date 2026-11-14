@@ -29,7 +29,7 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 KST = timezone(timedelta(hours=9))
 
 # sections that do not change competitive play: the Stadium mode and bug fixes
-SKIP_SECTION = re.compile(r"스타디움|버그 수정|아케이드|이벤트|6대6|Stadium|Bug Fix|Arcade|Event|6v6", re.I)
+SKIP_SECTION = re.compile(r"스타디움|버그 수정|아케이드|이벤트|6대6|커뮤니티 제작|언더워치|만우절|Stadium|Bug Fix|Arcade|Event|6v6|Community|Underwatch|April Fools", re.I)
 ROLE_SECTION = re.compile(r"^(돌격|공격|지원)( 영웅)?$|^(Tank|Damage|Support)( Heroes| Hero)?( Updates)?$", re.I)
 # stats where a smaller number is better for the hero (everything else: bigger is better)
 LOWER_BETTER = re.compile(
