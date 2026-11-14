@@ -24,7 +24,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!-- keep the page hidden until the web font is in (max 700ms), so text is never drawn in the fallback font and then swapped -->
-<script>document.documentElement.classList.add('fl');(function(){var done=function(){document.documentElement.classList.remove('fl')};setTimeout(done,700);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(done)})();</script>
+<script>document.documentElement.classList.add('fl');(function(){var done=function(){document.documentElement.classList.remove('fl')};setTimeout(done,700);if(document.fonts&&document.fonts.load)document.fonts.load('500 14px "Pretendard Variable"','맵·영웅 검색 한눈에 보기').then(done,done)})();</script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -52,7 +52,7 @@
 }
 *{box-sizing:border-box}
 html{background:var(--bg);scrollbar-gutter:stable}
-body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:13px;line-height:1.45;word-break:keep-all;-webkit-font-smoothing:antialiased}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:13px;line-height:1.45;word-break:keep-all;-webkit-font-smoothing:antialiased}
 a{color:var(--text)}a:hover{color:var(--text-hover)}
 button{font:inherit;color:inherit}
 img{display:block}
@@ -61,7 +61,7 @@ img{display:block}
 .scroll{scrollbar-width:thin;scrollbar-color:var(--line-field) transparent}
 .scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:var(--line-field);border-radius:4px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.page{max-width:var(--page-max);min-height:calc(100vh - 60px);margin:0 auto;padding:0 var(--page-pad)}
+.page{flex:1 0 auto;width:100%;max-width:var(--page-max);margin:0 auto;padding:0 var(--page-pad)}
 
 /* ---- portrait, tier badge, chip */
 .op-avatar{display:block;flex-shrink:0;border-radius:var(--radius-full);object-fit:cover;background:var(--surface-thumb)}
@@ -571,6 +571,10 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
         <div class="op-pop op-search-pop" id="searchPop" role="listbox" aria-label="검색 결과" hidden></div>
       </div>
       <div class="srv" id="srvBox"></div>
+      <!-- draw the server chip right away (the app redraws it later), so the search box never starts wider and jumps -->
+      <script>(function(){var L={kr:'한국',asia:'아시아',americas:'아메리카',europe:'유럽',china:'중국'},s=new URLSearchParams(location.search).get('server');
+        if(!s){try{s=(JSON.parse(localStorage.getItem('ow-tier:state'))||{}).server}catch(e){}}
+        var t=L[s]||L.kr;document.getElementById('srvBox').innerHTML='<button type="button" class="srv-btn" aria-label="서버: '+t+'">'+t+'<svg class="caret" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1.5 1.2 5 4.8l3.5-3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'})();</script>
     </div>
   </header>
 </div>
@@ -1063,7 +1067,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     // menu order follows when each region got its own servers; Korea stays the default selection
     const ORDER = ['asia', 'europe', 'americas', 'china', 'kr'];
     const servers = INDEX ? INDEX.servers.slice().sort((x, y) => (ORDER.indexOf(x.id) + 99) % 99 - (ORDER.indexOf(y.id) + 99) % 99) : [];
-    const cur = servers.find(s => s.id === state.server) || {label:''};
+    // before the index arrives the chip still shows the saved server's name, so the header never changes width
+    const SRV_LABEL = {kr:'한국', asia:'아시아', americas:'아메리카', europe:'유럽', china:'중국'};
+    const cur = servers.find(s => s.id === state.server) || {label:SRV_LABEL[state.server] || '한국'};
     $('srvBox').innerHTML = `<button type="button" class="srv-btn" data-act="srv-toggle" aria-expanded="${state.srvOpen}" aria-haspopup="true" aria-label="서버: ${esc(cur.label)}">${esc(cur.label)}${CARET}</button>`
       + (state.srvOpen ? `<div class="op-pop srv-pop" role="group" aria-label="서버 선택">${servers.map(s => `<button type="button" class="srv-item" data-server-pick="${s.id}" aria-pressed="${s.id === state.server}">${esc(s.label)}</button>`).join('')}</div>` : '');
   }
@@ -1552,6 +1558,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     loadPatches();
     if (ARC[arcKey()] === undefined) loadArchive(() => { if (state.view === 'patch') renderPatch(); });
     if (!PATCHES) { el.innerHTML = '<p class="mnote">불러오는 중…</p>'; return; }
+    document.body.classList.add('rendered');
     if (PATCHES.error || !PATCHES.patches) { el.innerHTML = '<p class="mnote">패치 노트를 불러오지 못했어요. 잠시 후 다시 열어 주세요.</p>'; return; }
     const nHeroes = p => Object.values(p.count || {}).reduce((a, b) => a + b, 0);
     const list = PATCHES.patches.filter(p => nHeroes(p) > 0);
@@ -1751,7 +1758,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     restoreFocus(fk);
     fitPops();
     flipPlay(flip); resumeFill();
-    document.body.classList.add('rendered');
+    if (!(state.view === 'patch' && !PATCHES)) document.body.classList.add('rendered');
     setTitle();
     saveState();
     writeURL(!!opts.push);
@@ -1923,6 +1930,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---------------------------------------------------------------- start
   document.body.dataset.view = state.view;
+  renderHeader();
   fetch('data/index.json?t=' + Math.floor(Date.now() / 6e5), {cache:'no-cache'})
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
     .then(idx => { INDEX = idx; applyWeights(idx.weights); if (!INDEX.servers.some(s => s.id === state.server)) state.server = INDEX.servers.some(s => s.id === 'kr') ? 'kr' : INDEX.servers[0].id; renderHeader(); return sync(); })
