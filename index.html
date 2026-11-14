@@ -181,7 +181,7 @@ button.op-hero{cursor:pointer}
 .op-map-pick{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
 .op-map-face{position:relative;width:var(--avatar-40);height:var(--avatar-40)}
 .op-map-face .op-avatar{width:var(--avatar-40);height:var(--avatar-40)}
-.op-map-label{height:17px;display:flex;align-items:baseline;justify-content:center;gap:var(--space-4);white-space:nowrap;font-size:12px}
+.op-map-label{height:15px;line-height:15px;display:flex;align-items:baseline;justify-content:center;gap:var(--space-4);white-space:nowrap;font-size:12px}
 .op-map-mi{flex-shrink:0;font-size:11px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-map-more{height:20px;display:flex;gap:18px}
 .op-map-role:first-child .op-map-more{gap:var(--space-16)}
@@ -195,7 +195,7 @@ button.op-hero{cursor:pointer}
 .hot-face{position:relative;display:block;flex-shrink:0}
 .hot-pin{position:absolute;left:50%;bottom:calc(100% + 3px);width:12px;height:7px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M2 1.5h8L6 5.5z' fill='%23F99E1A' stroke='%23F99E1A' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;pointer-events:none}
 .hot-face.is-sel .hot-pin{bottom:calc(100% + 6px)}
-.hot-pin.sm{width:8px;height:5px;bottom:calc(100% + 1px)}   /* fits the 6px gap between the name row and the reserve row */
+.hot-pin.sm{width:8px;height:5px;bottom:calc(100% + 3px)}   /* clear of the ring, inside the 8px gap below the name row */
 
 /* home fits one screen when there is room for the two columns */
 @media (min-width:1024px) and (min-height:600px){
