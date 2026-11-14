@@ -44,7 +44,7 @@
   --radius-pill:18px;--radius-pill-sm:16px;--radius-full:50%;
   --badge-size:28px;--badge-size-sm:18px;
   --avatar-20:20px;--avatar-24:24px;--avatar-28:28px;--avatar-32:32px;--avatar-40:40px;--avatar-56:56px;--avatar-60:60px;--avatar-64:64px;
-  --rank-cell:50px;--knob:16px;--ring-knob:0 0 0 3px var(--surface-pop);
+  --rank-cell:50px;--knob:12px;--ring-knob:0 0 0 3px var(--surface-pop);
   --opacity-out:.3;--opacity-low:.45;
   --dur-fast:120ms;--dur:180ms;--dur-move:280ms;--ease-out:cubic-bezier(.2,.8,.2,1);
   --ring-hot:0 0 0 2px var(--accent);--ring-hot-sm:0 0 0 1.5px var(--accent);
@@ -544,7 +544,10 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
 ::view-transition-old(root),::view-transition-new(root){animation:none}
-::view-transition-group(*){animation-duration:320ms;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(*){animation-duration:280ms;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(*),::view-transition-new(*){height:100%;object-fit:contain}
+::view-transition-old(*):only-child{animation:none;opacity:0}                    /* a hero leaving goes at once, as in the detail page */
+::view-transition-new(*):only-child{animation:200ms ease-out both fadeIn}      /* a hero arriving fades in (200ms), as in the detail page */
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
@@ -818,7 +821,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     return RANGE_P[k];
   }
   function setBase(d){
-    D = d; H = d.heroes; MAPS = d.maps || []; MAP_IDS = MAPS.map(m => m.id); ALL_IDS = ['all-maps'].concat(MAP_IDS);
+    D = d; H = d.heroes; MAPS = d.maps || [];
+    // fetch every face once up front, so a hero that first appears in a move or on another screen is never blank
+    if (!window.__facesWarm) { window.__facesWarm = true; setTimeout(() => { for (const h of H) if (h.img) { const im = new Image(); im.src = h.img; } }, 300); } MAP_IDS = MAPS.map(m => m.id); ALL_IDS = ['all-maps'].concat(MAP_IDS);
     MAP_BY_ID = Object.fromEntries(MAPS.map(m => [m.id, m]));
     MODES = ((d.modes && d.modes.length) ? d.modes : Array.from(new Set(MAPS.map(m => m.mode)))).filter(mode => MAPS.some(m => m.mode === mode));
   }
@@ -1774,9 +1779,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (D && B && changed && pair && document.startViewTransition && !reduceMotion) {
       // between 한눈에 보기 and 맵·영웅 상세 the same hero's face travels to its new place; the rest of the page
       // switches at once (no cross-fade, which read as a blink)
-      const tag = on => { for (const a of document.querySelectorAll('#homeLeft [data-go-hero] .op-avatar, .trow [data-hero] .op-avatar')) {
-        const el = a.closest('[data-go-hero],[data-hero]'), id = el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
-        a.style.viewTransitionName = on && id && a.offsetParent ? 'hf-' + id : ''; } };
+      // the whole hero (face, name, index) moves as one, as when the map changes inside the detail page;
+      // a hero that is only on one side fades in or out
+      const tag = on => { for (const el of document.querySelectorAll('#homeLeft [data-go-hero], .trow [data-hero]')) {
+        const id = el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
+        el.style.viewTransitionName = on && id && el.offsetParent ? 'hf-' + id : ''; } };
       tag(true);
       const t = document.startViewTransition(() => { tag(false); render({push:true, top:true}); tag(true); });
       t.finished.finally(() => tag(false));
