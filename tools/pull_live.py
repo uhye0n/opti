@@ -11,7 +11,7 @@ def _site():
     """The project site of this repository (follows a rename): https://<owner>.github.io/<repo>/."""
     if os.environ.get("SITE_URL"):
         return os.environ["SITE_URL"]
-    owner, _, repo = os.environ.get("GITHUB_REPOSITORY", "uhye0n/OW-TIER-LIST").partition("/")
+    owner, _, repo = os.environ.get("GITHUB_REPOSITORY", "uhye0n/opti").partition("/")
     if repo.lower() == f"{owner.lower()}.github.io":
         return f"https://{owner.lower()}.github.io/"
     return f"https://{owner.lower()}.github.io/{repo}/"
