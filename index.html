@@ -374,6 +374,8 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pnart h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
 .pn-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
 .pn-list .op-chip{flex:none}
+.pn-older{flex:none;height:var(--control-sm);padding:0 10px;background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-md);font:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.pn-older.is-on{background:var(--text);color:var(--bg);font-weight:700}
 .pn-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;padding-top:20px;border-top:1px solid var(--line)}
 .pn-head h2{margin:0;font-size:20px;font-weight:800}
 .pn-sum{display:flex;gap:12px;font-size:14px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
@@ -1371,10 +1373,21 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const cur = list.find(p => p.id === state.patch) || list[0];
     const byId = {}; H.forEach((h, i) => { byId[h.id] = i; });
     const cnt = v => cur.heroes.filter(h => h.verdict === v).length;
-    let h = `<nav class="pn-list" aria-label="패치 선택">${list.map(p => `<button type="button" class="op-chip" data-patch="${esc(p.id)}" aria-pressed="${p.id === cur.id}">${mdK(p.date)}</button>`).join('')}</nav>`;
+    // the latest patches as chips; older ones (any number of years) in one list grouped by month
+    const RECENT = 6, recent = list.slice(0, RECENT), older = list.slice(RECENT);
+    const yearOf = p => p.date.slice(0, 4), thisYear = yearOf(list[0]);
+    const chipLabel = p => (yearOf(p) !== thisYear ? `${yearOf(p).slice(2)}년 ` : '') + mdK(p.date);
+    let h = `<nav class="pn-list" aria-label="패치 선택">${recent.map(p => `<button type="button" class="op-chip" data-patch="${esc(p.id)}" aria-pressed="${p.id === cur.id}">${chipLabel(p)}</button>`).join('')}`;
+    if (older.length) {
+      const months = [];
+      for (const p of older) { const k = p.date.slice(0, 7); if (!months.length || months[months.length - 1][0] !== k) months.push([k, []]); months[months.length - 1][1].push(p); }
+      const inOlder = older.some(p => p.id === cur.id);
+      h += `<select class="pn-older${inOlder ? ' is-on' : ''}" id="pnOlder" aria-label="이전 패치"><option value="">이전 패치 ${older.length}개</option>${months.map(([k, ps]) => `<optgroup label="${Number(k.slice(0, 4))}년 ${Number(k.slice(5, 7))}월">${ps.map(p => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${Number(p.date.slice(0, 4))}년 ${mdK(p.date)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+    }
+    h += `</nav>`;
     h += `<div class="pn-head"><h2>${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)} 패치</h2><span class="pn-sum"><span>버프 <b style="color:var(--buff)">${cnt('buff')}</b></span><span>너프 <b style="color:var(--nerf)">${cnt('nerf')}</b></span><span>기타 <b>${cnt('mixed') + cnt('rework') + cnt('change')}</b></span></span><a class="pn-src" href="${esc(cur.url)}" target="_blank" rel="noopener">블리자드 원문 ↗</a></div>`;
     const FILTERS = [['all', '전체'], ['buff', '버프'], ['nerf', '너프'], ['other', '기타']];
-    h += `<div class="pn-filter" role="group" aria-label="변경 종류">${FILTERS.map(([k, l]) => `<button type="button" class="op-chip" data-pnf="${k}" aria-pressed="${pnFilter === k}">${l}</button>`).join('')}<span class="pn-src" style="align-self:center">지수 변화: ${esc(D.meta.label)} · ${esc(rankLabel())} · 패치 전날 → 10일 뒤</span></div>`;
+    h += `<div class="pn-filter" role="group" aria-label="변경 종류">${FILTERS.map(([k, l]) => `<button type="button" class="op-chip" data-pnf="${k}" aria-pressed="${pnFilter === k}">${l}</button>`).join('')}</div>`;
     const roleOrder = {tank:0, damage:1, support:2};
     const card = x => {
       const i = byId[x.id], name = esc(x.name), role = ROLE_LABEL[x.role] || '';
@@ -1491,7 +1504,10 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.map) { if (state.map !== d.map) { state.map = d.map; state.focus = null; } render(); if (el.closest('#dHeat')) $('dMain').scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); return; }
     if (d.hero) { const id = H[+d.hero].id; state.focus = state.focus === id ? null : id; render(); return; }
   });
-  document.addEventListener('change', e => { if (e.target.id === 'railSelect') { state.map = e.target.value; state.focus = null; render(); } });
+  document.addEventListener('change', e => {
+    if (e.target.id === 'railSelect') { state.map = e.target.value; state.focus = null; render(); }
+    if (e.target.id === 'pnOlder' && e.target.value) { state.patch = e.target.value; render(); }
+  });
   document.addEventListener('input', e => {
     if (e.target.id !== 'wA' && e.target.id !== 'wB') return;
     let a = +$('wA').value, b = +$('wB').value;
