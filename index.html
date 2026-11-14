@@ -547,20 +547,25 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     state.focus = sp.get('hero') || null;
   }
   readURL();
-  function query(over){
+  // only what the screen in question shows goes into its address (home: tabs; detail: map, role, hero)
+  function query(over, view){
     const s = Object.assign({}, state, over || {});
+    view = view || s.view;
     const p = new URLSearchParams();
     if (s.server !== 'kr') p.set('server', s.server);
     if (!(s.lo === DEF_LO && s.hi === DEF_HI)) { p.set('lo', s.lo); p.set('hi', s.hi); }
-    if (s.tab !== 'summary') p.set('tab', s.tab);
-    if (s.mode !== 'all') p.set('mode', s.mode);
-    if (s.map !== 'all-maps') p.set('map', s.map);
-    if (s.role !== 'tank') p.set('role', s.role);
-    if (s.focus) p.set('hero', s.focus);
+    if (view === 'home') {
+      if (s.tab !== 'summary') p.set('tab', s.tab);
+      if (s.mode !== 'all') p.set('mode', s.mode);
+    } else if (view === 'detail') {
+      if (s.map !== 'all-maps') p.set('map', s.map);
+      if (s.role !== 'tank') p.set('role', s.role);
+      if (s.focus) p.set('hero', s.focus);
+    }
     const q = p.toString();
     return q ? '?' + q : '';
   }
-  const hrefOf = (view, over) => location.pathname + query(over) + (view === 'detail' ? '#tier' : view === 'method' ? '#method' : '');
+  const hrefOf = (view, over) => location.pathname + query(over, view) + (view === 'detail' ? '#tier' : view === 'method' ? '#method' : '');
   function writeURL(push){
     const url = hrefOf(state.view);
     if (url === location.pathname + location.search + location.hash) return;
