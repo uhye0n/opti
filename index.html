@@ -234,7 +234,8 @@ button.op-hero{cursor:pointer}
 .op-chip-value{display:inline-block;min-width:6.2em;text-align:center}
 .wpop{position:absolute;right:0;top:40px;z-index:30;max-width:calc(100vw - 32px);padding:16px;display:flex;flex-direction:column;gap:12px}
 .wpop p{margin:0;color:var(--text-body)}
-.wrow{display:flex;align-items:center;gap:14px}
+.wrow{display:flex;align-items:center;gap:14px;height:16px}
+.wrow .reset-slot{margin:-8px 0}   /* the 32px button hangs over the 16px slider row instead of making it taller */
 .wrow .wsplit{flex:none;width:256px;max-width:calc(100vw - 110px)}
 .caret{flex:none;display:block;color:var(--text-secondary)}
 .wsplit{position:relative;height:16px}
