@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>옵티 · 오버워치 메타 지수와 영웅 티어</title>
-<meta name="description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
+<title>옵티 · 오버워치 경쟁전 영웅 티어</title>
+<meta name="description" content="이번 패치에 강한 영웅을 랭크와 맵별로. 공식 통계로 6시간마다 갱신합니다.">
 <meta name="theme-color" content="#0E0E10">
 <link rel="icon" type="image/svg+xml" href="assets/opti-icon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
@@ -14,8 +14,8 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="옵티">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:title" content="옵티 · 오버워치 메타 지수와 영웅 티어">
-<meta property="og:description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
+<meta property="og:title" content="오버워치 경쟁전 영웅 티어">
+<meta property="og:description" content="이번 패치에 강한 영웅을 랭크와 맵별로. 공식 통계로 6시간마다 갱신합니다.">
 <meta property="og:url" content="https://uhye0n.github.io/opti/">
 <meta property="og:image" content="https://uhye0n.github.io/opti/assets/og.png">
 <meta property="og:image:width" content="1200">
@@ -1900,7 +1900,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   $('siteFoot').innerHTML = FOOT;
   function setTitle(extra){
     const T = '옵티';
-    if (state.view === 'home') { document.title = `${T} · 오버워치 메타 지수와 영웅 티어`; return; }
+    if (state.view === 'home') { document.title = `${T} · 오버워치 경쟁전 영웅 티어`; return; }
     if (state.view === 'method') { document.title = `계산 방식 · ${T}`; return; }
     if (state.view === 'patch') { document.title = extra ? `${extra} 패치 노트 · ${T}` : `패치 노트 · ${T}`; return; }
     const m = state.map === 'all-maps' ? '전체 맵' : ((MAPS.find(x => x.id === state.map) || {}).name || '');
