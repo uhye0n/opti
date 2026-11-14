@@ -22,6 +22,9 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="옵티 로고와 오버워치 경쟁전 등급 아이콘">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<!-- keep the page hidden until the web font is in (max 700ms), so text is never drawn in the fallback font and then swapped -->
+<script>document.documentElement.classList.add('fl');(function(){var done=function(){document.documentElement.classList.remove('fl')};setTimeout(done,700);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(done)})();</script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -58,7 +61,7 @@ img{display:block}
 .scroll{scrollbar-width:thin;scrollbar-color:var(--line-field) transparent}
 .scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:var(--line-field);border-radius:4px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.page{max-width:var(--page-max);margin:0 auto;padding:0 var(--page-pad)}
+.page{max-width:var(--page-max);min-height:calc(100vh - 60px);margin:0 auto;padding:0 var(--page-pad)}
 
 /* ---- portrait, tier badge, chip */
 .op-avatar{display:block;flex-shrink:0;border-radius:var(--radius-full);object-fit:cover;background:var(--surface-thumb)}
@@ -497,6 +500,8 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 
 
 /* ---- footer */
+html.fl body{opacity:0}
+body:not(.rendered) .site-foot{visibility:hidden}     /* the footer waits for the first real render, so it never shows mid-page */
 .site-foot{width:100%;max-width:var(--page-max);margin:0 auto;padding:28px var(--page-pad) 40px;border-top:1px solid var(--line);font-size:12px;line-height:1.7;color:var(--text-meta)}
 .site-foot p,.mlist-foot p{margin:0}
 .site-foot p + p,.mlist-foot p + p{margin-top:4px}
@@ -858,6 +863,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const el = $('loadError');
     el.textContent = `데이터를 불러오지 못했어요(${e.message}). 잠시 후 새로고침해 주세요.`;
     el.hidden = false;
+    document.body.classList.add('rendered');
   }
 
   // ---------------------------------------------------------------- meta index (same math as before)
@@ -1745,6 +1751,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     restoreFocus(fk);
     fitPops();
     flipPlay(flip); resumeFill();
+    document.body.classList.add('rendered');
     setTitle();
     saveState();
     writeURL(!!opts.push);
