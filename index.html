@@ -340,7 +340,7 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .tr-read{color:var(--text-secondary)}
 .tr-read b{margin-right:6px;color:var(--text)}
 .tr-read .op-tier{margin-right:6px;vertical-align:-3px}
-.tr-foot{min-height:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.tr-foot{min-height:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .tr-empty{padding:24px 0;color:var(--text-meta)}
 .tr-plot{position:relative}
 .tr-plot svg{touch-action:pan-y;cursor:crosshair}
@@ -547,11 +547,6 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 .sc-tip:not([hidden]),.tap-tip{animation:fadeIn var(--dur-fast) var(--ease-out)}
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
-::view-transition-old(root),::view-transition-new(root){animation:none}
-::view-transition-group(*){animation-duration:280ms;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
-::view-transition-old(*),::view-transition-new(*){height:100%;object-fit:contain}
-::view-transition-old(*):only-child{animation:none;opacity:0}                    /* a hero leaving goes at once, as in the detail page */
-::view-transition-new(*):only-child{animation:200ms ease-out both fadeIn}      /* a hero arriving fades in (200ms), as in the detail page */
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
@@ -1353,8 +1348,14 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (shown >= 0) {
       bindTrend(hero); drawIn(hero); loadTrend(hero);
       const sec = $('trendBox').closest('section');
-      if (!hadTrend && sec && sec.animate && !reduceMotion) sec.animate([{opacity:0, transform:'translateY(6px)'}, {opacity:1, transform:'none'}], {duration:220, easing:'cubic-bezier(.2,.8,.2,1)'});
-    } else trendKey = '';
+      if (!hadTrend && sec && sec.animate && !reduceMotion) {
+        const h = sec.offsetHeight, gap = parseFloat(getComputedStyle(sec.parentElement).rowGap) || 0;
+        sec.style.overflow = 'hidden';
+        const a = sec.animate([{height:'0px', marginTop:-gap + 'px', opacity:0, transform:'translateY(-12px)'}, {height:h + 'px', marginTop:'0px', opacity:1, transform:'none'}],
+                              {duration:300, easing:'cubic-bezier(.2,.8,.2,1)'});
+        a.onfinish = a.oncancel = () => { sec.style.overflow = ''; };
+      }
+    } else { trendKey = ''; loadArchive(); }      // fetch the trend record ahead, so a picked hero's chart opens at full size
   }
 
   // ---- hero trend (daily all-maps archive of this server and rank range)
@@ -1383,7 +1384,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   let trendKey = '';
   function paintTrend(hero){
     const box = $('trendBox'); if (!box) return;
+    const h0 = box.offsetHeight;
     box.innerHTML = trendHTML(hero); bindTrend(hero); drawIn(hero);
+    // the record arrived (or the chart changed size): the panel grows to it instead of jumping
+    const h1 = box.offsetHeight;
+    if (h0 && Math.abs(h1 - h0) > 2 && box.animate && !reduceMotion) {
+      box.style.overflow = 'hidden';
+      const a = box.animate([{height:h0 + 'px'}, {height:h1 + 'px'}], {duration:240, easing:'cubic-bezier(.2,.8,.2,1)'});
+      a.onfinish = a.oncancel = () => { box.style.overflow = ''; };
+    }
   }
   // the line draws itself in from the left when a different hero, metric or range is shown
   function drawIn(hero){
@@ -1672,7 +1681,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (reduceMotion) return;
     const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent);
     if (!el || !el.animate) return;
-    el.animate([{opacity:0, transform:'translateY(-4px) scale(.98)'}, {opacity:1, transform:'none'}], {duration:180, easing:'cubic-bezier(.2,.8,.2,1)'});
+    el.animate([{opacity:0}, {opacity:1}], {duration:140, easing:'ease-out'});
   }
   // reorders: remember where keyed elements were, and after a re-render let them travel to their new place
   // (heroes in the tier lists, the selected tab's underline); new ones fade in
@@ -1791,17 +1800,25 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const changed = state.view !== view, prevView = state.view;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
     const pair = (state.view === 'detail' || state.view === 'home') && (prevView === 'detail' || prevView === 'home');
-    if (D && B && changed && pair && document.startViewTransition && !reduceMotion) {
-      // between 한눈에 보기 and 맵·영웅 상세 the same hero's face travels to its new place; the rest of the page
-      // switches at once (no cross-fade, which read as a blink)
-      // the whole hero (face, name, index) moves as one, as when the map changes inside the detail page;
-      // a hero that is only on one side fades in or out
-      const tag = on => { for (const el of document.querySelectorAll('#homeLeft [data-go-hero], .trow [data-hero]')) {
-        const id = el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
-        el.style.viewTransitionName = on && id && el.offsetParent ? 'hf-' + id : ''; } };
-      tag(true);
-      const t = document.startViewTransition(() => { tag(false); render({push:true, top:true}); tag(true); });
-      t.finished.finally(() => tag(false));
+    if (D && B && changed && pair && !reduceMotion) {
+      // the same hero travels from where it was on the old screen to its place on the new one (280ms, as for a
+      // reorder inside the detail page); a hero only on the new screen fades in
+      const HEROES = '#homeLeft [data-go-hero], .trow [data-hero]';
+      const idOf = el => el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
+      const before = new Map();
+      for (const el of document.querySelectorAll(HEROES)) if (el.offsetParent) { const av = el.querySelector('.op-avatar'); before.set(idOf(el), (av || el).getBoundingClientRect()); }
+      render({push:true, top:true});
+      for (const el of document.querySelectorAll(HEROES)) {
+        if (!el.offsetParent || !el.animate) continue;
+        const av = el.querySelector('.op-avatar'), r0 = before.get(idOf(el)), r = (av || el).getBoundingClientRect();
+        if (!r0) { el.animate([{opacity:0}, {opacity:1}], {duration:200, easing:'ease-out'}); continue; }
+        const e = el.getBoundingClientRect(), sc = r0.width / r.width;
+        const ox = r.left + r.width / 2 - e.left, oy = r.top + r.height / 2 - e.top;       // scale around the face
+        const dx = (r0.left + r0.width / 2) - (r.left + r.width / 2), dy = (r0.top + r0.height / 2) - (r.top + r.height / 2);
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1 && Math.abs(sc - 1) < .01) continue;
+        el.animate([{transformOrigin:`${ox}px ${oy}px`, transform:`translate(${dx}px, ${dy}px) scale(${sc})`}, {transformOrigin:`${ox}px ${oy}px`, transform:'none'}],
+                   {duration:280, easing:'cubic-bezier(.2,.8,.2,1)'});
+      }
     }
     else if (D && B) render({push:changed || opts.push, top:changed});
     else writeURL(changed);
@@ -1848,7 +1865,16 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.serverPick) { state.srvOpen = false; if (d.serverPick !== state.server) { state.server = d.serverPick; sync(); } else renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); return; }
     if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { popIn('.srv-pop'); const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
     if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
-    if (d.act === 'smooth') { state.smooth = !state.smooth; render(); return; }
+    if (d.act === 'smooth') {
+      state.smooth = !state.smooth; render();
+      if (!reduceMotion) for (const sw of document.querySelectorAll('[data-act="smooth"]')) {
+        if (!sw.offsetParent) continue;
+        const k = sw.querySelector('.op-switch-knob'), t = sw.querySelector('.op-switch-track'), on = state.smooth;
+        k.animate([{transform:`translateX(${on ? -16 : 16}px)`}, {transform:'none'}], {duration:180, easing:'cubic-bezier(.2,.8,.2,1)'});
+        t.animate([{background:on ? 'var(--switch-off)' : 'var(--text)'}, {}], {duration:180, easing:'ease-out'});
+      }
+      return;
+    }
     if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; paintCtl(); if (state.wOpen) popIn('.wpop'); return; }
     if (d.act === 'rk-toggle') { state.rkOpen = state.rkOpen === d.where ? null : d.where; paintRank(); if (state.rkOpen) popIn('.rkpop'); const b = document.querySelector(`.rksel[data-rk="${d.where}"] [data-act="rk-toggle"]`); if (b) b.focus(); return; }
     if (d.act === 'w-reset') { state.w = Object.assign({}, DEFAULT_W); state.wCustom = false; render(); return; }
