@@ -24,7 +24,7 @@
   --tier-s:var(--accent);--tier-s-ink:#1A1404;--tier-a:#C4C4CA;--tier-a-ink:#141416;--tier-b:#8A8A92;--tier-b-ink:#141416;
   --tier-c:#4A4A50;--tier-c-ink:#E4E4E7;--tier-d:#2C2C31;--tier-d-ink:#B4B4BA;
   --font-sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --page-max:1840px;--page-pad:40px;
+  --page-max:1600px;--page-pad:56px;
   --control-sm:32px;--control-md:36px;--row-pop:44px;
   --space-2:2px;--space-4:4px;--space-6:6px;--space-8:8px;--space-10:10px;--space-12:12px;--space-14:14px;--space-16:16px;--space-20:20px;--space-24:24px;
   --radius-xs:3px;--radius-badge-sm:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;
@@ -271,8 +271,13 @@ button.op-hero{cursor:pointer}
 .tr-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
 .tr-tip b{margin-right:6px;color:var(--text)}
 .tr-tip .op-tier{margin-right:6px;vertical-align:-3px}
+.scatter{position:relative}
 .scatter svg{display:block;max-width:100%;height:auto}
-.scatter circle{cursor:pointer}
+.sc-pt{cursor:pointer}
+.sc-pt:hover circle:last-child{stroke:#F2F2F3}
+.sc-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
+.sc-tip b{margin-right:6px;color:var(--text)}
+.sc-tip .op-tier{margin-right:6px;vertical-align:-3px}
 .twrap{overflow-x:auto}
 table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .dtable th{height:40px;padding:0 8px;border-bottom:1px solid var(--line-strong);font-size:12px;font-weight:500;color:var(--text-meta);text-align:right;white-space:nowrap}
@@ -296,14 +301,16 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .dheat{margin-top:48px;display:flex;flex-direction:column;gap:8px}
 .dheat h2{margin:0;font-size:16px;font-weight:700}
 .hwrap{overflow-x:auto;padding-top:4px}
-.hgrid{min-width:920px;display:grid;gap:2px}
-.hg-mode{margin:0 3px;padding-bottom:4px;border-bottom:1px solid var(--line-group);font-size:11px;font-weight:700;color:var(--text-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hg-col{height:88px;padding:6px 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:11px;line-height:1.05;cursor:pointer}
-.hg-col span{writing-mode:vertical-rl;text-orientation:sideways;transform:rotate(180deg);white-space:nowrap}
-.hg-col.is-cur{border-bottom-color:var(--text);color:var(--text);font-weight:700}
-.hg-hero{height:24px;padding:0 6px 0 0;display:flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--text-secondary);font-size:12px;text-align:left;white-space:nowrap;overflow:hidden;cursor:pointer}
-.hg-hero .op-avatar{width:20px;height:20px}
-.hg-hero.is-sel{color:var(--text);font-weight:700}
+.hgrid{display:grid;gap:2px;align-items:center}
+.hg-face{height:34px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-bottom:2px solid transparent;cursor:pointer}
+.hg-face .op-avatar{opacity:.85}
+.hg-face:hover .op-avatar,.hg-face.is-sel .op-avatar{opacity:1}
+.hg-face.is-sel{border-bottom-color:var(--text)}
+.hg-face.is-sel .op-avatar{box-shadow:0 0 0 2px var(--text)}
+.hg-group{grid-column:1/-1;margin-top:10px;padding:0 0 4px;border-bottom:1px solid var(--line-group);font-size:11px;font-weight:700;color:var(--text-body)}
+.hg-map{height:24px;padding:0 8px 0 0;background:transparent;border:0;color:var(--text-secondary);font-size:12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hg-map:hover{color:var(--text)}
+.hg-map.is-cur{color:var(--text);font-weight:700}
 .hg-cell{height:24px;min-width:0;padding:0;border:0;border-radius:var(--radius-xs);font-size:11px;font-weight:800;cursor:pointer}
 .hg-cell.is-na{background:var(--surface-track);color:var(--text-faint)}
 .hg-cell.is-low{opacity:var(--opacity-low)}
@@ -1088,47 +1095,32 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   const plotW = () => Math.max(320, Math.round(($('dMain') && $('dMain').clientWidth) || 900));
   function scatterHTML(idx, cells, mm, hero){
     const vs = {}; for (const i of idx) vs[i] = vals(cells[i], state.smooth);
-    const W = plotW(), HH = 380, L = 44, R = W - 12, T = 30, Bt = 344;
+    const W = plotW(), HH = 400, L = 40, R = W - 24, T = 34, Bt = 360;
     const prs = idx.map(i => Math.max(vs[i].pr, 0.2)), wrs = idx.map(i => vs[i].wr);
-    const lx0 = Math.log(Math.max(0.2, Math.min(...prs) * 0.7)), lx1 = Math.log(Math.max(...prs) * 1.4);
+    const lx0 = Math.log(Math.max(0.2, Math.min(...prs) * 0.7)), lx1 = Math.log(Math.max(...prs) * 1.35);
     const wy0 = Math.floor((Math.min(...wrs) - 2) / 5) * 5, wy1 = Math.ceil((Math.max(...wrs) + 2) / 5) * 5;
     const SX = p => L + (Math.log(Math.max(p, 0.2)) - lx0) / (lx1 - lx0) * (R - L), SY = v => Bt - (v - wy0) / (wy1 - wy0) * (Bt - T);
     const F = 'font-family="Pretendard Variable, Pretendard, sans-serif"';
     let s = `<svg viewBox="0 0 ${W} ${HH}" width="${W}" height="${HH}" style="max-width:100%;height:auto" role="img" aria-label="픽률과 승률 산점도">`;
-    for (let wv = wy0; wv <= wy1; wv += 5) s += `<line x1="${L}" x2="${R}" y1="${SY(wv).toFixed(1)}" y2="${SY(wv).toFixed(1)}" stroke="#1F1F23" stroke-width="1"/><text x="${L - 8}" y="${(SY(wv) + 4).toFixed(1)}" fill="#8A8A92" font-size="11" text-anchor="end" ${F}>${wv}%</text>`;
-    for (const p of [0.2, 0.5, 1, 2, 5, 10, 20, 50]) { const x = SX(p); if (x >= L && x <= R) s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#1F1F23" stroke-width="1"/><text x="${x.toFixed(1)}" y="${Bt + 18}" fill="#8A8A92" font-size="11" text-anchor="middle" ${F}>${p}%</text>`; }
+    s += `<defs><clipPath id="scClip" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath></defs>`;
+    for (let wv = wy0; wv <= wy1; wv += 5) s += `<line x1="${L}" x2="${R}" y1="${SY(wv).toFixed(1)}" y2="${SY(wv).toFixed(1)}" stroke="#1F1F23"/><text x="${L - 8}" y="${(SY(wv) + 3.5).toFixed(1)}" fill="#5A5A62" font-size="10" text-anchor="end" ${F}>${wv}%</text>`;
+    for (const p of [0.2, 0.5, 1, 2, 5, 10, 20, 50]) { const x = SX(p); if (x >= L && x <= R) s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#1F1F23"/><text x="${x.toFixed(1)}" y="${Bt + 16}" fill="#5A5A62" font-size="10" text-anchor="middle" ${F}>${p}%</text>`; }
     const avg = D.roles[state.role].avg, ax = SX(avg);
-    if (ax >= L && ax <= R) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="${T - 8}" fill="#8A8A92" font-size="11" text-anchor="middle" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
-    // axis names at the axis ends: win rate above the value column, pick rate after the last tick
-    s += `<text x="${L - 8}" y="${T - 12}" fill="#A1A1A8" font-size="11" font-weight="700" text-anchor="end" ${F}>승률</text><text x="${R}" y="${Bt + 34}" fill="#A1A1A8" font-size="11" font-weight="700" text-anchor="end" ${F}>픽률</text>`;
-    const COL = {S:'var(--tier-s)', A:'#C4C4CA', B:'#8A8A92', C:'#4A4A50', D:'#2C2C31'};
-    const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:4 + Math.sqrt(Math.max(0, v.br)) * 1.6, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
+    if (ax >= L && ax <= R) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#3A3A40" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="${T - 10}" fill="#8A8A92" font-size="10" text-anchor="middle" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
+    s += `<text x="${L - 8}" y="${T - 14}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>승률</text><text x="${R}" y="${Bt + 32}" fill="#8A8A92" font-size="10" text-anchor="end" ${F}>픽률 (로그 눈금)</text>`;
+    const RING = {S:'var(--accent)', A:'#C4C4CA', B:'#8A8A92', C:'#4A4A50', D:'#2C2C31'};
+    // portraits sized by ban rate (largest drawn first so small ones stay visible); the ring is the tier
+    const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:11 + Math.sqrt(Math.max(0, v.br)) * 1.25, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
     for (const p of pts) {
-      const on = p.i === hero;
-      s += `<circle data-hero="${p.i}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.rr.toFixed(1)}" fill="${COL[p.t]}" fill-opacity=".9" stroke="${on ? '#F2F2F3' : '#0E0E10'}" stroke-width="${on ? 3 : 1}"><title>${esc(H[p.i].name)}: 픽률 ${p.v.pr.toFixed(1)}%, 승률 ${p.v.wr.toFixed(1)}%, 밴률 ${p.v.br.toFixed(1)}%, 지수 ${Math.round(mm[p.i])} (${p.t})</title></circle>`;
+      const on = p.i === hero, r = p.rr, img = H[p.i].img;
+      s += `<g class="sc-pt" data-hero="${p.i}" data-tip="${esc(`${H[p.i].name}|${p.t}|${Math.round(mm[p.i])}|${p.v.pr.toFixed(1)}|${p.v.wr.toFixed(1)}|${p.v.br.toFixed(1)}`)}" transform="translate(${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">`
+        + `<circle r="${(r + 2).toFixed(1)}" fill="#0E0E10"/>`
+        + (img ? `<image href="${esc(img)}" x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(2 * r).toFixed(1)}" height="${(2 * r).toFixed(1)}" clip-path="url(#scClip)" preserveAspectRatio="xMidYMid slice"/>` : `<circle r="${r.toFixed(1)}" fill="#1C1C20"/>`)
+        + `<circle r="${r.toFixed(1)}" fill="none" stroke="${on ? '#F2F2F3' : RING[p.t]}" stroke-width="${on ? 3 : 2}"/></g>`;
     }
-    // labels: try spots around each circle, skipping ones that cover another label or circle
-    const tw = str => { let w = 0; for (const ch of str) w += /[\u0000-ÿ]/.test(ch) ? 6.2 : 11; return w; };
-    const placed = [];
-    const hitsLabel = b => placed.some(o => !(b.x2 < o.x1 || b.x1 > o.x2 || b.y2 < o.y1 || b.y1 > o.y2));
-    const hitsDot = (b, self) => pts.some(o => { if (o.i === self) return false; const nx = Math.max(b.x1, Math.min(o.cx, b.x2)), ny = Math.max(b.y1, Math.min(o.cy, b.y2)); return (nx - o.cx) ** 2 + (ny - o.cy) ** 2 < (o.rr + 1) ** 2; });
-    const order = pts.slice().sort((a, b) => (b.i === hero) - (a.i === hero) || mm[b.i] - mm[a.i]);
-    for (const p of order) {
-      const name = H[p.i].name, w = tw(name), hg = 12, d = p.rr + 4, dd = d * 0.72;
-      const cands = [[p.cx + d, p.cy + 4, 'start'], [p.cx - d, p.cy + 4, 'end'], [p.cx, p.cy - d - 1, 'middle'], [p.cx, p.cy + d + 11, 'middle'],
-        [p.cx + dd, p.cy - dd, 'start'], [p.cx + dd, p.cy + dd + 10, 'start'], [p.cx - dd, p.cy - dd, 'end'], [p.cx - dd, p.cy + dd + 10, 'end']];
-      const box = c => { const x1 = c[2] === 'start' ? c[0] : c[2] === 'end' ? c[0] - w : c[0] - w / 2; return {x1, x2:x1 + w, y1:c[1] - hg + 2, y2:c[1] + 2}; };
-      const inside = b => b.x1 >= L + 2 && b.x2 <= W - 2 && b.y1 >= T - 2 && b.y2 <= Bt;
-      let ch = null;
-      for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b) && !hitsDot(b, p.i)) { ch = [c, b]; break; } }
-      if (!ch) for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b)) { ch = [c, b]; break; } }
-      if (!ch && p.i !== hero) continue;
-      if (!ch) ch = [cands[0], box(cands[0])];
-      placed.push(ch[1]);
-      const on = p.i === hero;
-      s += `<text x="${ch[0][0].toFixed(1)}" y="${ch[0][1].toFixed(1)}" text-anchor="${ch[0][2]}" fill="${on ? '#F2F2F3' : '#A1A1A8'}" font-size="11.5" font-weight="${on ? 700 : 400}" stroke="#0E0E10" stroke-width="3" stroke-linejoin="round" paint-order="stroke" pointer-events="none" ${F}>${esc(name)}</text>`;
-    }
-    return s + `</svg>`;
+    const sel = pts.find(p => p.i === hero);
+    if (sel) s += `<text x="${sel.cx.toFixed(1)}" y="${(sel.cy - sel.rr - 7).toFixed(1)}" text-anchor="middle" fill="#F2F2F3" font-size="11" font-weight="700" stroke="#0E0E10" stroke-width="3" paint-order="stroke" pointer-events="none" ${F}>${esc(H[sel.i].name)}</text>`;
+    return s + `</svg><div class="sc-tip" id="scTip" hidden></div>`;
   }
 
   // ---- table
@@ -1162,25 +1154,26 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     box.hidden = !hasMaps();
     if (!hasMaps()) { box.innerHTML = ''; return; }
     const ALL = MR[state.role]['all-maps'];
-    const rows = idx.slice().sort((a, b) => ALL[b] - ALL[a]);
-    const cols = [{id:'all-maps', name:'전체 맵', short:'전체 맵'}];
-    for (const mode of MODES) for (const m of MAPS.filter(x => x.mode === mode)) cols.push(m);
-    let h = `<h2 id="heatTitle">맵별 티어 비교</h2><span class="dhint">행은 고른 역할의 영웅(종합 지수 순), 열은 맵입니다. 칸이나 맵 이름을 누르면 위 티어표가 그 맵으로 바뀝니다.</span>`;
-    h += `<div class="hwrap scroll"><div class="hgrid" style="grid-template-columns:124px repeat(${cols.length}, minmax(20px, 1fr))"><span></span>`;
-    h += `<span class="hg-mode" style="grid-column:span 1" title="종합">종합</span>`;
-    for (const mode of MODES) h += `<span class="hg-mode" style="grid-column:span ${MAPS.filter(m => m.mode === mode).length}" title="${esc(mode)}">${esc(mode)}</span>`;
-    h += `<span></span>`;
-    for (const c of cols) { const on = c.id === state.map; h += `<button type="button" class="hg-col${on ? ' is-cur' : ''}" data-map="${esc(c.id)}" title="${esc(c.name)}"><span>${esc(c.short || c.name)}</span></button>`; }
-    for (const i of rows) {
-      const on = i === hero;
-      h += `<button type="button" class="hg-hero${on ? ' is-sel' : ''}" data-hero="${i}">${avatar(i, 20)}${esc(H[i].name)}</button>`;
-      for (const c of cols) {
-        const bad = mapErr(c.id);
-        if (bad) { h += `<button type="button" class="hg-cell is-na" data-cell="${esc(c.id)}|${i}" aria-label="${esc(H[i].name)} · ${esc(c.name)} · 공식 통계 오류" title="${esc(H[i].name)} · ${esc(c.name)} · 공식 통계 오류">–</button>`; continue; }
-        const t = tierOf(MR[state.role][c.id][i]), low = !isHidden() && B.cells[c.id][i][6] < 100, here = c.id === state.map && on;
-        const label = `${H[i].name} · ${c.name} · ${t} 티어`;
-        h += `<button type="button" class="hg-cell op-tier-${t}${low ? ' is-low' : ''}${here ? ' is-here' : ''}" data-cell="${esc(c.id)}|${i}" aria-label="${esc(label)}" title="${esc(label)}">${t}</button>`;
+    const cols = idx.slice().sort((a, b) => ALL[b] - ALL[a]);
+    const n = cols.length;
+    let h = `<h2 id="heatTitle">맵별 티어 비교</h2><span class="dhint">행은 맵, 열은 고른 역할의 영웅(종합 지수 순)입니다. 칸이나 맵 이름을 누르면 위 티어표가 그 맵으로 바뀝니다.</span>`;
+    h += `<div class="hwrap scroll"><div class="hgrid" style="grid-template-columns:150px repeat(${n}, minmax(26px, 1fr));min-width:${150 + n * 30}px"><span></span>`;
+    for (const i of cols) h += `<button type="button" class="hg-face${i === hero ? ' is-sel' : ''}" data-hero="${i}" title="${esc(H[i].name)}" aria-label="${esc(H[i].name)}">${avatar(i, 24)}</button>`;
+    const row = (id, name) => {
+      const on = id === state.map;
+      let r = `<button type="button" class="hg-map${on ? ' is-cur' : ''}" data-map="${esc(id)}" title="${esc(name)}">${esc(name)}</button>`;
+      for (const i of cols) {
+        if (mapErr(id)) { r += `<button type="button" class="hg-cell is-na" data-cell="${esc(id)}|${i}" aria-label="${esc(H[i].name)} · ${esc(name)} · 공식 통계 오류" title="${esc(H[i].name)} · ${esc(name)} · 공식 통계 오류">–</button>`; continue; }
+        const t = tierOf(MR[state.role][id][i]), low = !isHidden() && B.cells[id][i][6] < 100, here = on && i === hero;
+        const label = `${H[i].name} · ${name} · ${t} 티어 (${Math.round(MR[state.role][id][i])})`;
+        r += `<button type="button" class="hg-cell op-tier-${t}${low ? ' is-low' : ''}${here ? ' is-here' : ''}${i === hero ? ' is-col' : ''}" data-cell="${esc(id)}|${i}" aria-label="${esc(label)}" title="${esc(label)}">${t}</button>`;
       }
+      return r;
+    };
+    h += row('all-maps', '전체 맵 종합');
+    for (const mode of MODES) {
+      h += `<span class="hg-group">${esc(mode)}</span>`;
+      for (const m of MAPS.filter(x => x.mode === mode)) h += row(m.id, m.name);
     }
     h += `</div></div>`;
     box.innerHTML = h;
@@ -1276,6 +1269,18 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (e.key !== 'Escape') return;
     if (state.srvOpen) { state.srvOpen = false; renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); }
     if (state.wOpen) { state.wOpen = false; renderBar(); const b = document.querySelector('[data-act="w-toggle"]'); if (b) b.focus(); }
+  });
+  document.addEventListener('pointerover', e => {
+    const g = e.target.closest && e.target.closest('.sc-pt'), tip = $('scTip');
+    if (!tip) return;
+    if (!g) { tip.hidden = true; return; }
+    const [name, t, mi, pr, wr, br] = g.dataset.tip.split('|');
+    tip.innerHTML = `<b>${esc(name)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${mi}<br>픽률 ${pr}% · 승률 ${wr}% · 밴률 ${br}%`;
+    tip.hidden = false;
+    const box = tip.parentElement.getBoundingClientRect(), r = g.getBoundingClientRect();
+    const left = r.left - box.left + r.width / 2 + 14, top = r.top - box.top - tip.offsetHeight - 6;
+    tip.style.left = Math.min(Math.max(0, left), box.width - tip.offsetWidth) + 'px';
+    tip.style.top = Math.max(0, top) + 'px';
   });
   let rz = 0, lastW = window.innerWidth;
   window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rz); rz = setTimeout(() => { if (state.view === 'detail' && D && B) lightDetail(); }, 150); });
