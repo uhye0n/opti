@@ -18,7 +18,7 @@
   45일 동안 커밋이 없으면 예약 실행이 멈추지 않도록 빈 커밋을 남깁니다.
 - `tools/pull_live.py`: 지금 사이트가 배포 중인 `data/`를 내려받습니다(워크플로가 씀).
 - `tools/patches.py`: 블리자드 패치 노트(한국어)를 읽어 영웅별 변경 문장을 버프(▲)·너프(▼)·판단 보류(•)로 나누고 `meta/patches.json`에 저장합니다. 사이트의 '패치 노트' 화면이 읽습니다. 자동 분류가 틀렸으면 `meta/patch-overrides.json`에 `{"<패치 id>": {"<영웅 id>": "buff|nerf|mixed|rework|change"}}`로 고쳐 둡니다.
-- `tools/weights.py`: 확실한 버프·너프를 받은 영웅의 지수가 그 방향으로 움직이는지(패치 전날 → 10일 뒤)와 서버 간 순위 일치를 함께 따져 기본 가중치를 정하고 `meta/weights.json`에 저장합니다. 쓸 수 있는 패치가 3개 모이면 적용하고, 새 패치가 쓸 수 있게 될 때만 다시 계산합니다(한 번에 각 10%p 이내). `refresh.py`와 사이트가 이 값을 기본값으로 씁니다.
+- `tools/weights.py`: 기본 가중치를 '개발진 판단과의 일치'로 정하고 `meta/weights.json`에 저장합니다. 패치 직전 지수에서 그 패치로 너프될 영웅은 높고 버프될 영웅은 낮게 나오는 가중치를 찾습니다(1% 단위, 각 10~70%, 패치를 하나씩 뺀 결과의 중간값, 한 번에 각 10%p 이내). 출발 자료는 `meta/judgment-base.json`(영웅별 밴률이 공개된 2026년 2월 이후 모든 패치의 패치 직전 공식 통계와 확실한 버프·너프, 블리자드 서버는 github.com/hermit-crab/ow-winrates-faceted 의 시즌별 저장본)이고, 이후 패치는 `archive/`로 더합니다. 패치 후 9일이 지나면 반영합니다. `refresh.py`와 사이트가 이 값을 기본값으로 씁니다.
 - `assets/opti-icon.svg`: 파비콘. `assets/ranks/`: 오버워치 공식 경쟁전 등급 아이콘. `assets/maps/`: 맵 이미지(720×405로 줄인 공식 맵 이미지, 새 맵은 `<맵 id>.jpg`로 추가. 없으면 "이미지 없음"으로 표시). 영웅 초상화는 블리자드 공식 이미지 주소를 그대로 씁니다. 게임 이미지는 모두 Blizzard Entertainment의 저작물입니다.
 - 글꼴: Pretendard(SIL OFL 1.1), jsDelivr CDN의 가변 다이나믹 서브셋.
 
