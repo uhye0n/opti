@@ -58,6 +58,14 @@ jobs:
         if: steps.mode.outputs.mode == 'workflow'
         run: python tools/pull_live.py data
 
+      # 패치 노트를 모아 버프·너프로 분류하고(meta/patches.json), 새 패치의 측정 기간이 끝났으면
+      # 기본 가중치를 다시 정한다(meta/weights.json). 실패해도 통계 갱신은 계속한다.
+      - name: 패치 노트 수집과 가중치 점검
+        continue-on-error: true
+        run: |
+          python tools/patches.py
+          python tools/weights.py
+
       - name: 넥슨·블리자드·넷이즈 통계 수집과 계산
         id: refresh
         run: |
@@ -77,8 +85,8 @@ jobs:
             grep -qx 'data/' .gitignore || echo 'data/' >> .gitignore
             git add .gitignore
           fi
-          paths="history archive"
-          [ "$MODE" = "workflow" ] || paths="data history archive"
+          paths="history archive meta"
+          [ "$MODE" = "workflow" ] || paths="data history archive meta"
           commit_all() {
             git add $paths
             git diff --cached --quiet && return 1
@@ -116,7 +124,7 @@ jobs:
           if [ "$RESULT" = "UPDATED" ] || [ "$EVENT" = "push" ] || [ "$EVENT" = "workflow_dispatch" ]; then
             if [ ! -f data/index.json ]; then echo "no data to deploy"; exit 1; fi
             mkdir -p _site
-            cp -r index.html assets data archive _site/
+            cp -r index.html assets data archive meta _site/
             touch _site/.nojekyll
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else

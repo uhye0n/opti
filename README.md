@@ -14,9 +14,11 @@
   - `data/<서버>/<범위>.json`: 랭크 범위별 계산 결과. 범위 id는 모든 랭크면 `all`, 아니면 `<낮은 등급>-<높은 등급>`(0 브론즈 … 7 그랜드마스터·챔피언)
   - `history/<서버>.json`: 수치가 바뀔 때마다 남기는 기록(최근 40개). 티어 변동 비교와 패치 감지에 씁니다.
   - `archive/<서버>/<범위>.json`, `archive/<서버>/meta.json`: 하루 한 번(한국 시각, 그날 마지막 수치) 저장하는 범위별 전체 맵 기록. 영웅 추이 그래프가 읽습니다.
-- `.github/workflows/refresh.yml`: 6시간마다(그리고 화면·계산 코드를 바꿀 때마다) `refresh.py`를 실행합니다. `history/`와 `archive/`는 커밋하고, 사이트는 이 작업이 GitHub Pages로 배포합니다. 화면용 `data/`는 저장소에 쌓지 않습니다(배포할 때 지금 사이트의 데이터를 받아 와서 이어 계산).
+- `.github/workflows/refresh.yml`: 6시간마다(그리고 화면·계산 코드를 바꿀 때마다) `refresh.py`를 실행합니다. `history/`, `archive/`, `meta/`는 커밋하고, 사이트는 이 작업이 GitHub Pages로 배포합니다. 화면용 `data/`는 저장소에 쌓지 않습니다(배포할 때 지금 사이트의 데이터를 받아 와서 이어 계산).
   45일 동안 커밋이 없으면 예약 실행이 멈추지 않도록 빈 커밋을 남깁니다.
 - `tools/pull_live.py`: 지금 사이트가 배포 중인 `data/`를 내려받습니다(워크플로가 씀).
+- `tools/patches.py`: 블리자드 패치 노트(한국어)를 읽어 영웅별 변경 문장을 버프(▲)·너프(▼)·판단 보류(•)로 나누고 `meta/patches.json`에 저장합니다. 사이트의 '패치 노트' 화면이 읽습니다. 자동 분류가 틀렸으면 `meta/patch-overrides.json`에 `{"<패치 id>": {"<영웅 id>": "buff|nerf|mixed|rework|change"}}`로 고쳐 둡니다.
+- `tools/weights.py`: 확실한 버프·너프를 받은 영웅의 지수가 그 방향으로 움직이는지(패치 전날 → 10일 뒤)와 서버 간 순위 일치를 함께 따져 기본 가중치를 정하고 `meta/weights.json`에 저장합니다. 쓸 수 있는 패치가 4개 모이면 적용하고, 새 패치가 쓸 수 있게 될 때만 다시 계산합니다(한 번에 각 10%p 이내). `refresh.py`와 사이트가 이 값을 기본값으로 씁니다.
 - `assets/opti-icon.svg`: 파비콘. `assets/ranks/`: 오버워치 공식 경쟁전 등급 아이콘. `assets/maps/`: 맵 이미지(720×405로 줄인 공식 맵 이미지, 새 맵은 `<맵 id>.jpg`로 추가. 없으면 "이미지 없음"으로 표시). 영웅 초상화는 블리자드 공식 이미지 주소를 그대로 씁니다. 게임 이미지는 모두 Blizzard Entertainment의 저작물입니다.
 - 글꼴: Pretendard(SIL OFL 1.1), jsDelivr CDN의 가변 다이나믹 서브셋.
 

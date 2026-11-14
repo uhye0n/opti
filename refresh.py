@@ -495,6 +495,23 @@ def write_json(path, obj):
 
 
 # ---------------------------------------------------------------- constants and index
+def _load_weights():
+    """Default win / pick / ban weights, tuned from balance patches by tools/weights.py (meta/weights.json)."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "meta", "weights.json"), encoding="utf-8") as f:
+            w = json.load(f)["weights"]
+        t = w["wr"] + w["pr"] + w["br"]
+        if t > 0 and min(w.values()) >= 0:
+            return {"wr": w["wr"], "pr": w["pr"], "br": w["br"]}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return {"wr": 50, "pr": 30, "br": 20}
+
+
+WEIGHTS = _load_weights()
+W_DEFAULT = tuple(WEIGHTS[k] / sum(WEIGHTS.values()) for k in ("wr", "pr", "br"))
+
+
 def consts_of(triples):
     """Standardization constants from (win rate without mirrors, pick, ban) values: each score then has a
     spread of about 1, so the 50/30/20 weights mean what they say."""
@@ -512,7 +529,8 @@ def half_up(x):
     return int(math.floor(x + 0.5))
 
 
-def _comp(c, C, w=(0.5, 0.3, 0.2)):
+def _comp(c, C, w=None):
+    w = w or W_DEFAULT
     prav = max(0.1, c[0]) / max(0.3, 1 - c[2] / 100)
     z = ((c[1] - 50) / C["wr_sd"], (math.log(prav) - C["pr_mu"]) / C["pr_sd"],
          (math.log(1 + max(0.0, c[2])) - C["br_mu"]) / C["br_sd"])
@@ -532,7 +550,7 @@ def pool_ratio(heroes, map_ids, cells, consts):
     return out
 
 
-def mi_cells(heroes, map_ids, cells, consts, w=(0.5, 0.3, 0.2), ratio=None):
+def mi_cells(heroes, map_ids, cells, consts, w=None, ratio=None):
     """Meta index from exported (rounded) smoothed cells, exactly as the page computes it with default weights:
     per role, composite of the standardized scores, scaled to mean 50 / sd 10 on the map x hero pool (a server
     without map data uses its all-maps scores, with the spread taken back to pool scale by `ratio`)."""
@@ -938,7 +956,7 @@ def main():
     def canon(s):
         return {r: {m: {h: raw[s][r][m].get(h) for h in hero_ids} for m in ALL} for r in RANKS + ["all"]}
     roles_key = {h: role_of[h] for h in hero_ids}
-    hashes = {s: hashlib.sha256((MODEL_VERSION + json.dumps([canon(s), roles_key], sort_keys=True)).encode()).hexdigest()[:16]
+    hashes = {s: hashlib.sha256((MODEL_VERSION + json.dumps([canon(s), roles_key, WEIGHTS], sort_keys=True)).encode()).hexdigest()[:16]
               for s, _, _, _ in SV}
     prev_index = load_json(os.path.join(args.out, "index.json"), {}) or {}
     prev_hashes = {x["id"]: x.get("hash") for x in prev_index.get("servers", [])}
@@ -1355,7 +1373,7 @@ def main():
             index_servers.append({**prev_entries[sv[0]], "waiting": True})
     order = [x[0] for x in SERVERS]
     index_servers.sort(key=lambda x: order.index(x["id"]))
-    write_json(os.path.join(args.out, "index.json"), {"collectedAt": now_s, "servers": index_servers})
+    write_json(os.path.join(args.out, "index.json"), {"collectedAt": now_s, "servers": index_servers, "weights": WEIGHTS})
     for line in summaries:
         log(line)
     log(f"Maps {len(map_ids)}, heroes {len(hero_ids)}, {time.time() - t0:.0f}s total.")
