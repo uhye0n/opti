@@ -1000,16 +1000,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     h += `</div></section>`;
     // trend
     const METRICS = [['mi','지수'],['pr','픽률'],['wr','승률'],['br','밴률']];
-    h += `<section class="dsec tight" aria-labelledby="trTitle" style="gap:12px"><div class="tr-head"><h2 id="trTitle">영웅 추이</h2><span class="selchip">${avatar(hero, 24)}${esc(H[hero].name)}</span><div class="tr-metrics" role="group" aria-label="지표">${METRICS.map(([k, l]) => `<button type="button" class="op-chip" data-metric="${k}" aria-pressed="${state.metric === k}">${l}</button>`).join('')}</div></div>`;
-    h += `<span class="dhint">티어표나 아래 표에서 영웅을 누르면 바뀌어요. 하루 한 번 저장한 전체 맵 기록이에요.</span><div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
+    if (shown >= 0) h += `<section class="dsec tight" aria-labelledby="trTitle" style="gap:12px"><div class="tr-head"><h2 id="trTitle">영웅 추이</h2><span class="selchip">${avatar(hero, 24)}${esc(H[hero].name)}</span><div class="tr-metrics" role="group" aria-label="지표">${METRICS.map(([k, l]) => `<button type="button" class="op-chip" data-metric="${k}" aria-pressed="${state.metric === k}">${l}</button>`).join('')}</div></div>`;
+    if (shown >= 0) h += `<span class="dhint">티어표나 아래 표에서 영웅을 누르면 바뀌어요. 하루 한 번 저장한 전체 맵 기록이에요.</span><div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
     // scatter
     h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><span class="dhint">가로는 픽률(로그 눈금), 세로는 승률, 원 크기는 밴률, 색은 티어입니다. 원을 누르면 그 영웅이 표와 맵별 티어 비교에서 강조됩니다.</span><div class="scatter">${scatterHTML(idx, cells, mm, shown)}</div></section>`;
     // table
     h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><span class="dhint">${state.smooth ? '큰 숫자는 보정값(표본 보정, 승률은 미러전 제외), 작은 회색 숫자는 원본입니다.' : '표본 보정이 꺼져 있어 원본으로 계산했습니다(승률만 미러전 제외, 회색은 원본).'} 표본은 이 맵에서 플레이된 판 수 추정치예요. 열 제목을 누르면 정렬됩니다.</span><div class="twrap">${tableHTML(idx, cells, mm, ALL, shown, isAll)}</div></section>`;
     $('dMain').innerHTML = h;
     renderHeat(idx, shown);
-    bindTrend(hero);
-    loadTrend(hero);
+    if (shown >= 0) { bindTrend(hero); loadTrend(hero); }
   }
 
   // ---- hero trend (daily all-maps archive of this server and rank range)
