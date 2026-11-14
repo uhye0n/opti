@@ -1420,8 +1420,6 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
         + (img ? `<image href="${esc(img)}" x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(2 * r).toFixed(1)}" height="${(2 * r).toFixed(1)}" clip-path="url(#scClip)" preserveAspectRatio="xMidYMid slice"/>` : `<circle r="${r.toFixed(1)}" fill="#1C1C20"/>`)
         + `<circle r="${r.toFixed(1)}" fill="none" stroke="${on ? '#F2F2F3' : RING[p.t]}" stroke-width="${on ? 3 : 2}"/></g>`;
     }
-    const sel = pts.find(p => p.i === hero);
-    if (sel) s += `<text x="${sel.cx.toFixed(1)}" y="${(sel.cy - sel.rr - 7).toFixed(1)}" text-anchor="middle" fill="#F2F2F3" font-size="11" font-weight="700" stroke="#0E0E10" stroke-width="3" paint-order="stroke" pointer-events="none" ${F}>${esc(H[sel.i].name)}</text>`;
     return s + `</svg><div class="sc-tip" id="scTip" hidden></div>`;
   }
 
