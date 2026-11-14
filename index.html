@@ -63,6 +63,7 @@ img{display:block}
 .op-chip-value{color:var(--text-secondary);font-variant-numeric:tabular-nums}
 
 /* ---- header */
+.topbar{padding:0 24px}
 .hdr{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
 .hdr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px}
 .logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;text-decoration:none}
@@ -105,10 +106,10 @@ img{display:block}
 .op-range-icon{height:auto;max-width:80%;pointer-events:none}
 .op-range-cell.is-out .op-range-icon{opacity:var(--opacity-out)}
 .op-range-cell:hover .op-range-icon{opacity:1}
-.op-range-duo{position:relative;width:32px;height:30px;display:block;pointer-events:none}
+.op-range-duo{position:relative;width:29px;height:27px;display:block;pointer-events:none}
 .op-range-duo .op-range-icon{position:absolute;max-width:none;width:21px!important}
-.op-range-duo .op-range-icon:first-child{left:0;top:0;filter:brightness(.85)}
-.op-range-duo .op-range-icon:last-child{right:0;bottom:0}
+.op-range-duo .op-range-icon:first-child{left:0;top:0;filter:brightness(.8)}
+.op-range-duo .op-range-icon:last-child{right:0;bottom:0;filter:drop-shadow(0 0 1.5px #17171A) drop-shadow(0 0 1px #17171A)}
 .op-range-cell.is-end{cursor:ew-resize}
 .op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
 .op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
@@ -180,8 +181,8 @@ button.op-hero{cursor:pointer}
 
 /* home fits one screen when there is room for the two columns */
 @media (min-width:1024px) and (min-height:600px){
-  body[data-view="home"]{height:100vh;height:100dvh;overflow:hidden}
-  body[data-view="home"] .page{height:100%;display:flex;flex-direction:column}
+  body[data-view="home"]{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+  body[data-view="home"] .page{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
   #homeView{flex:1;min-height:0;display:flex;flex-direction:column}
   .home-cols{flex:1;min-height:0}
   .home-left{overflow-y:auto}
@@ -328,6 +329,7 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 }
 @media (max-width:640px){
   :root{--page-pad:16px}
+  .topbar{padding:0 16px}
   .dhead-img{width:100%;height:auto;aspect-ratio:16/9}
   .tr-metrics{margin-left:0}
 }
@@ -359,7 +361,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 </head>
 <body data-view="home">
 <noscript><p style="padding:16px">이 페이지는 자바스크립트가 켜져 있어야 볼 수 있습니다.</p></noscript>
-<div class="page">
+<div class="topbar">
   <header class="hdr">
     <div class="hdr-l">
       <a class="logo" href="./" data-nav="home"><svg width="34" height="34" viewBox="38 38 436 436" aria-hidden="true"><path d="M261.0 42.1 A214 214 0 0 1 452.5 171.2 L383.8 199.0 A140 140 0 0 0 261.0 116.1 Z" fill="#F99E1A"/><path d="M439.5 187.2 A196 196 0 0 1 156.4 424.8 L186.1 377.3 A140 140 0 0 0 387.6 208.2 Z" fill="#FFFFFF"/><path d="M147.9 419.5 A196 196 0 0 1 75.0 180.9 L126.2 203.7 A140 140 0 0 0 177.6 372.0 Z" fill="#C4C8CC"/><path d="M89.1 176.2 A185 185 0 0 1 251.0 71.1 L251.0 116.1 A140 140 0 0 0 130.2 194.5 Z" fill="#8E959B"/><rect x="180" y="188" width="152" height="46" rx="6" fill="#FFFFFF"/><rect x="233" y="204" width="46" height="136" rx="6" fill="#FFFFFF"/></svg>옵티</a>
@@ -377,6 +379,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       <div class="srv" id="srvBox"></div>
     </div>
   </header>
+</div>
+<div class="page">
   <p class="load-err" id="loadError" role="alert" hidden></p>
 
   <section id="homeView" aria-label="한눈에 보기">
