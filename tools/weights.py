@@ -41,7 +41,7 @@ STEP, LO, HI = 1, 10, 70
 PATCH_END = 10       # days after the patch day: end of the measuring window
 SETTLE = 3           # days after the patch day: the window's start when the counts were not reset
 MIN_HEROES = 3       # clear buffs / nerfs a patch needs to be usable
-MIN_PATCHES = 4      # usable patches before the default is replaced
+MIN_PATCHES = 3      # usable patches before the default is replaced
 MAX_MOVE = 10        # one evaluation moves each weight by at most this many %p
 
 

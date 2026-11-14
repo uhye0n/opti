@@ -1,18 +1,28 @@
 {
  "weights": {
-  "wr": 50,
-  "pr": 30,
+  "wr": 60,
+  "pr": 20,
   "br": 20
  },
- "status": "collecting",
+ "status": "tuned",
  "patchesUsed": [
   "2026-10-06",
   "2026-10-13",
   "2026-11-03"
  ],
- "need": 4,
- "history": [],
- "evaluatedAt": "2026-11-15T05:06+09:00",
+ "need": 3,
+ "history": [
+  {
+   "at": "2026-11-15T05:54+09:00",
+   "patch": "2026-11-03",
+   "weights": {
+    "wr": 60,
+    "pr": 20,
+    "br": 20
+   }
+  }
+ ],
+ "evaluatedAt": "2026-11-15T05:54+09:00",
  "candidate": {
   "wr": 70,
   "pr": 10,
