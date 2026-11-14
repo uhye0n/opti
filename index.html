@@ -179,13 +179,14 @@ button.op-hero{cursor:pointer}
 .mfade{position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(rgba(14,14,16,0),var(--bg));pointer-events:none}
 .hnote{margin:12px 0 0;color:var(--text-meta);font-size:14px}
 .op-map{position:relative;display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) var(--space-8);border-radius:var(--radius-lg);color:var(--text);
-  transition:background-color var(--dur-fast) var(--ease-out)}
+  transition:background-color var(--dur) var(--ease-out)}
 .op-map-name{color:inherit;text-decoration:none}
 .op-map-name::after{content:"";position:absolute;inset:0;border-radius:inherit}          /* the map link covers the card */
 .op-map-name:focus-visible{outline:none}
 .op-map:has(.op-map-name:focus-visible){outline:2px solid var(--text);outline-offset:-2px}
-.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.035)}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.1)}   /* YouTube's dark-mode hover layer: white at 10% */
 .op-map-pick,.op-map-reserve{position:relative;z-index:1;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
+.op-hero .op-avatar,.op-map-pick .op-avatar,.op-map-reserve .op-avatar,.pn-hero .op-avatar{transition:transform 240ms cubic-bezier(.2,.8,.2,1),filter 240ms cubic-bezier(.2,.8,.2,1),opacity var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 /* hover on a hero: the face lifts and brightens (no underlines; those are for links inside sentences) */
 a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar,a.pn-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
 .op-map-reserve:hover{color:var(--text)}
@@ -297,7 +298,8 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .relbars i:nth-child(1){height:4px}.relbars i:nth-child(2){height:7px}.relbars i:nth-child(3){height:10px}
 .relbars.lv3 i{background:var(--text-secondary)}
 .relbars.lv2 i:nth-child(-n+2){background:var(--text-secondary)}
-.relbars.lv1 i:nth-child(1){background:var(--accent)}
+.relbars.lv1 i:nth-child(1){background:var(--text-secondary)}
+.rail-num{min-width:5.2ch;text-align:right}   /* fixed-width count so the bars line up in one column */
 .op-rail-n.is-error{color:var(--error)}
 .dmain{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:40px}
 .dsec{display:flex;flex-direction:column;gap:16px}
@@ -1254,7 +1256,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const lv = n >= 600 ? 3 : n >= 150 ? 2 : 1;
       const bars = n && id !== 'all-maps' ? `<span class="relbars lv${lv}" aria-hidden="true"><i></i><i></i><i></i></span>` : '';
       const tip = n ? `추정 ${fmtInt(n)}경기` + (id !== 'all-maps' ? `, 표본 신뢰도 ${rel(n)}` : '') : '공식 통계 오류';
-      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${tip}" aria-label="${esc(name)}, ${tip}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${bars}${n ? fmtInt(n) : '오류'}</span></button>`;
+      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${tip}" aria-label="${esc(name)}, ${tip}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${bars}<span class="rail-num">${n ? fmtInt(n) : '오류'}</span></span></button>`;
     };
     let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체')}</nav>`;
     for (const mode of MODES) h += `<nav class="op-rail" aria-label="${esc(mode)} 맵"><span class="op-rail-label">${esc(mode)}</span>${MAPS.filter(m => m.mode === mode).map(m => item(m.id, m.name)).join('')}</nav>`;
@@ -1671,13 +1673,14 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   // the rank range: the filled span (and its two knobs) slide to the new grades instead of jumping
   function slideFill(bar, fn){
-    const f0 = !reduceMotion && !(drag && drag.moved) && bar.querySelector('.op-range-fill');
-    const from = f0 ? {left:f0.style.left, width:f0.style.width} : null;
+    // start from where the span is drawn right now (mid-slide if a step is still moving), so dragging glides
+    const f0 = !reduceMotion && bar.querySelector('.op-range-fill'), cs = f0 && getComputedStyle(f0);
+    const from = f0 ? {left:cs.left, width:cs.width, end:f0.style.left + '|' + f0.style.width} : null;
     fn();
     const f = from && bar.querySelector('.op-range-fill');
-    if (f && f.animate && (from.left !== f.style.left || from.width !== f.style.width)) {
-      fillRun = {kf:[from, {left:f.style.left, width:f.style.width}], t0:performance.now()};
-      f.animate(fillRun.kf, {duration:200, easing:'cubic-bezier(.2,.8,.2,1)'});
+    if (f && f.animate && from.end !== f.style.left + '|' + f.style.width) {
+      fillRun = {kf:[{left:from.left, width:from.width}, {left:f.style.left, width:f.style.width}], t0:performance.now()};
+      f.animate(fillRun.kf, {duration:drag ? 140 : 200, easing:'cubic-bezier(.2,.8,.2,1)'});
     }
   }
   // a click starts the slide, then the page re-renders with the new data: carry the slide on in the new bar
