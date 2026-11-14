@@ -216,6 +216,8 @@ button.op-hero{cursor:pointer}
 .op-switch[aria-pressed="true"] .op-switch-track{background:var(--text)}
 .op-switch[aria-pressed="true"] .op-switch-knob{left:18px;background:var(--bg)}
 .wsel{position:relative}
+.reset-slot{width:var(--control-sm);height:var(--control-sm);flex:none;display:flex}
+.op-chip-value{display:inline-block;min-width:6.2em;text-align:center}
 .wpop{position:absolute;right:0;top:40px;z-index:30;width:300px;max-width:calc(100vw - 32px);padding:16px;display:flex;flex-direction:column;gap:12px}
 .wpop p{margin:0;color:var(--text-body)}
 .wsplit{position:relative;height:16px}
@@ -827,11 +829,14 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     h += `<button type="button" class="op-range-slider" role="slider" data-slider="hi" aria-label="가장 높은 랭크" aria-valuemin="${state.lo}" aria-valuemax="${TOP}" aria-valuenow="${state.hi}" aria-valuetext="${GRADE_NAME[state.hi]}" style="left:${pct(pH + 1)}%"></button>`;
     return {html:h, n, total};
   }
-  const resetBtn = () => (state.lo === DEF_LO && state.hi === DEF_HI) ? '' :
-    `<button type="button" class="op-range-reset" data-act="rk-reset" aria-label="기본 구간(마스터~챔피언)으로 되돌리기" title="기본 구간(마스터~챔피언)으로 되돌리기"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
+  // round "back to default" button. Its slot keeps its width when the button is hidden, so nothing beside it moves
+  const resetIcon = (act, label) => `<button type="button" class="op-range-reset" data-act="${act}" aria-label="${label}" title="${label}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
+  const resetBtn = () => (state.lo === DEF_LO && state.hi === DEF_HI) ? '' : resetIcon('rk-reset', '기본 구간(마스터~챔피언)으로 되돌리기');
+  const wIsDefault = () => state.w.wr === DEFAULT_W.wr && state.w.pr === DEFAULT_W.pr && state.w.br === DEFAULT_W.br;
+  const wResetBtn = () => wIsDefault() ? '' : resetIcon('w-reset', `기본 가중치(${DEFAULT_W.wr} · ${DEFAULT_W.pr} · ${DEFAULT_W.br})로 되돌리기`);
   function rankBar(where){
     const r = rankInner();
-    return `<div class="op-range" data-rk="${where}"><span class="rk-reset">${resetBtn()}</span><div class="op-range-bar" role="group" aria-label="랭크 구간. 양쪽 손잡이를 끌거나 화살표 키로 옮기세요" style="width:${r.total * 58}px">${r.html}</div></div>`;
+    return `<div class="op-range" data-rk="${where}"><span class="rk-reset reset-slot">${resetBtn()}</span><div class="op-range-bar" role="group" aria-label="랭크 구간. 양쪽 손잡이를 끌거나 화살표 키로 옮기세요" style="width:${r.total * 58}px">${r.html}</div></div>`;
   }
   function paintBar(bar){
     bar.innerHTML = rankInner().html;
@@ -1059,12 +1064,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
     h += `<div class="dbar-r">`;
     h += `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
-    h += `<div class="wsel"><button type="button" class="op-chip" data-act="w-toggle" aria-expanded="${state.wOpen}">지수 가중치<span class="op-chip-value" id="wLabel">${w.wr} · ${w.pr} · ${w.br}</span><span aria-hidden="true">▾</span></button>`;
+    h += `<span class="reset-slot" id="wReset">${wResetBtn()}</span><div class="wsel"><button type="button" class="op-chip" data-act="w-toggle" aria-expanded="${state.wOpen}">지수 가중치<span class="op-chip-value" id="wLabel">${w.wr} · ${w.pr} · ${w.br}</span><span aria-hidden="true">▾</span></button>`;
     if (state.wOpen) {
       h += `<div class="op-pop wpop" role="group" aria-label="지수 가중치"><p>손잡이 두 개로 100을 승률·픽률·밴률에 나눠 줍니다.</p>`
         + `<div class="wsplit"><div class="wtrack" id="wTrack"></div><input type="range" min="0" max="100" step="5" id="wA" value="${w.wr}" aria-label="승률과 픽률의 경계"><input type="range" min="0" max="100" step="5" id="wB" value="${w.wr + w.pr}" aria-label="픽률과 밴률의 경계"></div>`
-        + `<div class="wvals"><span>승률 <b id="oWr">${w.wr}</b></span><span>픽률 <b id="oPr">${w.pr}</b></span><span>밴률 <b id="oBr">${w.br}</b></span></div>`
-        + `<button type="button" class="op-chip" data-act="w-reset" style="align-self:flex-start">기본값(${DEFAULT_W.wr} / ${DEFAULT_W.pr} / ${DEFAULT_W.br})으로 되돌리기</button></div>`;
+        + `<div class="wvals"><span>승률 <b id="oWr">${w.wr}</b></span><span>픽률 <b id="oPr">${w.pr}</b></span><span>밴률 <b id="oBr">${w.br}</b></span></div></div>`;
     }
     h += `</div>${rankBar('detail')}</div>`;
     $('dBar').innerHTML = h;
@@ -1076,6 +1080,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     tr.innerHTML = `<span style="width:${w.wr}%;background:var(--text)"></span><span style="width:${w.pr}%;background:var(--text-meta)"></span><span style="width:${w.br}%;background:var(--tier-c)"></span>`;
     $('oWr').textContent = w.wr; $('oPr').textContent = w.pr; $('oBr').textContent = w.br;
     $('wLabel').textContent = `${w.wr} · ${w.pr} · ${w.br}`;
+    const slot = $('wReset'); if (slot && !!slot.firstChild === wIsDefault()) slot.innerHTML = wResetBtn();
     $('wA').setAttribute('aria-valuetext', `승률 ${w.wr}, 픽률 ${w.pr}`);
     $('wB').setAttribute('aria-valuetext', `픽률 ${w.pr}, 밴률 ${w.br}`);
   }
