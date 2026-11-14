@@ -41,7 +41,7 @@
   --radius-pill:18px;--radius-pill-sm:16px;--radius-full:50%;
   --badge-size:28px;--badge-size-sm:18px;
   --avatar-20:20px;--avatar-24:24px;--avatar-28:28px;--avatar-32:32px;--avatar-40:40px;--avatar-56:56px;--avatar-60:60px;--avatar-64:64px;
-  --rank-cell:50px;--knob:14px;--ring-knob:0 0 0 3px var(--bg);
+  --rank-cell:50px;--knob:14px;--ring-knob:0 0 0 3px var(--surface-pop);
   --opacity-out:.3;--opacity-low:.45;
   --dur-fast:120ms;--dur:180ms;--dur-move:280ms;--ease-out:cubic-bezier(.2,.8,.2,1);
   --ring-hot:0 0 0 2px var(--accent);--ring-hot-sm:0 0 0 1.5px var(--accent);
@@ -139,7 +139,7 @@ img{display:block}
 .op-range-knob-l{left:-7px}
 .op-range-knob-r{right:-7px}
 .op-range-knobs{position:absolute;top:0;bottom:0;pointer-events:none}
-.op-range-bar:has([data-end~="l"]:hover) .op-range-knob-l,.op-range-bar:has([data-end~="r"]:hover) .op-range-knob-r,.op-range-bar.is-drag .op-range-knob{transform:scale(1.2)}
+.op-range-bar:not(.is-drag):has([data-end~="l"]:hover) .op-range-knob-l,.op-range-bar:not(.is-drag):has([data-end~="r"]:hover) .op-range-knob-r{transform:scale(1.15)}
 .op-range-slider{position:absolute;top:0;width:16px;height:100%;margin-left:-8px;padding:0;background:transparent;border:0;border-radius:var(--radius-md);pointer-events:none}
 
 /* ---- home */
