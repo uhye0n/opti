@@ -3,7 +3,7 @@
 (meta/weights.json).
 
 Usage:
-    python3 tools/weights.py [--archive archive] [--patches meta/patches.json] [--base meta/judgment-base.json]
+    python3 tools/weights.py [--archive archive] [--patches meta/patches] [--base meta/judgment-base.json]
                              [--out meta/weights.json] [--report] [--reset]
 
 Criterion ("agreement with the developers"): just before a balance patch, the heroes it nerfs should score above
@@ -175,7 +175,7 @@ def step_towards(cur, target):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--archive", default=os.path.join(ROOT, "archive"))
-    ap.add_argument("--patches", default=os.path.join(ROOT, "meta", "patches.json"))
+    ap.add_argument("--patches", default=os.path.join(ROOT, "meta", "patches"))
     ap.add_argument("--base", default=os.path.join(ROOT, "meta", "judgment-base.json"))
     ap.add_argument("--out", default=os.path.join(ROOT, "meta", "weights.json"))
     ap.add_argument("--report", action="store_true", help="recompute even when no new patch is usable")
@@ -184,7 +184,9 @@ def main():
     old = load(a.out, {}) or {}
     cur = old.get("weights") or DEFAULT
     base = load(a.base, {}) or {}
-    patches = (load(a.patches, {}) or {}).get("patches", [])
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from patches import load_patches
+    patches = load_patches(a.patches)
     events = list(base.get("events", []))
     newer = [p for p in patches if p["date"] > base.get("until", "")]
     events += archive_events(a.archive, newer, base.get("until", ""), date.today())

@@ -1390,12 +1390,13 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---------------------------------------------------------------- patch notes
   let PATCHES = null, pnFilter = 'all';
+  const PN_YEAR = {};      // year -> its patches (loaded when a patch of that year is opened)
   const VERDICT = {buff:'버프', nerf:'너프', mixed:'조정', rework:'개편', change:'변경', hitbox:'타점'};
   const GROUPS_PN = [['buff', '버프'], ['nerf', '너프'], ['mixed', '조정'], ['rework', '개편'], ['change', '기타 변경']];
   function loadPatches(){
     if (PATCHES !== null) return;
     PATCHES = false;
-    getJSON('meta/patches.json?t=' + Math.floor(Date.now() / 36e5))
+    getJSON('meta/patches/index.json?t=' + Math.floor(Date.now() / 36e5))
       .then(d => { PATCHES = d; }).catch(() => { PATCHES = {error:true}; })
       .then(() => { if (state.view === 'patch') renderPatch(); });
   }
@@ -1415,29 +1416,39 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (ARC[arcKey()] === undefined) loadArchive(() => { if (state.view === 'patch') renderPatch(); });
     if (!PATCHES) { el.innerHTML = '<p class="mnote">불러오는 중…</p>'; return; }
     if (PATCHES.error || !PATCHES.patches) { el.innerHTML = '<p class="mnote">패치 노트를 불러오지 못했어요. 잠시 후 다시 열어 주세요.</p>'; return; }
-    const list = PATCHES.patches.filter(p => p.heroes && p.heroes.length);
+    const nHeroes = p => Object.values(p.count || {}).reduce((a, b) => a + b, 0);
+    const list = PATCHES.patches.filter(p => nHeroes(p) > 0);
     if (!list.length) { el.innerHTML = '<p class="mnote">아직 정리된 패치가 없어요.</p>'; return; }
-    const cur = list.find(p => p.id === state.patch) || list[0];
+    const sel = list.find(p => p.id === state.patch) || list[0], year = sel.date.slice(0, 4);
+    if (PN_YEAR[year] === undefined) {
+      PN_YEAR[year] = null;
+      getJSON(`meta/patches/${year}.json?t=` + Math.floor(Date.now() / 36e5))
+        .then(d => { PN_YEAR[year] = d.patches || []; }).catch(() => { PN_YEAR[year] = false; })
+        .then(() => { if (state.view === 'patch') renderPatch(); });
+    }
+    if (PN_YEAR[year] === false) { el.innerHTML = '<p class="mnote">패치 노트를 불러오지 못했어요. 잠시 후 다시 열어 주세요.</p>'; return; }
+    const cur = (PN_YEAR[year] || []).find(p => p.id === sel.id) || Object.assign({heroes:[], loading:true}, sel);
     const byId = {}; H.forEach((h, i) => { byId[h.id] = i; });
     const cnt = v => cur.heroes.filter(h => h.verdict === v).length;
-    // the latest patches as chips; older ones (any number of years) in one list grouped by month
+    // the latest patches as chips; older ones (back to 2016) in one list grouped by year
     const RECENT = 6, recent = list.slice(0, RECENT), older = list.slice(RECENT);
     const yearOf = p => p.date.slice(0, 4), thisYear = yearOf(list[0]);
     const chipLabel = p => (yearOf(p) !== thisYear ? `${yearOf(p).slice(2)}년 ` : '') + mdK(p.date);
     let h = `<nav class="pn-list" aria-label="패치 선택">${recent.map(p => `<button type="button" class="op-chip" data-patch="${esc(p.id)}" aria-pressed="${p.id === cur.id}">${chipLabel(p)}</button>`).join('')}`;
     if (older.length) {
       const months = [];
-      for (const p of older) { const k = p.date.slice(0, 7); if (!months.length || months[months.length - 1][0] !== k) months.push([k, []]); months[months.length - 1][1].push(p); }
+      for (const p of older) { const k = p.date.slice(0, 4); if (!months.length || months[months.length - 1][0] !== k) months.push([k, []]); months[months.length - 1][1].push(p); }
       const inOlder = older.some(p => p.id === cur.id);
-      h += `<select class="pn-older${inOlder ? ' is-on' : ''}" id="pnOlder" aria-label="이전 패치"><option value="">이전 패치 ${older.length}개</option>${months.map(([k, ps]) => `<optgroup label="${Number(k.slice(0, 4))}년 ${Number(k.slice(5, 7))}월">${ps.map(p => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${Number(p.date.slice(0, 4))}년 ${mdK(p.date)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+      h += `<select class="pn-older${inOlder ? ' is-on' : ''}" id="pnOlder" aria-label="이전 패치"><option value="">이전 패치 ${older.length}개</option>${months.map(([k, ps]) => `<optgroup label="${k}년">${ps.map(p => `<option value="${esc(p.id)}"${p.id === cur.id ? ' selected' : ''}>${Number(p.date.slice(0, 4))}년 ${mdK(p.date)}</option>`).join('')}</optgroup>`).join('')}</select>`;
     }
     h += `</nav>`;
+    if (cur.loading) { el.innerHTML = h + '<p class="mnote">불러오는 중…</p>'; return; }
     h += `<div class="pn-head"><h2>${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)} 패치</h2><span class="pn-sum"><span>버프 <b style="color:var(--buff)">${cnt('buff')}</b></span><span>너프 <b style="color:var(--nerf)">${cnt('nerf')}</b></span><span>기타 <b>${cnt('mixed') + cnt('rework') + cnt('change')}</b></span></span><a class="pn-src" href="${esc(cur.url)}" target="_blank" rel="noopener">블리자드 원문 ↗</a></div>`;
     const FILTERS = [['all', '전체'], ['buff', '버프'], ['nerf', '너프'], ['other', '기타']];
     h += `<div class="pn-filter" role="group" aria-label="변경 종류">${FILTERS.map(([k, l]) => `<button type="button" class="op-chip" data-pnf="${k}" aria-pressed="${pnFilter === k}">${l}</button>`).join('')}</div>`;
     const roleOrder = {tank:0, damage:1, support:2};
     const card = x => {
-      const i = byId[x.id], name = esc(x.name), role = ROLE_LABEL[x.role] || '';
+      const i = byId[x.id], name = esc(i != null ? H[i].name : x.name), role = ROLE_LABEL[x.role] || '';
       const face = i != null ? avatar(i, 40) : `<span class="op-avatar" style="width:40px;height:40px"></span>`;
       const ix = x.id ? pnIndex(x.id, cur.date) : null;
       let mi = '';

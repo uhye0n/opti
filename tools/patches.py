@@ -38,7 +38,7 @@ LOWER_BETTER = re.compile(
     r"분산|폭발 시간|변신 지속")
 # words that make a line's direction unclear: it changes something for the enemy or reshapes a mechanic
 UNCLEAR = re.compile(r"완화|적에게 적용|제거되었|신규|이제 |더 이상|추가되었|변경되었|대신|\(6대6\)|6대6")
-CHANGE = re.compile(r"(?:에서\s*[\d.,~]+\s*[^\s]*?\s*(?:으로|로)\s*|[\d.,]+\s*%\s*)(증가|감소)했습니다")
+CHANGE = re.compile(r"(?:에서\s*[+\-]?[\d.,~]+\s*[^\s]*?\s*(?:으로|로)\s*|[\d.,]+\s*%\s*)(증가|감소)했습니다")
 # the English pages (some months have no Korean translation)
 LOWER_BETTER_EN = re.compile(r"cooldown|cast time|recovery|spread|ultimate cost|ult cost|delay|charge time|reload time|"
                              r"hitbox|self.damage|damage taken|fuse|wind.?up|startup|\bcost\b|experience required", re.I)
@@ -140,6 +140,18 @@ def parse_hero(node, names):
     for a in find_all(node, lambda x: "PatchNotesAbilityUpdate" in cls(x)):
         nm = find_all(a, lambda x: "PatchNotesAbilityUpdate-name" in cls(x))
         groups.append({"name": norm(text(nm[0])) if nm else "", "lines": lines_of(a)})
+    return finish_hero(name, groups, names)
+
+
+# hero names the old (Overwatch 1) notes use
+ALIASES = {"맥크리": "cassidy", "McCree": "cassidy", "Mccree": "cassidy"}
+
+
+def hero_id(name, names):
+    return names.get(name) or names.get(latin_key(name)) or ALIASES.get(name)
+
+
+def finish_hero(name, groups, names):
     out, signs = [], []
     for g in groups:
         ls = []
@@ -167,7 +179,48 @@ def parse_hero(node, names):
     else:
         verdict = "change"
     clear = verdict in ("buff", "nerf") and zero == 0
-    return {"name": name, "id": names.get(name) or names.get(latin_key(name)), "verdict": verdict, "clear": clear, "groups": out}
+    return {"name": name, "id": hero_id(name, names), "verdict": verdict, "clear": clear, "groups": out}
+
+
+def own_text(li):
+    """A list item's text without its nested lists."""
+    return norm("".join(text(c) for c in li[2] if not (isinstance(c, list) and c[0] in ("ul", "ol"))))
+
+
+def parse_legacy(p, names):
+    """Overwatch 1 era notes: plain HTML. <h2> sections; a hero is a <p><strong>name</strong></p> followed by a
+    list whose items are abilities (with their changes nested) or changes."""
+    body = next((c for c in p[2] if isinstance(c, list) and c[0] == "div" and not cls(c)), None)
+    if body is None:
+        return "", []
+    h1 = find_all(body, lambda x: x[0] == "h1")
+    title = norm(text(h1[0])) if h1 else ""
+    heroes, section, skip, hero = [], "", False, None
+    for el in body[2]:
+        if not isinstance(el, list):
+            continue
+        if el[0] in ("h2", "h3"):
+            section = norm(text(el))
+            skip = bool(SKIP_SECTION.search(section)) or not re.search(r"영웅|Hero", section)
+            hero = None
+        elif el[0] == "p" and not skip:
+            st_ = find_all(el, lambda x: x[0] == "strong")
+            label = norm(text(st_[0])) if st_ else ""
+            hero = label if label and hero_id(label, names) and label == norm(text(el)) else None
+        elif el[0] == "ul" and hero and not skip:
+            groups = []
+            for li in [c for c in el[2] if isinstance(c, list) and c[0] == "li"]:
+                nested = [c for c in li[2] if isinstance(c, list) and c[0] in ("ul", "ol")]
+                if nested:
+                    groups.append({"name": own_text(li), "lines": [t for n in nested for t in lines_of(n)]})
+                else:
+                    groups.append({"name": "일반", "lines": [own_text(li)]})
+            h = finish_hero(hero, groups, names)
+            if h:
+                h["section"] = section
+                heroes.append(h)
+            hero = None
+    return title, heroes
 
 
 TITLE_DATE = re.compile(r"(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일")
@@ -185,12 +238,15 @@ def parse_page(src, names):
         pid = (anchor[0][1].get("id") or "").replace("patch-", "") if anchor else ""
         title_n = find_all(p, lambda x: "PatchNotes-patchTitle" in cls(x))
         title = norm(text(title_n[0])) if title_n else ""
+        legacy = "PatchNotes-patch--legacy" in cls(p)
+        if legacy:
+            title, legacy_heroes = parse_legacy(p, names)
         m = TITLE_DATE.search(title)
         me = TITLE_DATE_EN.search(title)
         live = (f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}" if m else
                 f"{me.group(3)}-{MONTHS_EN.index(me.group(1).lower()) + 1:02d}-{int(me.group(2)):02d}" if me else pid)
-        heroes, sections, section, skip, rework = [], [], "", False, False
-        for el in walk(p):
+        heroes, sections, section, skip, rework = (legacy_heroes if legacy else []), [], "", False, False
+        for el in ([] if legacy else walk(p)):
             c = cls(el)
             if "PatchNotes-sectionTitle" in c:
                 s = norm(text(el))
@@ -284,17 +340,14 @@ def months(since, back):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(ROOT, "meta", "patches.json"))
-    ap.add_argument("--since", default="2026-09")
+    ap.add_argument("--out", default=os.path.join(ROOT, "meta", "patches"),
+                    help="folder: index.json (months read, one summary line per patch) and <year>.json")
+    ap.add_argument("--since", default="2016-05")
     ap.add_argument("--months", type=int, default=2)
     ap.add_argument("--html", help="read <DIR>/<yyyy>-<mm>.html instead of downloading (for tests)")
     a = ap.parse_args()
     names, roles = hero_names()
-    old = {}
-    try:
-        old = json.load(open(a.out, encoding="utf-8"))
-    except (OSError, ValueError):
-        pass
+    old = load_store(a.out)
     done = set(old.get("months", []))
     keep = {p["id"]: p for p in old.get("patches", [])}
     all_months, recent = months(a.since, a.months)
@@ -324,7 +377,7 @@ def main():
               f"{sum(len(p['heroes']) for p in ps)} hero entries", file=sys.stderr)
     overrides = {}
     try:
-        overrides = json.load(open(os.path.join(os.path.dirname(a.out), "patch-overrides.json"), encoding="utf-8"))
+        overrides = json.load(open(os.path.join(os.path.dirname(a.out.rstrip("/")), "patch-overrides.json"), encoding="utf-8"))
     except (OSError, ValueError):
         pass
     unknown = set()
@@ -339,17 +392,73 @@ def main():
             if ov:
                 h["verdict"], h["clear"], h["manual"] = ov, ov in ("buff", "nerf"), True
     for n in sorted(unknown):
-        print(f"patch notes: no hero id for '{n}'", file=sys.stderr)
+        print(f"patch notes: no hero id for '{n}', left out", file=sys.stderr)
+    for p in keep.values():
+        p["heroes"] = [h for h in p["heroes"] if h.get("id")]   # event masks, item lists and the like
     patches = sorted(keep.values(), key=lambda p: (p["date"], p["id"]), reverse=True)
-    body = {"months": sorted(done), "patches": patches}
-    if body != {k: old.get(k) for k in body}:
-        os.makedirs(os.path.dirname(a.out), exist_ok=True)
-        with open(a.out + ".tmp", "w", encoding="utf-8") as f:
-            json.dump(body, f, ensure_ascii=False, separators=(",", ":"))
-        os.replace(a.out + ".tmp", a.out)
+    if save_store(a.out, sorted(done), patches):
         print("patch notes: updated", file=sys.stderr)
     else:
         print("patch notes: unchanged", file=sys.stderr)
+
+
+def summary(p):
+    c = {}
+    for h in p["heroes"]:
+        c[h["verdict"]] = c.get(h["verdict"], 0) + 1
+    return {"id": p["id"], "date": p["date"], "title": p["title"], "url": p["url"], "count": c}
+
+
+def load_store(folder):
+    """All stored patches (the year files) and the months already read. Reads the older single file too."""
+    idx = load_json(os.path.join(folder, "index.json"))
+    if idx is None:
+        legacy = load_json(folder.rstrip("/") + ".json") or {}
+        return {"months": legacy.get("months", []), "patches": legacy.get("patches", [])}
+    pats = []
+    for y in sorted({p["date"][:4] for p in idx.get("patches", [])}):
+        pats += (load_json(os.path.join(folder, f"{y}.json")) or {}).get("patches", [])
+    return {"months": idx.get("months", []), "patches": pats}
+
+
+def load_patches(folder):
+    """Every stored patch, newest first (for other tools)."""
+    return sorted(load_store(folder)["patches"], key=lambda p: (p["date"], p["id"]), reverse=True)
+
+
+def load_json(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def write_json(path, obj):
+    with open(path + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+    os.replace(path + ".tmp", path)
+
+
+def save_store(folder, months, patches):
+    os.makedirs(folder, exist_ok=True)
+    changed = False
+    years = sorted({p["date"][:4] for p in patches})
+    for y in years:
+        body = {"patches": [p for p in patches if p["date"][:4] == y]}
+        path = os.path.join(folder, f"{y}.json")
+        if load_json(path) != body:
+            write_json(path, body)
+            changed = True
+    idx = {"months": months, "years": years, "patches": [summary(p) for p in patches]}
+    if load_json(os.path.join(folder, "index.json")) != idx:
+        write_json(os.path.join(folder, "index.json"), idx)
+        changed = True
+    old_single = folder.rstrip("/") + ".json"
+    if os.path.exists(old_single):
+        os.remove(old_single)
+        changed = True
+    return changed
 
 
 if __name__ == "__main__":
