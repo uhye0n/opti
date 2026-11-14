@@ -63,7 +63,8 @@ img{display:block}
 .op-chip-value{color:var(--text-secondary);font-variant-numeric:tabular-nums}
 
 /* ---- header */
-.topbar{padding:0 24px}
+.topbar{padding:0 48px}
+@media (max-width:1100px){ .topbar{padding:0 var(--page-pad)} }
 .hdr{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
 .hdr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px}
 .logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;text-decoration:none}
