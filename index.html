@@ -134,8 +134,7 @@ img{display:block}
 .op-range-duo .op-range-icon{position:absolute;max-width:none;width:auto!important;height:19px}
 .op-range-duo .op-range-icon:first-child{left:0;top:0;filter:brightness(.8)}
 .op-range-duo .op-range-icon:last-child{left:13px;top:9px;filter:drop-shadow(0 0 1.5px #17171A) drop-shadow(0 0 1px #17171A)}
-.op-range-cell.is-end{cursor:grab}
-.op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
+.op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:pointer}
 .op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
 .op-range-knob-l{left:-7px}
 .op-range-knob-r{right:-7px}
@@ -539,7 +538,6 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 .sc-tip:not([hidden]),.tap-tip{animation:fadeIn var(--dur-fast) var(--ease-out)}
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
-::view-transition-old(root),::view-transition-new(root){animation-duration:160ms;animation-timing-function:var(--ease-out)}
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
@@ -918,11 +916,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (state.lo === state.hi) return GRADE_NAME[state.lo];
     return `${GRADE_NAME[state.lo]}~${state.hi === TOP ? '챔피언' : GRADE_NAME[state.hi]}`;
   };
-  const avatar = (i, size, extra) => H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px${extra || ''}" loading="lazy" decoding="async" ${ERR_IMG}>`
+  const avatar = (i, size, extra) => H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px${extra || ''}" ${ERR_IMG}>`
     : `<span class="op-avatar" style="width:${size}px;height:${size}px${extra || ''}"></span>`;
-  window.__noimg = new Set();
+  window.__noimg = new Set(); window.__imgok = new Set();
   const mapImg = (id, cls, w, h) => window.__noimg.has(id) ? `<span class="${cls} op-map-noimg">이미지 없음</span>`
-    : `<img class="${cls}" src="assets/maps/${esc(id)}.jpg" alt="" width="${w}" height="${h}" loading="lazy" decoding="async" onerror="window.__noimg.add('${esc(id)}');this.outerHTML='<span class=&quot;${cls} op-map-noimg&quot;>이미지 없음</span>'">`;
+    : `<img class="${cls}" src="assets/maps/${esc(id)}.jpg" alt="" width="${w}" height="${h}" ${window.__imgok.has(id) ? '' : 'loading="lazy" '}onload="window.__imgok.add('${esc(id)}')" onerror="window.__noimg.add('${esc(id)}');this.outerHTML='<span class=&quot;${cls} op-map-noimg&quot;>이미지 없음</span>'">`;
 
   // ---------------------------------------------------------------- rank range
   // every rank is one equal step of the slider (the grandmaster·champion pair fits a cell at full size)
@@ -1017,7 +1015,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   });
   // while dragging, the moving edge of the span (and its knob) stays under the pointer; it settles on a rank on release
   function followFill(d, x){
-    const els = d.bar.querySelectorAll('.op-range-fill,.op-range-knobs'); if (!els.length) return;
+    const els = d.bar.querySelectorAll('.op-range-knobs'); if (!els.length) return;
     const {G, at, total} = rankGeom(), r = d.bar.getBoundingClientRect();
     const xp = Math.max(0, Math.min(100, (x - r.left) / r.width * 100));
     const pf = G.indexOf(d.fixed), fl = at[pf] / total * 100, fr = at[pf + 1] / total * 100;
@@ -1202,7 +1200,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
           return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
               return `<a class="op-map-pick${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></a>`; }).join('')}</div>`
             + `<div class="op-map-more">${more.map(i => { const x = info(i);
-              return `<a class="op-map-reserve${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}>${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</a>`; }).join('')}</div></div>`;
+              return `<a class="op-map-reserve${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}>${H[i].img ? `<span class="hot-face"><img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" ${ERR_IMG}>${x.hot ? '<span class="hot-pin sm" aria-hidden="true"></span>' : ''}</span>` : ''}${x.here}</a>`; }).join('')}</div></div>`;
         }).join('') + `</div>`;
       }
       return `<div class="op-map"><div class="op-map-head"><a class="op-map-name" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기">${esc(m.name)}</a><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></div>`;
@@ -1687,26 +1685,36 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     a.onfinish = a.oncancel = () => { ink.remove(); t.classList.remove('ink-moving'); };
   }
   // the rank range: the filled span (and its two knobs) slide to the new grades instead of jumping
+  // the filled span moves rank by rank with a short slide; the knobs slide too, except while dragged, when
+  // they stay under the pointer (followFill) and glide to the span's edge on release
+  const SLIDE = {duration:200, easing:'cubic-bezier(.2,.8,.2,1)'};
+  let fillRun = null;
   function slideFill(bar, fn){
-    // start from where the span is drawn right now (mid-slide if a step is still moving), so dragging glides
-    const f0 = !reduceMotion && !(drag && drag.moved) && bar.querySelector('.op-range-fill'), cs = f0 && getComputedStyle(f0);
-    const from = f0 ? {left:cs.left, width:cs.width, end:f0.style.left + '|' + f0.style.width} : null;
+    const grab = sel => { const e = !reduceMotion && bar.querySelector(sel); if (!e) return null;
+      const c = getComputedStyle(e); return {left:c.left, width:c.width, end:e.style.left + '|' + e.style.width}; };
+    const f0 = grab('.op-range-fill'), k0 = grab('.op-range-knobs');
     fn();
-    const f = from && bar.querySelector('.op-range-fill');
-    if (f && f.animate && from.end !== f.style.left + '|' + f.style.width) {
-      fillRun = {kf:[{left:from.left, width:from.width}, {left:f.style.left, width:f.style.width}], t0:performance.now()};
-      for (const el of bar.querySelectorAll('.op-range-fill,.op-range-knobs')) el.animate(fillRun.kf, {duration:200, easing:'cubic-bezier(.2,.8,.2,1)'});
+    const run = {t0:performance.now()};
+    for (const [sel, from, key] of [['.op-range-fill', f0, 'fill'], ['.op-range-knobs', k0, 'knobs']]) {
+      const e = bar.querySelector(sel);
+      if (!e || !from || !e.animate || (key === 'knobs' && drag && drag.moved)) continue;
+      if (from.end === e.style.left + '|' + e.style.width && from.left === getComputedStyle(e).left) continue;
+      run[key] = [{left:from.left, width:from.width}, {left:e.style.left, width:e.style.width}];
+      e.animate(run[key], SLIDE);
     }
+    if (run.fill || run.knobs) fillRun = run;
   }
   // a click starts the slide, then the page re-renders with the new data: carry the slide on in the new bar
-  let fillRun = null;
   function resumeFill(){
     if (!fillRun) return;
-    const t = performance.now() - fillRun.t0, kf = fillRun.kf;
-    if (t >= 200) { fillRun = null; return; }
-    for (const f of document.querySelectorAll('.op-range-fill,.op-range-knobs')) {
-      if (!f.offsetParent || f.style.left !== kf[1].left || f.style.width !== kf[1].width) continue;
-      const a = f.animate(kf, {duration:200, easing:'cubic-bezier(.2,.8,.2,1)'}); a.currentTime = t;
+    const t = performance.now() - fillRun.t0;
+    if (t >= SLIDE.duration) { fillRun = null; return; }
+    for (const [sel, key] of [['.op-range-fill', 'fill'], ['.op-range-knobs', 'knobs']]) {
+      const kf = fillRun[key]; if (!kf) continue;
+      for (const e of document.querySelectorAll(sel)) {
+        if (!e.offsetParent || e.style.left !== kf[1].left || e.style.width !== kf[1].width) continue;
+        const an = e.animate(kf, SLIDE); an.currentTime = t;
+      }
     }
   }
 
@@ -1746,8 +1754,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     opts = opts || {};
     const changed = state.view !== view;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
-    if (D && B && changed && document.startViewTransition && !reduceMotion) document.startViewTransition(() => render({push:true, top:true}));
-    else if (D && B) render({push:changed || opts.push, top:changed});
+    if (D && B) render({push:changed || opts.push, top:changed});
     else writeURL(changed);
   }
   let raf = 0;
