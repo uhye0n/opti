@@ -10,8 +10,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="옵티">
 <meta property="og:description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
-<meta property="og:url" content="https://uhye0n.github.io/OW-TIER-LIST/">
-<meta property="og:image" content="https://uhye0n.github.io/OW-TIER-LIST/assets/maps/lijiang-tower.jpg">
+<meta property="og:url" content="https://uhye0n.github.io/opti/">
+<meta property="og:image" content="https://uhye0n.github.io/opti/assets/maps/lijiang-tower.jpg">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -105,6 +105,10 @@ img{display:block}
 .op-range-icon{height:auto;max-width:80%;pointer-events:none}
 .op-range-cell.is-out .op-range-icon{opacity:var(--opacity-out)}
 .op-range-cell:hover .op-range-icon{opacity:1}
+.op-range-duo{position:relative;width:38px;height:24px;display:block;pointer-events:none}
+.op-range-duo .op-range-icon{position:absolute;top:50%;max-width:none;transform:translateY(-50%)}
+.op-range-duo .op-range-icon:first-child{left:0;transform:translateY(-50%) scale(.86);filter:brightness(.8)}
+.op-range-duo .op-range-icon:last-child{right:0}
 .op-range-cell.is-end{cursor:ew-resize}
 .op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
 .op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
@@ -261,6 +265,12 @@ button.op-hero{cursor:pointer}
 .panel svg{display:block;width:100%;height:auto}
 .tr-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .tr-empty{padding:24px 0;color:var(--text-meta)}
+.tr-plot{position:relative}
+.tr-plot svg{touch-action:pan-y;cursor:crosshair}
+.tr-x,.tr-dot{pointer-events:none}
+.tr-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
+.tr-tip b{margin-right:6px;color:var(--text)}
+.tr-tip .op-tier{margin-right:6px;vertical-align:-3px}
 .scatter svg{display:block;width:100%;height:auto}
 .scatter circle{cursor:pointer}
 .twrap{overflow-x:auto}
@@ -484,6 +494,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   const ICONS = [['bronze','브론즈',22],['silver','실버',22],['gold','골드',22],['platinum','플래티넘',22],['emerald','에메랄드',22],
     ['diamond','다이아몬드',22],['master','마스터',23],['grandmaster','그랜드마스터',24],['champion','챔피언',24]];
   const TOP = 7;
+  const DEF_LO = 6, DEF_HI = 7;      // default rank range: master, grandmaster and champion
+  const GRADE_NAME = ['브론즈','실버','골드','플래티넘','에메랄드','다이아몬드','마스터','그랜드마스터·챔피언'];
   const ROLES = [['tank','돌격'],['damage','공격'],['support','지원']];
   const ROLE_LABEL = {tank:'돌격', damage:'공격', support:'지원'};
   const TIERS = ['S','A','B','C','D'];
@@ -509,7 +521,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   };
 
   // ---------------------------------------------------------------- state (address bar first, then remembered settings)
-  const state = {view:'home', server:'kr', lo:0, hi:TOP, tab:'summary', mode:'all', role:'tank', map:'all-maps', focus:null,
+  const state = {view:'home', server:'kr', lo:DEF_LO, hi:DEF_HI, tab:'summary', mode:'all', role:'tank', map:'all-maps', focus:null,
     w:Object.assign({}, DEFAULT_W), smooth:true, sort:{key:'mi', dir:-1}, metric:'mi', wOpen:false, srvOpen:false};
   const saved = store.get('state');
   if (saved) {
@@ -526,8 +538,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     state.view = viewFromHash();
     if (sp.get('server')) state.server = sp.get('server');
     const lo = parseInt(sp.get('lo'), 10), hi = parseInt(sp.get('hi'), 10);
-    if (lo >= 0 && lo <= 8 && hi >= 0 && hi <= 8) { state.lo = Math.min(TOP, Math.min(lo, hi)); state.hi = Math.min(TOP, Math.max(lo, hi)); }
-    else { state.lo = 0; state.hi = TOP; }
+    if (lo >= 0 && lo <= 8 && hi >= 0 && hi <= 8) { state.lo = Math.min(TOP, lo, hi); state.hi = Math.min(TOP, Math.max(lo, hi)); }
+    else { state.lo = DEF_LO; state.hi = DEF_HI; }
     const tab = sp.get('tab'); state.tab = TABS.some(t => t[0] === tab) ? tab : 'summary';
     state.mode = sp.get('mode') || 'all';
     state.map = sp.get('map') || 'all-maps';
@@ -539,7 +551,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const s = Object.assign({}, state, over || {});
     const p = new URLSearchParams();
     if (s.server !== 'kr') p.set('server', s.server);
-    if (!(s.lo === 0 && s.hi === TOP)) { p.set('lo', s.lo); p.set('hi', s.hi === TOP ? 8 : s.hi); }
+    if (!(s.lo === DEF_LO && s.hi === DEF_HI)) { p.set('lo', s.lo); p.set('hi', s.hi); }
     if (s.tab !== 'summary') p.set('tab', s.tab);
     if (s.mode !== 'all') p.set('mode', s.mode);
     if (s.map !== 'all-maps') p.set('map', s.map);
@@ -609,7 +621,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const data = await loadRange(state.server, curRid());
       if (tok !== syncTok) return;
       B = data; render(opts);
-      loadRange(state.server, 'all').catch(() => {});
+      for (const r of ['all', rid(DEF_LO, DEF_HI)]) loadRange(state.server, r).catch(() => {});
     } catch (e) { fail(e); }
   }
   function fail(e){
@@ -671,8 +683,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   const mapErr = mid => mid !== 'all-maps' && !isHidden() && (B.N[mid] || 0) === 0;
   const rankLabel = () => {
     if (state.lo === 0 && state.hi === TOP) return '모든 랭크';
-    const a = state.lo, b = state.hi === TOP ? 8 : state.hi;
-    return a === b ? ICONS[a][1] : `${ICONS[a][1]}~${ICONS[b][1]}`;
+    if (state.lo === state.hi) return GRADE_NAME[state.lo];
+    return `${GRADE_NAME[state.lo]}~${state.hi === TOP ? '챔피언' : GRADE_NAME[state.hi]}`;
   };
   const avatar = (i, size, extra) => H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px${extra || ''}" loading="lazy" decoding="async" ${ERR_IMG}>`
     : `<span class="op-avatar" style="width:${size}px;height:${size}px${extra || ''}"></span>`;
@@ -682,24 +694,22 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---------------------------------------------------------------- rank range
   function rankInner(){
-    const G = visibleGrades();
-    const icons = []; for (const g of G) { icons.push(g); if (g === TOP) icons.push(8); }
-    const n = icons.length;
-    const loI = state.lo, hiI = state.hi === TOP ? 8 : state.hi;
-    const pL = icons.indexOf(loI), pH = icons.indexOf(hiI);
+    const G = visibleGrades(), n = G.length;
+    const pL = G.indexOf(state.lo), pH = G.indexOf(state.hi);
+    const icon = k => `<img class="op-range-icon" src="assets/ranks/${ICONS[k][0]}.png" alt="" draggable="false" style="width:${ICONS[k][2]}px">`;
     let h = `<span class="op-range-fill" style="left:${pL / n * 100}%;width:${(pH - pL + 1) / n * 100}%"></span>`;
-    icons.forEach((ic, p) => {
-      const inR = ic >= loI && ic <= hiI, end = p === pL || p === pH;
-      h += `<span class="op-range-cell${inR ? '' : ' is-out'}${end ? ' is-end' : ''}" data-icon="${ic}" title="${ICONS[ic][1]}"><img class="op-range-icon" src="assets/ranks/${ICONS[ic][0]}.png" alt="" draggable="false" style="width:${ICONS[ic][2]}px">`
+    G.forEach((g, p) => {
+      const inR = g >= state.lo && g <= state.hi, end = p === pL || p === pH;
+      const art = g === TOP ? `<span class="op-range-duo">${icon(7)}${icon(8)}</span>` : icon(g);
+      h += `<span class="op-range-cell${inR ? '' : ' is-out'}${end ? ' is-end' : ''}" title="${GRADE_NAME[g]}">${art}`
         + (p === pL ? '<span class="op-range-knob op-range-knob-l"></span>' : '') + (p === pH ? '<span class="op-range-knob op-range-knob-r"></span>' : '') + '</span>';
     });
-    const nm = g => g === TOP ? '그랜드마스터·챔피언' : ICONS[g][1];
-    h += `<button type="button" class="op-range-slider" role="slider" data-slider="lo" aria-label="가장 낮은 랭크" aria-valuemin="0" aria-valuemax="${state.hi}" aria-valuenow="${state.lo}" aria-valuetext="${nm(state.lo)}" style="left:${pL / n * 100}%"></button>`;
-    h += `<button type="button" class="op-range-slider" role="slider" data-slider="hi" aria-label="가장 높은 랭크" aria-valuemin="${state.lo}" aria-valuemax="${TOP}" aria-valuenow="${state.hi}" aria-valuetext="${nm(state.hi)}" style="left:${(pH + 1) / n * 100}%"></button>`;
+    h += `<button type="button" class="op-range-slider" role="slider" data-slider="lo" aria-label="가장 낮은 랭크" aria-valuemin="0" aria-valuemax="${state.hi}" aria-valuenow="${state.lo}" aria-valuetext="${GRADE_NAME[state.lo]}" style="left:${pL / n * 100}%"></button>`;
+    h += `<button type="button" class="op-range-slider" role="slider" data-slider="hi" aria-label="가장 높은 랭크" aria-valuemin="${state.lo}" aria-valuemax="${TOP}" aria-valuenow="${state.hi}" aria-valuetext="${GRADE_NAME[state.hi]}" style="left:${(pH + 1) / n * 100}%"></button>`;
     return {html:h, n};
   }
-  const resetBtn = () => (state.lo === 0 && state.hi === TOP) ? '' :
-    `<button type="button" class="op-range-reset" data-act="rk-reset" aria-label="모든 랭크로 되돌리기" title="모든 랭크로 되돌리기"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
+  const resetBtn = () => (state.lo === DEF_LO && state.hi === DEF_HI) ? '' :
+    `<button type="button" class="op-range-reset" data-act="rk-reset" aria-label="기본 구간(마스터~챔피언)으로 되돌리기" title="기본 구간(마스터~챔피언)으로 되돌리기"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
   function rankBar(where){
     const r = rankInner();
     return `<div class="op-range" data-rk="${where}"><span class="rk-reset">${resetBtn()}</span><div class="op-range-bar" role="group" aria-label="랭크 구간. 양쪽 손잡이를 끌거나 화살표 키로 옮기세요" style="width:${r.n * 48}px">${r.html}</div></div>`;
@@ -711,10 +721,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   let drag = null;
   function gradeAt(bar, x){
-    const G = visibleGrades(); const icons = []; for (const g of G) { icons.push(g); if (g === TOP) icons.push(8); }
-    const r = bar.getBoundingClientRect();
-    const p = Math.max(0, Math.min(icons.length - 1, Math.floor((x - r.left) / r.width * icons.length)));
-    return Math.min(TOP, icons[p]);
+    const G = visibleGrades(), r = bar.getBoundingClientRect();
+    return G[Math.max(0, Math.min(G.length - 1, Math.floor((x - r.left) / r.width * G.length)))];
   }
   document.addEventListener('pointerdown', e => {
     const bar = e.target.closest('.op-range-bar');
@@ -951,33 +959,20 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const idx = byRole(r);
     const delta = i => Math.round(mm[i]) - Math.round(ALL[i]);
     const hero = selHero(idx, err ? ALL : mm);
+    // highlights only for a hero the reader picked; the trend falls back to this map's first hero
+    const shown = state.focus != null && H[hero] && H[hero].id === state.focus ? hero : -1;
     let h = `<section class="dsec" aria-label="티어">`;
     h += `<div class="dhead">${isAll ? '' : mapImg(m.id, 'dhead-img', 240, 135)}<div class="dhead-txt"><div class="dhead-title"><h1>${isAll ? '전체 맵 종합' : esc(m.name)}</h1>${isAll ? (hasMaps() ? `<span class="mode-tag">${MAP_IDS.length}개 맵</span>` : '') : `<span class="mode-tag">${esc(m.mode)}</span>`}</div>`;
     const parts = [esc(D.meta.label), rankLabel(), ROLE_LABEL[r]];
     if (err) parts.push('공식 통계 오류');
     else if (!isHidden()) parts.push(`추정 ${fmtInt(n)}경기` + (isAll ? '' : ` · 표본 신뢰도 ${rel(n)}`));
     h += `<span class="dsample">${parts.join(' · ')}</span></div></div>`;
-    if (D.meta.patchStart) {
-      const day = Math.floor((Date.now() - new Date(D.meta.patchStart).getTime()) / 864e5) + 1;
-      if (day >= 1 && day <= 14) {
-        const ratio = B.sampleRatio;
-        h += `<p class="notice">통계가 초기화된 뒤 ${day}일차 데이터입니다.${ratio != null && ratio < 1 ? ` 경기 수가 아직 지난 패치의 ${Math.max(1, Math.round(ratio * 100))}% 수준이라 티어가 크게 바뀔 수 있습니다.` : ''}</p>`;
-      }
-    }
     if (err) {
       h += `<p class="notice big">이 서버의 공식 통계가 비어 있어 이 맵은 계산에서 제외했어요.</p></section>`;
       $('dMain').innerHTML = h; $('dHeat').innerHTML = ''; $('dHeat').hidden = true;
       return;
     }
-    if (isAll) {
-      h += `<p class="dline">${hasMaps() ? `${MAP_IDS.length}개 맵을 모두 합친 종합 순위입니다. 맵을 고르면 그 맵의 티어와 종합 대비 오르내린 영웅이 나옵니다.` : `${esc(D.meta.label)} 공식 통계는 맵별 수치를 공개하지 않아, 모든 경기를 합친 순위만 볼 수 있습니다.`}</p>`;
-      if (PREV) {
-        const MI0 = B.mi0 && B.mi0['all-maps'];
-        const now0 = i => MI0 && MI0[i] != null ? MI0[i] : ALL[i];
-        const moved = idx.filter(i => PREV.get(i) != null && tierOf(PREV.get(i)) !== tierOf(now0(i)));
-        h += `<p class="dprev">${mdK(PREV.at)} 대비 티어가 바뀐 영웅 ${moved.length}명${moved.length ? ': ' + moved.slice(0, 6).map(i => `${esc(H[i].name)} ${tierOf(PREV.get(i))}→${tierOf(now0(i))}`).join(', ') : ''}. 변동은 기본 가중치와 표본 보정 기준입니다.</p>`;
-      }
-    } else {
+    if (!isAll) {
       const ds = idx.map(i => [i, delta(i)]);
       const up = ds.filter(x => x[1] >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
       const dn = ds.filter(x => x[1] <= -3).sort((a, b) => a[1] - b[1]).slice(0, 3);
@@ -991,7 +986,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     for (const t of TIERS) {
       const hs = order.filter(i => tierOf(mm[i]) === t);
       h += `<div class="trow">${badge(t)}<div class="trow-heroes">` + (hs.length ? hs.map(i => {
-        const hot = !isAll && delta(i) >= HOT, sel = i === hero, low = !isHidden() && cells[i][6] < 100;
+        const hot = !isAll && delta(i) >= HOT, sel = i === shown, low = !isHidden() && cells[i][6] < 100;
         const ring = hot || sel ? `;box-shadow:${hot ? '0 0 0 2px var(--accent)' : '0 0 0 2px var(--bg)'}${sel ? ',0 0 0 4px var(--text)' : ''}` : '';
         const tip = `${H[i].name} · 지수 ${Math.round(mm[i])}` + (hot ? ` (전체 맵보다 ${delta(i)} 높음)` : '') + (low ? ' · 표본이 적어요' : '');
         return `<button type="button" class="op-hero" data-hero="${i}" aria-pressed="${sel}" title="${esc(tip)}">${avatar(i, 56, ring + (low ? ';opacity:.45' : ''))}<span class="op-hero-label"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi">${Math.round(mm[i])}</span></span></button>`;
@@ -1003,11 +998,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     h += `<section class="dsec tight" aria-labelledby="trTitle" style="gap:12px"><div class="tr-head"><h2 id="trTitle">영웅 추이</h2><span class="selchip">${avatar(hero, 24)}${esc(H[hero].name)}</span><div class="tr-metrics" role="group" aria-label="지표">${METRICS.map(([k, l]) => `<button type="button" class="op-chip" data-metric="${k}" aria-pressed="${state.metric === k}">${l}</button>`).join('')}</div></div>`;
     h += `<span class="dhint">티어표나 아래 표에서 영웅을 누르면 바뀌어요. 하루 한 번 저장한 전체 맵 기록이에요.</span><div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
     // scatter
-    h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><span class="dhint">가로는 픽률(로그 눈금), 세로는 승률, 원 크기는 밴률, 색은 티어입니다. 원을 누르면 그 영웅이 표와 맵별 티어 비교에서 강조됩니다.</span><div class="scatter">${scatterHTML(idx, cells, mm, hero)}</div></section>`;
+    h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><span class="dhint">가로는 픽률(로그 눈금), 세로는 승률, 원 크기는 밴률, 색은 티어입니다. 원을 누르면 그 영웅이 표와 맵별 티어 비교에서 강조됩니다.</span><div class="scatter">${scatterHTML(idx, cells, mm, shown)}</div></section>`;
     // table
-    h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><span class="dhint">${state.smooth ? '큰 숫자는 보정값(표본 보정, 승률은 미러전 제외), 작은 회색 숫자는 원본입니다.' : '표본 보정이 꺼져 있어 원본으로 계산했습니다(승률만 미러전 제외, 회색은 원본).'} 표본은 이 맵에서 플레이된 판 수 추정치예요. 열 제목을 누르면 정렬됩니다.</span><div class="twrap">${tableHTML(idx, cells, mm, ALL, hero, isAll)}</div></section>`;
+    h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><span class="dhint">${state.smooth ? '큰 숫자는 보정값(표본 보정, 승률은 미러전 제외), 작은 회색 숫자는 원본입니다.' : '표본 보정이 꺼져 있어 원본으로 계산했습니다(승률만 미러전 제외, 회색은 원본).'} 표본은 이 맵에서 플레이된 판 수 추정치예요. 열 제목을 누르면 정렬됩니다.</span><div class="twrap">${tableHTML(idx, cells, mm, ALL, shown, isAll)}</div></section>`;
     $('dMain').innerHTML = h;
-    renderHeat(idx, hero);
+    renderHeat(idx, shown);
+    bindTrend(hero);
     loadTrend(hero);
   }
 
@@ -1021,7 +1017,31 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     Promise.all([getJSON(`archive/${sv}/${r}.json?v=${hashOf(sv)}`), ARC[sv + '/meta'] ? Promise.resolve(ARC[sv + '/meta']) : getJSON(`archive/${sv}/meta.json?v=${hashOf(sv)}`).catch(() => ({}))])
       .then(([a, meta]) => { ARC[k] = a; ARC[sv + '/meta'] = meta; })
       .catch(() => { ARC[k] = false; })
-      .then(() => { if (arcKey() === k && state.view === 'detail' && $('trendBox')) { const sel = currentHero(); if (sel != null) $('trendBox').innerHTML = trendHTML(sel); } });
+      .then(() => { if (arcKey() === k && state.view === 'detail') { const sel = currentHero(); if (sel != null) paintTrend(sel); } });
+  }
+  let TR = null;   // what the trend chart shows, for the pointer readout
+  function paintTrend(hero){ const box = $('trendBox'); if (!box) return; box.innerHTML = trendHTML(hero); bindTrend(hero); }
+  function bindTrend(hero){
+    const box = $('trendBox'), svg = box && box.querySelector('svg');
+    if (!svg || !TR) return;
+    const tip = box.querySelector('.tr-tip'), cross = svg.querySelector('.tr-x'), dot = svg.querySelector('.tr-dot');
+    const show = ev => {
+      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * 720;
+      let best = -1;
+      TR.rows.forEach((v, k) => { if (v && (best < 0 || Math.abs(TR.X(k) - sx) < Math.abs(TR.X(best) - sx))) best = k; });
+      if (best < 0) return;
+      const v = TR.rows[best], px = TR.X(best), py = TR.Y(v[TR.K]);
+      cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.style.opacity = 1;
+      dot.setAttribute('cx', px); dot.setAttribute('cy', py); dot.style.opacity = 1;
+      const t = tierOf(v[0]);
+      tip.innerHTML = `<b>${md(TR.days[best].d)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${Math.round(v[0])}<br>픽률 ${v[1].toFixed(1)}% · 승률 ${v[2] == null ? '—' : v[2].toFixed(1) + '%'} · 밴률 ${v[3].toFixed(1)}%`;
+      tip.hidden = false;
+      const left = px / 720 * r.width, top = py / 150 * r.height;
+      tip.style.left = Math.min(Math.max(0, left + 14), r.width - tip.offsetWidth) + 'px';
+      tip.style.top = Math.max(0, top - tip.offsetHeight - 12) + 'px';
+    };
+    const hide = () => { tip.hidden = true; cross.style.opacity = 0; dot.style.opacity = 0; };
+    svg.addEventListener('pointermove', show); svg.addEventListener('pointerdown', show); svg.addEventListener('pointerleave', hide);
   }
   function currentHero(){
     const idx = byRole(state.role), err = mapErr(state.map);
@@ -1029,6 +1049,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   function trendHTML(hero){
     const arc = ARC[arcKey()];
+    TR = null;
     if (!arc) return `<div class="tr-empty">${arc === false ? '기록을 불러오지 못했어요.' : '기록을 불러오는 중이에요…'}</div>`;
     const K = {mi:0, pr:1, wr:2, br:3}[state.metric], label = {mi:'지수', pr:'픽률', wr:'승률', br:'밴률'}[state.metric];
     const days = arc.days || [];
@@ -1045,11 +1066,14 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const ps = (D.meta.patchStart || [...(meta.patches || [])].pop() || '').slice(0, 10);
     let pk = -1;
     if (ps && days.length && ps > days[0].d && ps <= days[days.length - 1].d) days.forEach((d, k) => { if (d.d < ps) pk = k + 0.5; });
-    let g = `<svg viewBox="0 0 720 150" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
+    TR = {days, K, X, Y, rows:days.map(d => (d.h && d.h[H[hero].id]) || null)};
+    let g = `<div class="tr-plot"><svg viewBox="0 0 720 150" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
     g += `<line x1="0" y1="${Y(vHi)}" x2="720" y2="${Y(vHi)}" stroke="#26262B" stroke-width="1"/><line x1="0" y1="${Y(vLo)}" x2="720" y2="${Y(vLo)}" stroke="#26262B" stroke-width="1"/>`;
     if (pk >= 0) g += `<line x1="${X(pk)}" y1="6" x2="${X(pk)}" y2="132" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/>`;
     g += `<polyline points="${pts.join(' ')}" fill="none" stroke="#F2F2F3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    g += `<circle cx="${X(lastK)}" cy="${Y(tr[lastK])}" r="5" fill="var(--accent)" stroke="#151518" stroke-width="2"/></svg>`;
+    g += `<circle cx="${X(lastK)}" cy="${Y(tr[lastK])}" r="5" fill="var(--accent)" stroke="#151518" stroke-width="2"/>`;
+    g += `<line class="tr-x" x1="0" x2="0" y1="6" y2="132" stroke="#A1A1A8" stroke-width="1" style="opacity:0"/><circle class="tr-dot" r="4" fill="#F2F2F3" stroke="#151518" stroke-width="2" style="opacity:0"/>`;
+    g += `<rect x="0" y="0" width="720" height="150" fill="transparent"/></svg><div class="tr-tip" hidden></div></div>`;
     g += `<div class="tr-foot"><span>${md(days[firstK].d)} · ${show(tr[firstK])}</span><span>${pk >= 0 ? `점선 = 패치 시작 ${md(ps)} · ` : ''}범위 ${num(vLo)}~${num(vHi)}</span><span>${md(days[lastK].d)} · ${show(tr[lastK])}</span></div>`;
     return g;
   }
@@ -1218,7 +1242,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.pickMap) { pick({kind:'map', id:d.pickMap}); return; }
     if (d.serverPick) { state.srvOpen = false; if (d.serverPick !== state.server) { state.server = d.serverPick; sync(); } else renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); return; }
     if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
-    if (d.act === 'rk-reset') { state.lo = 0; state.hi = TOP; sync(); return; }
+    if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
     if (d.act === 'smooth') { state.smooth = !state.smooth; render(); return; }
     if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; renderBar(); return; }
     if (d.act === 'w-reset') { state.w = Object.assign({}, DEFAULT_W); render(); return; }
@@ -1226,10 +1250,10 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.mode) { state.mode = d.mode; render(); const l = $('mlist'); if (l) l.scrollTop = 0; return; }
     if (d.role) { if (state.role !== d.role) { state.role = d.role; state.focus = null; } render(); return; }
     if (d.sort) { if (state.sort.key === d.sort) state.sort.dir *= -1; else state.sort = {key:d.sort, dir:d.sort === 'name' ? 1 : -1}; lightDetail(); return; }
-    if (d.metric) { state.metric = d.metric; const box = $('trendBox'); const sel = currentHero(); if (box && sel != null) box.innerHTML = trendHTML(sel); for (const b of document.querySelectorAll('[data-metric]')) b.setAttribute('aria-pressed', String(b.dataset.metric === state.metric)); return; }
+    if (d.metric) { state.metric = d.metric; const sel = currentHero(); if (sel != null) paintTrend(sel); for (const b of document.querySelectorAll('[data-metric]')) b.setAttribute('aria-pressed', String(b.dataset.metric === state.metric)); return; }
     if (d.cell) { const [m, i] = d.cell.split('|'); state.map = m; state.focus = H[+i].id; render(); $('dMain').scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); return; }
     if (d.map) { if (state.map !== d.map) { state.map = d.map; state.focus = null; } render(); if (el.closest('#dHeat')) $('dMain').scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); return; }
-    if (d.hero) { state.focus = H[+d.hero].id; render(); return; }
+    if (d.hero) { const id = H[+d.hero].id; state.focus = state.focus === id ? null : id; render(); return; }
   });
   document.addEventListener('change', e => { if (e.target.id === 'railSelect') { state.map = e.target.value; state.focus = null; render(); } });
   document.addEventListener('input', e => {
