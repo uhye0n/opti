@@ -4,7 +4,7 @@
 Usage:
     python3 tools/weights.py [--archive archive] [--patches meta/patches.json] [--out meta/weights.json] [--report]
 
-Every combination of weights (5% steps, each between 10% and 70%) gets two scores:
+Every combination of weights (1% steps, each between 10% and 70%) gets two scores:
 
   1. Patch response: does the index move the way the developers moved the hero? For every usable patch and server,
      the change of each hero's composite score (all ranks, all maps) from just before the patch to the end of the
@@ -16,7 +16,7 @@ Every combination of weights (5% steps, each between 10% and 70%) gets two score
 Patch response alone favours win rate (it moves first after a patch, and it cannot see heroes whose win rate is
 inflated by one-tricks, because that does not change with a patch); agreement favours pick and ban rate. The
 weights with the best worse-of-the-two score (each score scaled to 0..1 over the grid) are taken, the choice is
-repeated leaving out one patch at a time, and the per-weight median of those choices, back on 5% steps, is the
+repeated leaving out one patch at a time, and the per-weight median of those choices, in whole percent, is the
 result. It replaces the default only once MIN_PATCHES patches are usable, moves each weight by at most MAX_MOVE %p at a
 time, and is recomputed only when a new patch becomes usable, so the weights do not drift from day to day.
 
@@ -37,7 +37,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SERVERS = ["kr", "asia", "americas", "europe"]   # China publishes shares only: no match counts to difference
 ROLES = ["tank", "damage", "support"]
 DEFAULT = {"wr": 50, "pr": 30, "br": 20}
-STEP, LO, HI = 5, 10, 70
+STEP, LO, HI = 1, 10, 70
 PATCH_END = 10       # days after the patch day: end of the measuring window
 SETTLE = 3           # days after the patch day: the window's start when the counts were not reset
 MIN_HEROES = 3       # clear buffs / nerfs a patch needs to be usable
@@ -194,18 +194,25 @@ def response(units, w):
     return st.mean(vals) if vals else 0.0
 
 
-def agreement(snaps, w):
-    vals = []
+def prep_agreement(snaps):
+    """Standardized scores per snapshot, server and role (they do not depend on the weights)."""
+    out = []
     for after in snaps:
-        comp = {}
+        z = {}
         for s, (r, roles) in after.items():
             for role in ROLES:
                 hs = [h for h in r if roles.get(h) == role]
-                if len(hs) < 6:
-                    continue
-                C = consts([r[h] for h in hs])
-                comp[(s, role)] = {h: sum(a * b for a, b in zip(w, zs(r[h], C))) for h in hs}
-        ss = sorted(after)
+                if len(hs) >= 6:
+                    C = consts([r[h] for h in hs])
+                    z[(s, role)] = {h: zs(r[h], C) for h in hs}
+        out.append((sorted(after), z))
+    return out
+
+
+def agreement(prepped, w):
+    vals = []
+    for ss, z in prepped:
+        comp = {k: {h: w[0] * t[0] + w[1] * t[1] + w[2] * t[2] for h, t in d.items()} for k, d in z.items()}
         for role in ROLES:
             for i in range(len(ss)):
                 for j in range(i + 1, len(ss)):
@@ -222,7 +229,7 @@ def agreement(snaps, w):
 def choose(usable, prefer):
     G = grid()
     units = [u for p in usable for u in p["units"]]
-    snaps = [p["after"] for p in usable]
+    snaps = prep_agreement([p["after"] for p in usable])
     s1 = {g: response(units, [x / 100 for x in g]) for g in G}
     s2 = {g: agreement(snaps, [x / 100 for x in g]) for g in G}
 
@@ -236,7 +243,7 @@ def choose(usable, prefer):
 
 
 def snap5(ws):
-    """Per-weight values back onto 5% steps that add up to 100 (largest remainders get the rounding)."""
+    """Per-weight values back onto whole steps that add up to 100 (largest remainders get the rounding)."""
     t = sum(ws) or 1
     raw = [x * 100 / t / STEP for x in ws]
     base = [math.floor(x) for x in raw]
@@ -286,7 +293,7 @@ def main():
         dflt = (DEFAULT["wr"], DEFAULT["pr"], DEFAULT["br"])
         out["candidate"] = {"wr": final[0], "pr": final[1], "br": final[2], "leaveOneOutSpread": spread,
                             "response": round(response([u for p in usable for u in p["units"]], [x / 100 for x in final]), 3),
-                            "agreement": round(agreement([p["after"] for p in usable], [x / 100 for x in final]), 3),
+                            "agreement": round(agreement(prep_agreement([p["after"] for p in usable]), [x / 100 for x in final]), 3),
                             "defaultResponse": round(s1[dflt], 3), "defaultAgreement": round(s2[dflt], 3)}
         print(f"weights: candidate {final} (leave-one-out spread {spread}%p), response {out['candidate']['response']} "
               f"vs default {s1[dflt]:.3f}, agreement {out['candidate']['agreement']} vs default {s2[dflt]:.3f}",
