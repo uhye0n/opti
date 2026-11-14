@@ -1,678 +1,506 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>오버워치 티어 리스트</title>
-<meta name="description" content="넥슨·블리자드 오버워치 공식 영웅 통계로 계산한 경쟁전 맵별 메타 조합과 영웅 티어">
-<meta name="theme-color" content="#131A25">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M6 4h52l-8 56H6z' fill='%23C8323A'/%3E%3Ctext x='27' y='47' font-family='Arial Black,Arial' font-weight='900' font-size='40' text-anchor='middle' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>옵티</title>
+<meta name="description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
+<meta name="theme-color" content="#0E0E10">
+<link rel="icon" type="image/svg+xml" href="assets/opti-icon.svg">
 <meta property="og:type" content="website">
-<meta property="og:title" content="오버워치 티어 리스트">
-<meta property="og:description" content="공식 영웅 통계로 계산한 경쟁전 맵별 메타 조합과 돌격·공격·지원 티어. 6시간마다 자동 갱신.">
+<meta property="og:title" content="옵티">
+<meta property="og:description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
 <meta property="og:url" content="https://uhye0n.github.io/OW-TIER-LIST/">
 <meta property="og:image" content="https://uhye0n.github.io/OW-TIER-LIST/assets/maps/lijiang-tower.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#ECEFF3; --panel:#FFFFFF; --panel-2:#F5F7FA; --ink:#141922; --muted:#566172; --faint:#8993A2; --line:#D5DBE3;
-  --accent:#2449C8; --accent-ink:#FFFFFF; --hl:rgba(36,73,200,.09);
-  --chip:#EEF1F5;
-  --t-s:#C8323A; --t-s-ink:#FFFFFF;
-  --t-a:#EE8A2A; --t-a-ink:#1C1206;
-  --t-b:#D8CBAE; --t-b-ink:#231D10;
-  --t-c:#3E6EA8; --t-c-ink:#FFFFFF;
-  --t-d:#667080; --t-d-ink:#FFFFFF;
-  --live:#1E9E62;
-  --display:"Black Han Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --text:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#131A25; --panel:#1B2331; --panel-2:#212B3B; --ink:#E8ECF2; --muted:#A2ADBE; --faint:#6F7B8E; --line:#2C3749;
-    --accent:#7C95FF; --accent-ink:#0F1422; --hl:rgba(124,149,255,.14);
-    --chip:#263246;
-    --t-b:#BBAB87; --t-d:#5D6677;
-    --live:#3CCB8A;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
   color-scheme:dark;
-  --live:#3CCB8A;
-  --bg:#131A25; --panel:#1B2331; --panel-2:#212B3B; --ink:#E8ECF2; --muted:#A2ADBE; --faint:#6F7B8E; --line:#2C3749;
-  --accent:#7C95FF; --accent-ink:#0F1422; --hl:rgba(124,149,255,.14);
-  --chip:#263246;
-  --t-b:#BBAB87; --t-d:#5D6677;
+  --bg:#0E0E10;--surface-field:#121214;--surface-panel:#151518;--surface-track:#17171A;--surface-pop:#1A1A1D;
+  --surface-thumb:#1C1C20;--surface-chip:#222226;--surface-selected:#303036;
+  --line:#1F1F23;--line-strong:#26262B;--line-field:#2A2A2F;--line-row:#1A1A1D;--line-group:#34343A;
+  --text:#F2F2F3;--text-hover:#FFFFFF;--text-body:#D4D4D8;--text-secondary:#A1A1A8;--text-meta:#8A8A92;--text-faint:#5A5A62;
+  --accent:#F99E1A;--on-accent:#1A1404;--error:#B26A6A;--switch-off:#3A3A40;
+  --tier-s:var(--accent);--tier-s-ink:#1A1404;--tier-a:#C4C4CA;--tier-a-ink:#141416;--tier-b:#8A8A92;--tier-b-ink:#141416;
+  --tier-c:#4A4A50;--tier-c-ink:#E4E4E7;--tier-d:#2C2C31;--tier-d-ink:#B4B4BA;
+  --font-sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --page-max:1280px;--page-pad:40px;
+  --control-sm:32px;--control-md:36px;--row-pop:44px;
+  --space-2:2px;--space-4:4px;--space-6:6px;--space-8:8px;--space-10:10px;--space-12:12px;--space-14:14px;--space-16:16px;--space-20:20px;--space-24:24px;
+  --radius-xs:3px;--radius-badge-sm:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;
+  --radius-pill:18px;--radius-pill-sm:16px;--radius-full:50%;
+  --badge-size:28px;--badge-size-sm:18px;
+  --avatar-20:20px;--avatar-24:24px;--avatar-28:28px;--avatar-32:32px;--avatar-40:40px;--avatar-56:56px;--avatar-60:60px;--avatar-64:64px;
+  --rank-cell:48px;--knob:14px;--ring-knob:0 0 0 3px var(--bg);
+  --opacity-out:.3;--opacity-low:.45;
+  --ring-hot:0 0 0 2px var(--accent);--ring-hot-sm:0 0 0 1.5px var(--accent);
+  --shadow-pop:0 8px 24px rgba(0,0,0,.5);
 }
-*,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--text);font-size:14.5px;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}
-h1,h2,h3{text-wrap:balance}
-button,select,input{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.page{max-width:1280px;margin:0 auto;padding:22px 20px 56px}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:13px;line-height:1.45;word-break:keep-all;-webkit-font-smoothing:antialiased}
+a{color:var(--text)}a:hover{color:var(--text-hover)}
+button{font:inherit;color:inherit}
+img{display:block}
+[hidden]{display:none!important}
+.tnum{font-variant-numeric:tabular-nums}
+.scroll{scrollbar-width:thin;scrollbar-color:var(--line-field) transparent}
+.scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:var(--line-field);border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.page{max-width:var(--page-max);margin:0 auto;padding:0 var(--page-pad)}
 
-/* header */
-.top{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-end;justify-content:space-between;padding-bottom:18px;border-bottom:3px solid var(--ink)}
-.top h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,5.4vw,52px);line-height:1.02;margin:0;letter-spacing:-.01em}
-.scope{margin:10px 0 0;color:var(--muted);font-size:13.5px;max-width:64ch}
-.scope a{color:inherit}
-.controls{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
-.seg{display:inline-flex;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:3px;gap:2px}
-.seg button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13.5px;padding:7px 12px;cursor:pointer;white-space:nowrap}
-.seg button:hover{color:var(--ink)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.row2{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--panel);border:1px solid var(--line);padding:6px 11px}
-.toggle input{accent-color:var(--accent);width:15px;height:15px;margin:0}
-.weights{position:relative}
-.weights summary{list-style:none;cursor:pointer;font-size:13.5px;font-weight:600;background:var(--panel);border:1px solid var(--line);padding:6px 11px;white-space:nowrap}
-.weights summary::-webkit-details-marker{display:none}
-.weights summary .wl{color:var(--muted);font-weight:500;margin-left:6px;font-variant-numeric:tabular-nums}
-.wbody{position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:280px;background:var(--panel);border:1px solid var(--line);padding:14px 16px;box-shadow:0 10px 30px rgba(10,15,25,.18)}
-.wsplit{position:relative;height:34px;margin:4px 0 6px;--c-wr:#2449C8;--c-pr:#1E9E62;--c-br:#E0782A}
-.wtrack{position:absolute;left:0;right:0;top:12px;height:10px;border-radius:5px}
-.wsplit input[type=range]{position:absolute;left:0;top:0;width:100%;height:34px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
-.wsplit input[type=range]::-webkit-slider-runnable-track{background:none;height:34px}
-.wsplit input[type=range]::-moz-range-track{background:none}
-.wsplit input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:20px;height:28px;margin-top:3px;border-radius:4px;background:var(--panel);border:2px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:ew-resize}
-.wsplit input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:24px;border-radius:4px;background:var(--panel);border:2px solid var(--ink);cursor:ew-resize}
-.wsplit input[type=range]:focus-visible{outline:none}
-.wsplit input[type=range]:focus-visible::-webkit-slider-thumb{border-color:var(--accent);box-shadow:0 0 0 3px var(--hl)}
-.wvals{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:600;margin-bottom:10px}
-.wvals b{font-variant-numeric:tabular-nums}
-.wvals span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
-.wvals .c-wr::before{background:#2449C8}.wvals .c-pr::before{background:#1E9E62}.wvals .c-br::before{background:#E0782A}
-.wbody p{margin:4px 0 10px;font-size:12.5px;color:var(--muted)}
-.wbody button{border:1px solid var(--line);background:var(--panel-2);padding:6px 10px;font-size:13px;font-weight:600;cursor:pointer}
+/* ---- portrait, tier badge, chip */
+.op-avatar{display:block;flex-shrink:0;border-radius:var(--radius-full);object-fit:cover;background:var(--surface-thumb)}
+.op-tier{width:var(--badge-size);height:var(--badge-size);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:14px;font-weight:800;line-height:1}
+.op-tier-sm{width:var(--badge-size-sm);height:var(--badge-size-sm);border-radius:var(--radius-badge-sm);font-size:11px}
+.op-tier-S{background:var(--tier-s);color:var(--tier-s-ink)}
+.op-tier-A{background:var(--tier-a);color:var(--tier-a-ink)}
+.op-tier-B{background:var(--tier-b);color:var(--tier-b-ink)}
+.op-tier-C{background:var(--tier-c);color:var(--tier-c-ink)}
+.op-tier-D{background:var(--tier-d);color:var(--tier-d-ink)}
+.op-chip{height:var(--control-sm);padding:0 var(--space-12);display:inline-flex;align-items:center;gap:var(--space-8);background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-md);font-size:14px;font-weight:500;white-space:nowrap;text-decoration:none;cursor:pointer}
+.op-chip[aria-pressed="true"]{background:var(--text);color:var(--bg);font-weight:700}
+.op-chip-value{color:var(--text-secondary);font-variant-numeric:tabular-nums}
 
-/* layout */
-.layout{display:grid;grid-template-columns:212px minmax(0,1fr);gap:28px;align-items:start;margin-top:22px}
-.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100dvh - 24px);overflow:auto;padding-right:4px}
-.rail .all{width:100%;text-align:left}
-.mode{margin-top:14px}
-.mode-name{font-size:12.5px;font-weight:700;color:var(--muted);padding:0 8px 4px;border-bottom:1px solid var(--line);margin-bottom:4px}
-.map-btn{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;padding:6px 8px;cursor:pointer;text-align:left;font-size:14px;color:var(--ink)}
-.map-btn:hover{background:var(--hl)}
-.map-btn .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.map-btn .n{font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
-.map-btn.all{font-weight:700;border:1px solid var(--line);background:var(--panel)}
-.rail .map-btn[aria-current="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.rail .map-btn[aria-current="true"] .n{color:inherit;opacity:.7}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;border:1.5px solid currentColor}
-.dot.r-hi{background:currentColor}
-.dot.r-mid{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
-.dot.r-lo{background:transparent}
-.legend{font-size:12px;color:var(--muted);margin-top:16px;padding:0 8px;display:grid;gap:4px}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.mapselect{display:none}
-.map-search{position:relative}
-.rail .map-search{position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:10px}
-.rail .map-results{display:none}
-.rail-none{margin:4px 8px;font-size:13px;color:var(--muted)}
-.rail .map-btn.kb{outline:2px solid var(--accent);outline-offset:-2px}
-.map-search input{width:100%;height:40px;padding:0 12px 0 36px;border:1px solid var(--line);background:var(--panel) no-repeat 11px 50%/16px 16px;font-size:14.5px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238993A2' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")}
-.map-search input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
-.map-results{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 30px rgba(10,15,25,.18);max-height:340px;overflow:auto}
-.map-results button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;padding:8px 12px;text-align:left;cursor:pointer;font-size:14px;color:var(--ink)}
-.map-results button[aria-selected="true"],.map-results button:hover{background:var(--hl)}
-.map-results .mr-img{width:48px;height:27px;object-fit:cover;flex:none;background:var(--panel-2)}
-.map-results .mr-nm{flex:1;min-width:0;font-weight:600}
-.map-results .mr-mode{font-size:12px;color:var(--muted)}
-.map-results .mr-none{padding:10px 12px;font-size:13px;color:var(--muted)}
-.rail .map-btn.hide,.rail .mode.hide{display:none}
-body.no-maps .rail #mapSearchBox,body.no-maps .mapselect{display:none!important}
+/* ---- header */
+.hdr{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
+.hdr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px}
+.logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;text-decoration:none}
+.logo svg{flex:none}
+.nav{display:flex;gap:22px;font-size:14px}
+.nav a{color:var(--text-secondary);text-decoration:none;font-weight:500}
+.nav a:hover{color:var(--text)}
+.nav a[aria-current="page"]{color:var(--text);font-weight:700}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.op-search{position:relative;width:320px;max-width:100%}
+.op-search-field{display:flex;align-items:center;gap:var(--space-8);height:var(--control-md);padding:0 var(--space-14);background:var(--surface-field);border:1px solid var(--line-field);border-radius:var(--radius-pill);color:var(--text-meta)}
+.op-search-field:focus-within{outline:2px solid var(--text);outline-offset:2px}
+.op-search-field input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--text);font:inherit;font-size:14px}
+.op-search-field input::placeholder{color:var(--text-meta)}
+.op-search-field input::-webkit-search-cancel-button{filter:invert(.6)}
+.op-pop{background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-xl);box-shadow:var(--shadow-pop)}
+.op-search-pop{position:absolute;left:0;right:0;top:42px;z-index:40;padding:var(--space-8) 0}
+.op-search-group{padding:var(--space-4) var(--space-14);font-size:12px;color:var(--text-meta)}
+.op-search-hit{width:100%;min-height:var(--row-pop);padding:0 var(--space-14);display:flex;align-items:center;gap:var(--space-10);background:transparent;border:0;color:var(--text);text-align:left;cursor:pointer}
+.op-search-hit:hover,.op-search-hit.is-kb{background:var(--surface-chip)}
+.op-search-hit .op-avatar{width:var(--avatar-32);height:var(--avatar-32)}
+.op-search-thumb{width:48px;height:32px;flex-shrink:0;border-radius:var(--radius-sm);object-fit:cover;background:var(--line-strong)}
+.op-search-name{font-size:14px;font-weight:500}
+.op-search-meta{margin-left:auto;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums;white-space:nowrap}
+.op-search-empty{padding:var(--space-10) var(--space-14);color:var(--text-meta)}
+.srv{position:relative}
+.srv-btn{height:var(--control-md);padding:0 var(--space-14);background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-pill);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer}
+.srv-pop{position:absolute;right:0;top:42px;z-index:40;min-width:160px;padding:var(--space-6)}
+.srv-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;font-weight:500;text-align:left;cursor:pointer}
+.srv-item:hover{background:var(--surface-thumb)}
+.srv-item[aria-pressed="true"]{background:var(--surface-chip);font-weight:700}
+.load-err{margin:8px 0 0;padding:10px 14px;background:var(--surface-panel);border-radius:var(--radius-lg);color:var(--text-body)}
 
-/* board */
-#boardPanel{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 14px)}
-.map-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
-.map-head h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,4.4vw,44px);line-height:1.08;margin:0}
-.mode-tag{font-size:13px;font-weight:600;color:var(--muted);border:1px solid var(--line);padding:1px 8px;background:var(--panel)}
-.sample{font-size:13px;color:var(--muted)}
-.insight{margin:6px 0 16px;font-size:14.5px;max-width:78ch}
-.insight .up{color:var(--t-s);font-weight:700}
-.insight .down{color:var(--t-c);font-weight:700}
-.warn{display:block;margin-top:4px;color:var(--muted);font-size:13px}
-.board{display:grid;gap:6px}
-.tier-row{display:grid;grid-template-columns:70px minmax(0,1fr);min-height:54px;background:var(--panel);border:1px solid var(--line)}
-.tier-label{display:flex;align-items:center;justify-content:center;background:var(--tc);color:var(--tci);font-family:var(--display);font-size:32px;line-height:1;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);padding-right:10px}
-.tier-chips{display:flex;flex-wrap:wrap;gap:6px;padding:9px 12px 9px 10px;align-items:center}
-.tier-chips .none{color:var(--faint);font-size:13px;padding-left:4px}
-.chip{display:inline-flex;align-items:baseline;gap:7px;border:0;background:var(--chip);font-weight:600;font-size:14.5px;padding:7px 15px 7px 13px;clip-path:polygon(7px 0,100% 0,calc(100% - 7px) 100%,0 100%);cursor:pointer;line-height:1.2}
-.chip .sc{font-size:12px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
-.chip:hover{background:var(--hl)}
-.chip.on{background:var(--ink);color:var(--bg)}
-.chip.on .sc{color:inherit;opacity:.75}
-.chip:focus-visible{outline:none;background:var(--accent);color:var(--accent-ink)}
-.chip:focus-visible .sc{color:inherit}
-.t-S{--tc:var(--t-s);--tci:var(--t-s-ink)}
-.t-A{--tc:var(--t-a);--tci:var(--t-a-ink)}
-.t-B{--tc:var(--t-b);--tci:var(--t-b-ink)}
-.t-C{--tc:var(--t-c);--tci:var(--t-c-ink)}
-.t-D{--tc:var(--t-d);--tci:var(--t-d-ink)}
+/* ---- rank range */
+.op-range{display:flex;align-items:center;gap:var(--space-8);max-width:100%}
+.op-range-reset{width:var(--control-sm);height:var(--control-sm);flex:none;padding:0;display:flex;align-items:center;justify-content:center;background:var(--surface-chip);border:0;border-radius:var(--radius-pill-sm);color:var(--text);cursor:pointer}
+.op-range-bar{position:relative;display:flex;height:var(--control-md);max-width:100%;flex-shrink:1;min-width:0;background:var(--surface-track);border-radius:var(--radius-md);user-select:none;-webkit-user-select:none;touch-action:none}
+.op-range-fill{position:absolute;top:0;bottom:0;background:var(--surface-selected);border-radius:var(--radius-md);pointer-events:none}
+.op-range-cell{position:relative;flex:1 1 0;min-width:0;height:var(--control-md);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.op-range-icon{height:auto;max-width:80%;pointer-events:none}
+.op-range-cell.is-out .op-range-icon{opacity:var(--opacity-out)}
+.op-range-cell:hover .op-range-icon{opacity:1}
+.op-range-cell.is-end{cursor:ew-resize}
+.op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
+.op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
+.op-range-knob-l{left:-7px}
+.op-range-knob-r{right:-7px}
+.op-range-cell:hover .op-range-knob{transform:scale(1.2)}
+.op-range-slider{position:absolute;top:0;width:16px;height:100%;margin-left:-8px;padding:0;background:transparent;border:0;border-radius:var(--radius-md);pointer-events:none}
 
-/* panels */
-.panel{background:var(--panel);border:1px solid var(--line);padding:18px 20px;margin-top:22px}
-.panel h3{font-size:18px;font-weight:700;margin:0}
-.panel .hint{margin:4px 0 12px;color:var(--muted);font-size:13.5px;max-width:80ch}
-#scatter svg{display:block;width:100%;height:auto}
-#scatter text{font-family:var(--text)}
-.table-wrap{overflow-x:auto}
-table.detail{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;min-width:640px}
-.detail th{font-weight:700;font-size:12.5px;color:var(--muted);text-align:right;padding:8px 10px;border-bottom:2px solid var(--ink);white-space:nowrap}
-.detail th button{border:0;background:none;padding:0;font-weight:inherit;color:inherit;cursor:pointer}
-.detail th[aria-sort] button{color:var(--ink)}
-.detail th:first-child,.detail td:first-child{text-align:left}
-.detail td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
-.detail tr{cursor:pointer}
-.detail tbody tr:hover td{background:var(--hl)}
-.detail tr.focus td{background:var(--hl);box-shadow:inset 0 -2px 0 var(--accent)}
-.detail .sub{display:block;font-size:11.5px;color:var(--faint)}
-.detail .raw{display:block;font-size:11.5px;color:var(--faint)}
-.detail .mi{white-space:nowrap}
-.badge{display:inline-block;min-width:24px;text-align:center;font-family:var(--display);background:var(--tc);color:var(--tci);padding:1px 6px;margin-right:7px;font-size:13px}
-.delta.up{color:var(--t-s);font-weight:600}
-.delta.down{color:var(--t-c);font-weight:600}
+/* ---- home */
+.home-bar{min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.home-tabs{display:flex;gap:8px}
+.home-rk{margin-left:auto;max-width:100%}
+.home-cols{display:flex;gap:48px;padding-top:8px}
+.home-left,.home-right{flex:1 1 0;min-width:0}
+.home-left{display:flex;flex-direction:column}
+.hgroup{flex:1 0 auto;display:flex;flex-direction:column;gap:10px;padding:16px 0 14px;border-top:1px solid var(--line)}
+.hgroup:first-child{padding-top:0;border-top:0}
+.hgroup h2,.hright-title{margin:0;font-size:16px;font-weight:700}
+.hrow{display:flex;align-items:center;gap:16px}
+.hrow-heroes{display:flex;flex-wrap:wrap;gap:16px}
+.ttier{flex:1 0 auto;display:flex;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.ttier:first-child{border-top:0}
+.ttier-heroes{flex:1;min-width:0;display:flex;flex-wrap:wrap}
+.none{color:var(--text-faint)}
+.op-hero{width:88px;padding:0;display:flex;flex-direction:column;align-items:center;gap:var(--space-6);background:transparent;border:0;color:var(--text);text-decoration:none}
+.op-hero-label{display:flex;align-items:baseline;justify-content:center;gap:5px;white-space:nowrap}
+.op-hero-name{font-size:13px;font-weight:500}
+.op-hero-mi{flex-shrink:0;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+a.op-hero:hover .op-hero-name{text-decoration:underline}
+button.op-hero{cursor:pointer}
+.op-hero[aria-pressed="true"] .op-hero-name{font-weight:700}
+.home-right{position:relative;display:flex;flex-direction:column}
+.hright-title{padding-bottom:2px}
+.op-tabs{display:flex;flex-wrap:wrap;column-gap:var(--space-20);border-bottom:1px solid var(--line)}
+.op-tab{height:var(--control-md);margin-bottom:-1px;padding:0;display:flex;align-items:center;gap:5px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer}
+.op-tab:hover{color:var(--text)}
+.op-tab[aria-selected="true"]{border-bottom-color:var(--text);color:var(--text);font-weight:700}
+.op-tab-count{font-size:12px;font-weight:500;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-tabs-meta{margin-left:auto;align-self:center;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.mlist{padding:6px 0 28px}
+.mfade{position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(rgba(14,14,16,0),var(--bg));pointer-events:none}
+.hnote{margin:12px 0 0;color:var(--text-meta);font-size:14px}
+.op-map{display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) 0;text-decoration:none;color:var(--text)}
+.op-map-head{display:flex;align-items:baseline;gap:var(--space-8)}
+.op-map-name{font-size:16px;font-weight:700}
+.op-map:hover .op-map-name{text-decoration:underline}
+.op-map-sub{font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-map-body{display:flex;gap:var(--space-12)}
+.op-map-img{width:167px;height:94px;flex-shrink:0;border-radius:var(--radius-lg);object-fit:cover;background:var(--surface-thumb)}
+.op-map-noimg{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:12px}
+.op-map-err{height:94px;display:flex;align-items:center;color:var(--text-meta)}
+.op-map-roles{flex:1;min-width:0;height:94px;display:flex}
+.op-map-role{flex:2 1 0;min-width:0;padding-top:var(--space-6);border-left:1px solid var(--line-strong);display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.op-map-role:first-child{flex-grow:1.4;border-left:0}
+.op-map-top{width:100%;display:flex}
+.op-map-pick{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.op-map-face{position:relative;width:var(--avatar-40);height:var(--avatar-40)}
+.op-map-face .op-avatar{width:var(--avatar-40);height:var(--avatar-40)}
+.op-map-label{height:17px;display:flex;align-items:baseline;justify-content:center;gap:var(--space-4);white-space:nowrap;font-size:12px}
+.op-map-mi{flex-shrink:0;font-size:11px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-map-more{height:20px;display:flex;gap:18px}
+.op-map-role:first-child .op-map-more{gap:var(--space-16)}
+.op-map-reserve{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-map-reserve .op-avatar{width:var(--avatar-20);height:var(--avatar-20)}
+.op-map .is-hot .op-map-face .op-avatar{box-shadow:var(--ring-hot)}
+.op-map .is-hot .op-map-mi,.op-map-reserve.is-hot{color:var(--text);font-weight:700}
+.op-map-reserve.is-hot .op-avatar{box-shadow:var(--ring-hot-sm)}
+.op-map-hotmark{position:absolute;left:50%;top:-8px;width:8px;height:8px;margin-left:-6px;background:var(--accent);border:2px solid var(--bg);transform:rotate(45deg)}
 
-/* heatmap */
-.heat-wrap{overflow-x:auto;padding-bottom:4px}
-table.heat{border-collapse:separate;border-spacing:2px;font-size:12.5px}
-.heat th.hn{position:sticky;left:0;z-index:2;background:var(--panel);text-align:left;padding:0 10px 0 2px;white-space:nowrap;font-weight:600;min-width:94px}
-.heat thead th{font-weight:600;color:var(--muted);vertical-align:bottom}
-.heat thead th.corner{position:sticky;left:0;z-index:3;background:var(--panel)}
-.heat th.modeh{font-size:12px;text-align:left;border-bottom:1px solid var(--line);padding:0 2px 2px;white-space:nowrap}
-.heat th.mc{padding:0 0 4px}
-.heat th.mc button{writing-mode:vertical-rl;border:0;background:none;padding:4px 0;cursor:pointer;color:var(--muted);font-weight:600;font-size:12.5px;line-height:1.1;max-height:118px;white-space:nowrap}
-.heat th.mc button:hover{color:var(--ink)}
-.heat th.mc.sel button{color:var(--ink);font-weight:700}
-.heat td.hc{width:30px;min-width:30px;height:26px;text-align:center;font-family:var(--display);font-size:13px;background:var(--tc);color:var(--tci);cursor:pointer}
-.heat td.hc.sel{box-shadow:inset 0 0 0 2px var(--ink)}
-.heat td.hc.all{margin-right:4px}
-.heat td.gap,.heat th.gap{width:6px;min-width:6px;padding:0;background:transparent}
-.heat tr.focus th.hn{color:var(--accent)}
-.heat tr.focus td.hc{box-shadow:inset 0 0 0 2px var(--accent)}
-
-/* method */
-.method .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:4px 32px}
-.method h4{font-size:15px;margin:16px 0 4px}
-.method p{margin:0 0 8px;color:var(--ink);font-size:14px;max-width:68ch}
-.method .muted{color:var(--muted)}
-.formula{background:var(--panel-2);border-left:3px solid var(--ink);padding:10px 14px;margin:6px 0 10px;font-size:13.5px;line-height:1.75}
-.foot{margin-top:18px;font-size:12.5px;color:var(--muted)}
-.m-lead{margin:10px 0 16px;font-size:15px;font-weight:600}
-.m-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-@media (max-width: 900px){ .m-grid{grid-template-columns:minmax(0,1fr)} }
-#method .foot{margin-top:14px}
-.method p.m-lead,.method p.foot,.method .m-tiers{max-width:none}
-.foot a{color:inherit}
-.m-card{background:var(--panel-2);border:1px solid var(--line);padding:4px 16px 14px}
-.m-card h4{font-size:14.5px;margin:12px 0 6px}
-.m-list{margin:0;padding-left:17px;font-size:13.5px;line-height:1.55}
-.m-list li{margin:2px 0}
-.m-list.muted{color:var(--muted)}
-.m-card .formula{margin:4px 0 8px;font-size:13px;line-height:1.7}
-.m-card .ctable{min-width:0;width:100%;margin-top:10px;font-size:12.5px}
-.m-card .ctable th,.m-card .ctable td{padding:4px 6px}
-.m-tiers{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0;font-size:13.5px}
-.m-tiers .badge{margin-right:3px}
-.m-tiers .tp{white-space:nowrap}
-
-
-@media (max-width: 900px){
-  .layout{grid-template-columns:minmax(0,1fr);gap:14px}
-  .rail{position:static;max-height:none;overflow:visible;padding-right:0}
-  .rail #rail,.rail .rail-none{display:none}
-  .rail .map-search{position:relative;padding-bottom:0}
-  .rail .map-results{display:block}
-  .rail .map-results[hidden]{display:none}
-  .mapselect{display:block;width:100%;padding:10px 12px;border:1px solid var(--line);background:var(--panel);font-size:15px;font-weight:600;margin-bottom:14px}
-  .controls{align-items:flex-start;width:100%}
-  .row2{justify-content:flex-start}
-  .wbody{position:static;width:auto;margin-top:6px;box-shadow:none}
+/* home fits one screen when there is room for the two columns */
+@media (min-width:1024px) and (min-height:600px){
+  body[data-view="home"]{height:100vh;height:100dvh;overflow:hidden}
+  body[data-view="home"] .page{height:100%;display:flex;flex-direction:column}
+  #homeView{flex:1;min-height:0;display:flex;flex-direction:column}
+  .home-cols{flex:1;min-height:0}
+  .home-left{overflow-y:auto}
+  .home-right{min-height:0}
+  .mlist{flex:1;min-height:0;overflow-y:auto}
 }
-@media (max-width: 560px){
-  .page{padding:16px 12px 40px}
-  .tier-row{grid-template-columns:52px minmax(0,1fr)}
-  .tier-label{font-size:26px;padding-right:8px}
-  .chip{font-size:13.5px;padding:6px 13px 6px 11px}
-  .panel{padding:14px 12px}
-}
-@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
-
-
-.fresh{display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;font-size:13px;color:var(--muted);max-width:64ch}
-.fresh .live{flex:none;width:8px;height:8px;border-radius:50%;background:var(--live);margin-top:6px;box-shadow:0 0 0 3px color-mix(in srgb, var(--live) 22%, transparent)}
-table.ctable{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;margin:4px 0 10px;min-width:360px}
-.ctable th,.ctable td{padding:5px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-.ctable th{font-weight:700;color:var(--muted);border-bottom:2px solid var(--ink)}
-.ctable th:first-child,.ctable td:first-child{text-align:left}
-.segs{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-.seg-b button{display:inline-flex;flex-direction:column;align-items:center;gap:3px;line-height:1.15;padding:6px 12px}
-.seg-b button .rk{display:flex;align-items:center;gap:2px}
-.seg-b button .rk img{width:26px;height:26px;object-fit:contain;display:block;filter:saturate(.55) opacity(.7)}
-.seg-b button[aria-pressed="true"] .rk img,.seg-b button:hover .rk img{filter:none}
-@media (max-width: 900px){ .segs{justify-content:flex-start} }
-@media (max-width: 560px){ .segs{width:100%} .seg-b{display:grid;grid-template-columns:repeat(3,1fr);width:100%} .seg-b button{padding:6px 4px;white-space:normal} .seg-b button .rk img{width:22px;height:22px} }
-
-.segs+.segs{margin-top:0}
-.controls{gap:8px}
-.chip{align-items:center}
-.chip .pt{width:26px;height:26px;border-radius:50%;object-fit:cover;flex:none;margin-left:-3px;background:var(--panel-2)}
-.chip .mv{font-size:11px;line-height:1;margin-left:-2px}
-.mv.up,.delta.up{color:var(--t-s)}
-.mv.down,.delta.down{color:var(--t-c)}
-.who{display:flex;align-items:center;gap:8px}
-.who .pt{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:var(--panel-2)}
-.who .pt.sm{width:20px;height:20px}
-.heat th.hn .who{gap:6px}
-.patch-note{margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--t-a);background:var(--panel);font-size:13.5px}
-.ctable caption{text-align:left;font-size:12.5px;color:var(--muted);padding-bottom:4px}
-.detail .muted{color:var(--faint)}
-.chip.thin{opacity:.55}
-.chip.thin.on{opacity:1}
-
-[aria-busy="true"]{opacity:.55}
-
-/* header when the controls wrap under the title */
-@media (max-width: 1180px){
-  .controls{align-items:flex-start;width:100%}
-  .segs,.row2{justify-content:flex-start}
-  .wbody{left:0;right:auto}
-}
-@media (max-width: 560px){
-  .top{gap:12px;padding-bottom:14px}
-  .scope{font-size:13px;margin-top:6px}
-  .fresh{font-size:12.5px;margin-top:6px}
-  .row2{flex-wrap:wrap;width:100%}
-  .weights[open]{flex-basis:100%}
-  .row2 .toggle{flex:none}
-  .weights{flex:1;min-width:0}
-  .weights summary{overflow:hidden;text-overflow:ellipsis}
-  .weights summary .wt{display:none}
-  .weights summary .wl{margin-left:0;color:var(--ink);font-weight:600}
-  .weights summary .wl::before{content:"가중치 "}
-  .weights summary .wn{display:none}
+@media (max-width:1023px),(max-height:599px){
+  .home-cols{flex-direction:column;gap:32px;padding-bottom:40px}
+  .home-rk{flex-basis:100%;margin-left:0}
+  .mfade{display:none}
+  .mlist{padding-bottom:0}
 }
 
-/* view tabs */
+/* ---- detail */
+#detailView{padding-bottom:72px}
+.dbar{min-height:48px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dbar-r{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;max-width:100%}
+.op-switch{height:var(--control-sm);padding:0;display:inline-flex;align-items:center;gap:var(--space-8);background:transparent;border:0;color:var(--text);font-size:14px;cursor:pointer}
+.op-switch-track{position:relative;width:36px;height:20px;border-radius:10px;background:var(--switch-off)}
+.op-switch-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:var(--radius-full);background:var(--text-secondary)}
+.op-switch[aria-pressed="true"] .op-switch-track{background:var(--text)}
+.op-switch[aria-pressed="true"] .op-switch-knob{left:18px;background:var(--bg)}
+.wsel{position:relative}
+.wpop{position:absolute;right:0;top:40px;z-index:30;width:300px;max-width:calc(100vw - 32px);padding:16px;display:flex;flex-direction:column;gap:12px}
+.wpop p{margin:0;color:var(--text-body)}
+.wsplit{position:relative;height:16px}
+.wtrack{position:absolute;left:0;right:0;top:6px;height:4px;display:flex;gap:2px;pointer-events:none}
+.wtrack span{height:4px;border-radius:2px}
+.wsplit input{position:absolute;left:-7px;right:-7px;width:calc(100% + 14px);top:0;height:16px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;pointer-events:none}
+.wsplit input::-webkit-slider-runnable-track{height:16px;background:transparent}
+.wsplit input::-moz-range-track{height:16px;background:transparent}
+.wsplit input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:14px;height:14px;margin-top:1px;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--surface-pop);cursor:pointer}
+.wsplit input::-moz-range-thumb{pointer-events:auto;width:14px;height:14px;border:0;border-radius:50%;background:var(--text);box-shadow:0 0 0 3px var(--surface-pop);cursor:pointer}
+.wsplit input:focus-visible{outline:none}
+.wsplit input:focus-visible::-webkit-slider-thumb{outline:2px solid var(--text);outline-offset:3px}
+.wsplit input:focus-visible::-moz-range-thumb{outline:2px solid var(--text);outline-offset:3px}
+.wvals{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.wvals b{color:var(--text)}
+.dcols{display:flex;flex-wrap:wrap;align-items:flex-start;gap:32px 40px;padding-top:12px}
+.drail{flex:1 1 232px;max-width:320px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.rail-select{display:none;width:100%;height:var(--control-md);padding:0 12px;background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-md);font:inherit;font-size:14px;font-weight:500}
+@media (max-width:900px){ .drail{max-width:none;flex-basis:100%} .drail .op-rail{display:none} .rail-select{display:block} }
+.op-rail{display:flex;flex-direction:column;gap:var(--space-2);padding-bottom:10px}
+.op-rail-label{padding:var(--space-6) var(--space-10) var(--space-2);font-size:12px;font-weight:700;color:var(--text-meta)}
+.op-rail-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+.op-rail-item:hover{background:var(--surface-thumb)}
+.op-rail-item[aria-current="true"]{background:var(--surface-chip);font-weight:700}
+.op-rail-n{flex-shrink:0;font-size:12px;font-weight:400;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-rail-n.is-error{color:var(--error)}
+.dmain{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:40px}
+.dsec{display:flex;flex-direction:column;gap:16px}
+.dsec.tight{gap:8px}
+.dsec h2{margin:0;font-size:16px;font-weight:700}
+.dhint{font-size:13px;color:var(--text-meta)}
+.dhead{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
+.dhead-img{width:240px;height:135px;flex-shrink:0;border-radius:var(--radius-xl);object-fit:cover;background:var(--surface-thumb)}
+.dhead-txt{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.dhead-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.dhead h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.mode-tag{padding:2px 10px;background:var(--surface-chip);border-radius:var(--radius-sm);font-size:12px;font-weight:500;color:var(--text-body)}
+.dsample{font-size:14px;color:var(--text-secondary)}
+.notice{margin:0;padding:10px 14px;background:var(--surface-panel);border-radius:var(--radius-lg);color:var(--text-secondary)}
+.notice.big{padding:20px;border-radius:var(--radius-xl);font-size:14px}
+.dline{margin:0;font-size:14px;color:var(--text-body)}
+.dprev{margin:0;color:var(--text-meta)}
+.moves{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.moves-l{font-size:13px;color:var(--text-meta)}
+.mchip{height:32px;padding:0 12px 0 4px;display:flex;align-items:center;gap:6px;background:var(--surface-thumb);border:0;border-radius:16px;color:var(--text);font-size:13px;cursor:pointer}
+.mchip .op-avatar{width:24px;height:24px}
+.mchip b{font-variant-numeric:tabular-nums}
+.tboard{display:flex;flex-direction:column}
+.trow{display:flex;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.trow-heroes{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:12px 8px}
+.trow .op-hero{width:84px;padding-top:4px}
+.trow .op-hero .op-avatar{width:56px;height:56px}
+.tr-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.selchip{height:32px;padding:0 12px 0 4px;display:flex;align-items:center;gap:8px;background:var(--surface-thumb);border-radius:16px;font-size:14px;font-weight:700}
+.selchip .op-avatar{width:24px;height:24px}
+.tr-metrics{margin-left:auto;display:flex;gap:4px}
+.panel{padding:16px 16px 12px;background:var(--surface-panel);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:8px}
+.panel svg{display:block;width:100%;height:auto}
+.tr-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.tr-empty{padding:24px 0;color:var(--text-meta)}
+.scatter svg{display:block;width:100%;height:auto}
+.scatter circle{cursor:pointer}
+.twrap{overflow-x:auto}
+table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.dtable th{height:40px;padding:0 8px;border-bottom:1px solid var(--line-strong);font-size:12px;font-weight:500;color:var(--text-meta);text-align:right;white-space:nowrap}
+.dtable th:first-child,.dtable td:first-child{text-align:left}
+.dtable th button{padding:0;background:transparent;border:0;color:inherit;font-weight:inherit;cursor:pointer}
+.dtable th[aria-sort]{color:var(--text);font-weight:700}
+.dtable td{height:48px;padding:4px 8px;border-bottom:1px solid var(--line-row);text-align:right;white-space:nowrap}
+.dtable tbody tr{cursor:pointer}
+.dtable tbody tr:hover td{background:var(--surface-panel)}
+.dtable tbody tr.is-sel td{background:var(--surface-thumb)}
+.dtable tbody tr.is-sel td:first-child{border-radius:8px 0 0 8px}
+.dtable tbody tr.is-sel td:last-child{border-radius:0 8px 8px 0}
+.who{display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;color:var(--text);font-weight:500;text-align:left;cursor:pointer}
+.who .op-avatar{width:28px;height:28px}
+.mi-cell{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px}
+.raw{display:block;font-size:11px;color:var(--text-meta);line-height:1.25}
+.wr-cell{line-height:1.25}
+.faint{color:var(--text-faint)}
+.hot{color:var(--accent);font-weight:700}
+.meta{color:var(--text-meta)}
+.dheat{margin-top:48px;display:flex;flex-direction:column;gap:8px}
+.dheat h2{margin:0;font-size:16px;font-weight:700}
+.hwrap{overflow-x:auto;padding-top:4px}
+.hgrid{min-width:920px;display:grid;gap:2px}
+.hg-mode{margin:0 3px;padding-bottom:4px;border-bottom:1px solid var(--line-group);font-size:11px;font-weight:700;color:var(--text-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hg-col{height:88px;padding:6px 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:11px;line-height:1.05;cursor:pointer}
+.hg-col span{writing-mode:vertical-rl;text-orientation:sideways;transform:rotate(180deg);white-space:nowrap}
+.hg-col.is-cur{border-bottom-color:var(--text);color:var(--text);font-weight:700}
+.hg-hero{height:24px;padding:0 6px 0 0;display:flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--text-secondary);font-size:12px;text-align:left;white-space:nowrap;overflow:hidden;cursor:pointer}
+.hg-hero .op-avatar{width:20px;height:20px}
+.hg-hero.is-sel{color:var(--text);font-weight:700}
+.hg-cell{height:24px;min-width:0;padding:0;border:0;border-radius:var(--radius-xs);font-size:11px;font-weight:800;cursor:pointer}
+.hg-cell.is-na{background:var(--surface-track);color:var(--text-faint)}
+.hg-cell.is-low{opacity:var(--opacity-low)}
+.hg-cell.is-here{box-shadow:inset 0 0 0 2px var(--text)}
+@media (max-width:760px){
+  .hdr{padding:10px 0;gap:10px}
+  .hdr-r{width:100%}
+  .op-search{flex:1 1 auto;width:auto;min-width:0}
+}
+@media (max-width:560px){
+  .op-map-body{flex-direction:column}
+  .op-map-img{width:100%;height:auto;aspect-ratio:16/9;max-height:150px}
+  .op-map-noimg{height:94px}
+  .op-map-more,.op-map-role:first-child .op-map-more{gap:8px}
+}
+@media (max-width:640px){
+  :root{--page-pad:16px}
+  .dhead-img{width:100%;height:auto;aspect-ratio:16/9}
+  .tr-metrics{margin-left:0}
+}
+
+/* ---- method */
+.mart{max-width:760px;margin:0 auto;padding:24px 0 80px;display:flex;flex-direction:column;gap:28px;font-size:15px;line-height:1.6}
+.mart h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.mlead{margin:0;font-size:16px;color:var(--text-body)}
+.mtoc{display:flex;flex-wrap:wrap;gap:8px}
+.msec{display:flex;flex-direction:column;gap:14px;padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:16px}
+.msec h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.formula{padding:16px 18px;background:var(--surface-panel);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:8px;font-size:14px;font-variant-numeric:tabular-nums}
+.mlist-ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--text-body)}
+.mtiers{display:flex;flex-wrap:wrap;gap:12px 20px}
+.mtiers div{flex:1 1 96px;display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
+.mnote{margin:0;color:var(--text-secondary)}
+.mbody{margin:0;color:var(--text-body)}
+.mdl{margin:0;display:grid;grid-template-columns:minmax(96px,140px) minmax(0,1fr);gap:12px 20px}
+.mdl dt{font-weight:700}
+.mdl dd{margin:0;color:var(--text-body)}
+.msrc{margin:0;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--text-meta)}
+.msrc a{color:var(--text-secondary)}
+@media (max-width:560px){ .mdl{grid-template-columns:1fr;gap:4px} .mdl dd{margin-bottom:10px} }
+
+/* ---- views */
 body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailView,body:not([data-view="method"]) #methodView{display:none}
-.fresh-box{margin:8px 0 6px;overflow-x:auto}
-.fresh-table{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
-.fresh-table caption{text-align:left;font-size:12.5px;color:var(--muted);padding-bottom:4px}
-.fresh-table th,.fresh-table td{padding:3px 16px 3px 0;text-align:left;white-space:nowrap;font-weight:500}
-.fresh-table th{font-weight:700;display:flex;align-items:center;gap:8px}
-.fresh-table .live{flex:none;width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px color-mix(in srgb, var(--live) 22%, transparent)}
-.fresh-table .ago{color:var(--muted)}
-@media (max-width: 560px){ .fresh-table td:nth-child(2){display:none} .fresh-table th,.fresh-table td{padding-right:12px} }
-.crumb{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:13.5px;color:var(--muted)}
-.crumb .back{border:1px solid var(--line);background:var(--panel);padding:7px 13px;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink)}
-.crumb .back:hover{background:var(--hl)}
-.crumb span{font-weight:600}
-.crumb + .panel{margin-top:14px}
-.site-note{margin:14px 0 0;padding:10px 14px;border-left:3px solid var(--t-a);background:var(--panel);font-size:13.5px}
-.site-note.err{border-left-color:var(--t-s)}
-body[data-view="method"] .viewbar .vserver{visibility:hidden}
-.dtools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 22px;margin-top:12px;padding:10px 0 16px;border-bottom:1px solid var(--line)}
-.tgroup{display:flex;flex-direction:column;gap:5px;min-width:0}
-.tgl{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
-.topt{margin-left:auto}
-.dtools .seg{height:40px;align-items:stretch;flex-wrap:nowrap}
-.dtools .seg button{display:inline-flex;align-items:center;justify-content:center;padding:0 14px}
-.dtools .seg-b button{flex-direction:row;gap:8px;line-height:1}
-.dtools .seg-b button .rk img{width:20px;height:20px}
-.dtools .seg-b button .rk.mini img{width:14px;height:14px}
-.dtools .row2{display:flex;gap:8px;align-items:stretch;flex-wrap:nowrap;justify-content:flex-start}
-.dtools .toggle,.dtools .weights summary{height:40px;display:flex;align-items:center;padding:0 13px}
-.dtools .weights{position:relative}
-.dtools .wbody{left:auto;right:0}
-@media (max-width: 1180px){ .topt{margin-left:0} .dtools .wbody{left:0;right:auto} }
-@media (max-width: 560px){
-  .dtools{gap:12px}
-  .tgroup{width:100%}
-  .dtools .seg{height:auto;width:100%}
-  .dtools .seg-b{display:grid;grid-template-columns:repeat(4,1fr)}
-  .dtools .seg-b button{flex-direction:column;gap:3px;padding:6px 2px}
-  .dtools #seg{display:grid;grid-template-columns:repeat(3,1fr)}
-  .dtools #seg button{height:36px}
-  .dtools .row2{width:100%;flex-wrap:wrap}
-  .dtools .toggle{flex:none}
-  .dtools .weights{flex:1;min-width:0}
-}
-.dtools + .layout{margin-top:16px}
-.seg-b button .rk.mini img{width:17px;height:17px}
-
-/* landing */
-.home-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:22px 0 4px}
-.home-head h2{font-family:var(--display);font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.08;margin:0}
-.home-sub{margin:0 0 16px;color:var(--muted);font-size:14px;max-width:84ch}
-.rtboard{display:grid;gap:6px}
-.star{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#F4B81C;color:#1C1206;font-size:10px;line-height:1;vertical-align:-2px;margin:0 2px}
-.home-sub .mv{font-size:11px}
-.custom-note{margin:0 0 12px;font-size:13px;color:var(--muted)}
-.home-foot{margin-top:18px;font-size:12.5px;color:var(--muted)}
-.home-foot a,.home-foot button.linklike{color:inherit}
-button.linklike{border:0;background:none;padding:0;text-decoration:underline;cursor:pointer;font-size:inherit}
-@media (max-width: 560px){
-  .seg-b{grid-template-columns:repeat(4,1fr)!important}
-  .seg-b button .rk.mini img{width:13px;height:13px}
-}
-@media (prefers-reduced-motion: reduce){ .mcard .bg img{transition:none} .mcard:hover .bg img{transform:none} }
-
-/* ---- detail: hero trend */
-.tr-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
-.tr-head h3{margin-right:4px}
-#trendHero{border:1px solid var(--line);background:var(--panel);padding:6px 10px;font-weight:600;font-size:14px}
-.tr-metric{margin-left:auto}
-.tr-metric button{padding:5px 11px;font-size:13px}
-.tr-chart{position:relative}
-.tr-chart svg{display:block;width:100%;height:auto;touch-action:pan-y}
-.tr-chart text{font-family:var(--text)}
-.tr-tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);box-shadow:0 6px 20px rgba(10,15,25,.18);padding:8px 10px;font-size:12.5px;line-height:1.5;white-space:nowrap;font-variant-numeric:tabular-nums;z-index:5}
-.tr-tip b{display:block;font-size:12px;color:var(--muted);font-weight:600}
-.tr-tip .badge{font-size:11.5px;padding:0 5px;margin-right:5px}
-.tr-empty{padding:26px 0;color:var(--muted);font-size:13.5px}
-@media (max-width: 560px){ .tr-metric{margin-left:0} }
-
-/* ---- home: all-maps tier board (three dark role panels) */
-.rtboard{background:linear-gradient(180deg,#171E2B,#111722);padding:16px;color:#E8ECF2}
-.rt-tabs{display:none}
-.rt-panels{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr) minmax(0,4fr);gap:12px;align-items:start}
-.rt-pn{background:#1B2331;border:1px solid #2C3749}
-.rt-ph{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid #2C3749;font-weight:700;font-size:16px}
-.rt-ph .n{margin-left:auto;font-size:12px;color:#8C98AA;font-weight:500}
-.rt-tr{display:grid;grid-template-columns:34px minmax(0,1fr);border-bottom:1px solid #243044;min-height:64px}
-.rt-tr:last-child{border-bottom:0}
-.rt-tl{display:grid;place-items:center;font-family:var(--display);font-size:20px;background:var(--tc);color:var(--tci)}
-.rt-hs{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));gap:10px 4px;padding:10px 6px;align-content:center;justify-items:center}
-.rt-hs .none{grid-column:1/-1;justify-self:start;font-size:12px;color:#6F7B8E;align-self:center;padding-left:4px}
-.rt-h{width:100%;max-width:84px;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;padding:0;color:inherit;cursor:pointer;font:inherit}
-.rt-h img{width:46px;height:46px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--tc);background:#2A3446;transition:transform .15s}
-.rt-h:hover img{transform:scale(1.08)}
-.rt-h:focus-visible{outline:2px solid #7C95FF;outline-offset:2px}
-.rt-h .nm{font-size:11.5px;line-height:1.15;text-align:center;color:#C9D1DC;word-break:keep-all}
-.rt-h .sc{font-size:10.5px;color:#8C98AA;font-variant-numeric:tabular-nums}
-.rt-h .mv{font-size:9px;margin-left:2px}
-.rt-tr.rt-top{background:linear-gradient(90deg,rgba(200,50,58,.24),rgba(200,50,58,0) 70%)}
-.rt-tr.rt-top .rt-tl{font-size:28px}
-.rt-tr.rt-top .rt-h img{width:60px;height:60px;box-shadow:0 0 0 3px var(--tc),0 4px 14px rgba(0,0,0,.5)}
-.rt-tr.rt-top .rt-h .nm{font-size:13.5px;font-weight:700;color:#fff}
-/* wide screens: S..D rows line up across the three panels (row height = tallest of the three) */
-@media (min-width: 1101px){
-  .rt-panels{grid-template-rows:auto repeat(5,auto);row-gap:0;align-items:stretch}
-  .rt-pn{display:grid;grid-row:span 6;grid-template-rows:subgrid;row-gap:0}
-}
-.rt-tabs button{flex:1;border:0;background:transparent;color:#8C98AA;font-weight:700;font-size:14px;padding:9px 0;cursor:pointer}
-.rt-tabs button[aria-pressed="true"]{background:#E8ECF2;color:#141922}
-@media (max-width: 1100px){
-  .rtboard{padding:12px}
-  .rt-tabs{display:flex;border:1px solid #2C3749;margin-bottom:10px}
-  .rt-panels{grid-template-columns:minmax(0,1fr)}
-  .rt-panels[data-active="tank"] .rt-pn:not([data-role-panel="tank"]),
-  .rt-panels[data-active="damage"] .rt-pn:not([data-role-panel="damage"]),
-  .rt-panels[data-active="support"] .rt-pn:not([data-role-panel="support"]){display:none}
-  .rt-hs{grid-template-columns:repeat(auto-fill,minmax(66px,1fr))}
-}
-
-/* ---- home: map meta, modes in two columns, wide short cards */
-.home-head.second{margin-top:40px}
-/* view tabs + server switch, one bar under the title on every screen */
-.viewbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding:10px 0;border-bottom:1px solid var(--line)}
-.vtabs{display:flex;gap:4px;flex-wrap:wrap}
-.vtab{position:relative;padding:8px 12px;font-weight:700;font-size:15px;color:var(--muted);text-decoration:none}
-.vtab:hover{color:var(--ink)}
-.vtab[aria-current="page"]{color:var(--ink)}
-.vtab[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-11px;height:3px;background:var(--ink)}
-.vtab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (max-width: 560px){ .viewbar{gap:8px} .vtabs{width:100%;justify-content:space-between} .vtab{padding:8px 6px;font-size:14.5px} .vtab[aria-current="page"]::after{left:6px;right:6px;bottom:-5px} .vserver{width:100%;display:flex;flex-wrap:nowrap} .vserver button{flex:1;padding:7px 4px} }
-.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 28px;align-items:start}
-.mgroup{min-width:0}
-.mcol{display:grid;gap:40px;min-width:0;align-content:start}
-.mode-h{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;padding-bottom:8px;border-bottom:3px solid var(--ink);font-size:19px;font-weight:700}
-.mode-h span{font-size:13px;font-weight:500;color:var(--muted)}
-.mlist{display:grid;gap:10px}
-.mcard{position:relative;display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,2.2fr);align-items:center;gap:14px;min-height:106px;padding:10px 14px;border:0;overflow:hidden;cursor:pointer;text-align:left;color:#fff;background:#1B2331;isolation:isolate;width:100%}
-.mcard .bg{position:absolute;inset:0;z-index:-2;display:flex}
-.mcard .bg img{flex:1;min-width:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
-.mcard::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(9,13,21,.86) 0%,rgba(9,13,21,.55) 32%,rgba(9,13,21,.78) 100%)}
-.mcard:hover .bg img{transform:scale(1.05)}
-.mcard:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.mtop{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
-.mname{font-family:var(--display);font-size:22px;line-height:1.08;text-shadow:0 1px 8px rgba(0,0,0,.6)}
-.mmeta{font-size:11.5px;font-weight:600;background:rgba(9,13,21,.62);padding:2px 8px;color:rgba(255,255,255,.85);white-space:nowrap}
-.mmeta.low{background:rgba(200,50,58,.85);color:#fff}
-.map-btn .n.err{color:var(--t-s);font-weight:700}
-.merr{display:flex;align-items:center;justify-content:center;min-height:81px}
-.board-err{display:flex;align-items:center;justify-content:center;min-height:120px;border:1px solid var(--line);background:var(--panel)}
-body.map-err #scatterPanel,body.map-err #tablePanel{display:none}
-.heat td.hc.na{color:var(--faint);background:transparent}
-.lineup{display:grid;grid-template-columns:1fr 2fr 2fr;gap:8px}
-.grp{display:flex;flex-direction:column;gap:4px;min-width:0}
-.gl{font-size:10.5px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.26);padding-bottom:2px}
-.gs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
-.slot{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
-.face{position:relative;width:42px;height:42px;border-radius:50%;background:#2A3446;box-shadow:0 0 0 2px var(--tc),0 2px 8px rgba(0,0,0,.45);display:grid;place-items:center;font-weight:700}
-.face img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
-.face .tb{position:absolute;right:-6px;bottom:-4px;min-width:17px;height:17px;padding:0 3px;display:grid;place-items:center;font-family:var(--display);font-weight:400;font-size:11.5px;line-height:1;background:var(--tc);color:var(--tci);clip-path:polygon(3px 0,100% 0,calc(100% - 3px) 100%,0 100%)}
-.face .spec{position:absolute;left:-5px;top:-5px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;background:#F4B81C;color:#1C1206;box-shadow:0 1px 4px rgba(0,0,0,.45)}
-.hn{max-width:100%;font-size:11.5px;font-weight:600;line-height:1.15;text-align:center;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.7)}
-@media (max-width: 1000px){ .mgrid{grid-template-columns:minmax(0,1fr)} }
-@media (max-width: 560px){
-  .mcard{grid-template-columns:minmax(0,1fr);gap:8px;padding:10px 12px}
-  .mtop{flex-direction:row;align-items:center;justify-content:space-between}
-  .mname{font-size:20px}
-}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;scroll-behavior:auto!important} }
 </style>
 </head>
-<body>
-<noscript><p style="padding:16px">이 페이지는 자바스크립트가 켜져 있어야 티어표를 보여 줄 수 있습니다.</p></noscript>
+<body data-view="home">
+<noscript><p style="padding:16px">이 페이지는 자바스크립트가 켜져 있어야 볼 수 있습니다.</p></noscript>
 <div class="page">
-  <header class="top">
-    <h1>오버워치 티어 리스트</h1>
-  </header>
-  <nav class="viewbar" aria-label="화면 선택">
-    <div class="vtabs">
-      <a class="vtab" href="./" data-view="home">한눈에 보기</a>
-      <a class="vtab" href="#tier" data-view="detail">맵·영웅 상세</a>
-      <a class="vtab" href="#method" data-view="method">계산 방식</a>
+  <header class="hdr">
+    <div class="hdr-l">
+      <a class="logo" href="./" data-nav="home"><svg width="34" height="34" viewBox="38 38 436 436" aria-hidden="true"><path d="M261.0 42.1 A214 214 0 0 1 452.5 171.2 L383.8 199.0 A140 140 0 0 0 261.0 116.1 Z" fill="#F99E1A"/><path d="M439.5 187.2 A196 196 0 0 1 156.4 424.8 L186.1 377.3 A140 140 0 0 0 387.6 208.2 Z" fill="#FFFFFF"/><path d="M147.9 419.5 A196 196 0 0 1 75.0 180.9 L126.2 203.7 A140 140 0 0 0 177.6 372.0 Z" fill="#C4C8CC"/><path d="M89.1 176.2 A185 185 0 0 1 251.0 71.1 L251.0 116.1 A140 140 0 0 0 130.2 194.5 Z" fill="#8E959B"/><rect x="180" y="188" width="152" height="46" rx="6" fill="#FFFFFF"/><rect x="233" y="204" width="46" height="136" rx="6" fill="#FFFFFF"/></svg>옵티</a>
+      <nav class="nav" aria-label="화면 선택">
+        <a href="./" data-nav="home">한눈에 보기</a>
+        <a href="#tier" data-nav="detail">맵·영웅 상세</a>
+        <a href="#method" data-nav="method">계산 방식</a>
+      </nav>
     </div>
-    <div class="seg vserver" role="group" aria-label="서버" id="segS"></div>
-  </nav>
-  <p class="site-note err" id="loadError" role="alert" hidden></p>
-  <p class="site-note" id="staleNote" hidden></p>
+    <div class="hdr-r">
+      <div class="op-search" id="searchBox">
+        <label class="op-search-field"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3.5 3.5"/></svg><input type="search" id="q" placeholder="맵·영웅 검색" aria-label="맵과 영웅 검색" role="combobox" aria-expanded="false" aria-controls="searchPop" aria-autocomplete="list" autocomplete="off" spellcheck="false"></label>
+        <div class="op-pop op-search-pop" id="searchPop" role="listbox" aria-label="검색 결과" hidden></div>
+      </div>
+      <div class="srv" id="srvBox"></div>
+    </div>
+  </header>
+  <p class="load-err" id="loadError" role="alert" hidden></p>
 
-
-  <section id="homeView">
-    <div class="home-head"><h2>한눈에 보기</h2><span class="sample" id="homeSample"></span></div>
-    <p class="home-sub" id="homeBoardSub"></p>
-    <p class="patch-note" id="homePatch" hidden></p>
-    <p class="custom-note" id="homeCustom" hidden></p>
-    <div class="rtboard" id="homeBoard"></div>
-    <div class="home-head second" id="mapsHead"><h2>맵별 메타</h2></div>
-    <p class="patch-note" id="noMapsNote" hidden></p>
-    <div class="mgrid" id="mgrid"></div>
-    <p class="home-foot">출처: <a href="https://overwatch.nexon.com/hero/rate" target="_blank" rel="noopener">오버워치 영웅 통계(넥슨)</a>, <a href="https://overwatch.blizzard.com/ko-kr/rates/" target="_blank" rel="noopener">오버워치 영웅 통계(블리자드)</a>, <a href="https://ow.blizzard.cn/herolist/" target="_blank" rel="noopener">守望先锋 英雄榜(넷이즈·중국)</a>. 맵 이미지, 영웅 초상화, 등급 아이콘은 Blizzard Entertainment의 저작물입니다.</p>
+  <section id="homeView" aria-label="한눈에 보기">
+    <div class="home-bar">
+      <div class="home-tabs" id="homeTabs" role="group" aria-label="영웅 티어"></div>
+      <div class="home-rk" id="rkHome"></div>
+    </div>
+    <div class="home-cols">
+      <section class="home-left scroll" id="homeLeft" aria-label="영웅 티어"></section>
+      <section class="home-right" id="homeRight" aria-labelledby="mapsTitle"></section>
+    </div>
   </section>
 
   <div id="detailView">
-  <div class="dtools">
-      <div class="tgroup"><span class="tgl">구간</span><div class="seg seg-b" role="group" aria-label="구간" id="segB"></div></div>
-      <div class="tgroup"><span class="tgl">역할</span><div class="seg" role="group" aria-label="역할" id="seg"></div></div>
-      <div class="tgroup topt"><span class="tgl">옵션</span><div class="row2">
-        <label class="toggle" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정"><input type="checkbox" id="smooth"> 표본 보정</label>
-        <details class="weights" id="weights">
-          <summary><span class="wt">지수 가중치</span><span class="wl" id="wlabel"></span></summary>
-          <div class="wbody">
-            <p>손잡이 두 개로 100을 승률·픽률·밴률에 나눠 줍니다.</p>
-            <div class="wsplit" id="wsplit">
-              <div class="wtrack" id="wtrack" aria-hidden="true"></div>
-              <input type="range" min="0" max="100" step="5" id="w-a" aria-label="승률과 픽률의 경계">
-              <input type="range" min="0" max="100" step="5" id="w-b" aria-label="픽률과 밴률의 경계">
-            </div>
-            <div class="wvals"><span class="c-wr">승률 <b id="o-wr"></b></span><span class="c-pr">픽률 <b id="o-pr"></b></span><span class="c-br">밴률 <b id="o-br"></b></span></div>
-            <button type="button" id="wreset">기본값(50 / 30 / 20)으로 되돌리기</button>
-          </div>
-        </details>
-      </div></div>
-  </div>
-  <div class="layout">
-    <aside class="rail" id="railWrap">
-      <div class="map-search" id="mapSearchBox">
-        <input type="search" id="mapSearch" placeholder="맵 검색 (이름·초성)" autocomplete="off" spellcheck="false"
-          role="combobox" aria-expanded="false" aria-controls="rail" aria-autocomplete="list" aria-label="맵 검색 (예: 부산, 리장, ㅇㄹㅇㅅ)">
-        <div class="map-results" id="mapResults" role="listbox" hidden></div>
-      </div>
-      <p class="rail-none" id="railNone" hidden>일치하는 맵이 없습니다.</p>
-      <nav aria-label="맵 선택" id="rail"></nav>
-    </aside>
-    <main>
-      <select class="mapselect" id="mapSelect" aria-label="맵 선택"></select>
-      <section class="board-panel" id="boardPanel">
-        <div class="map-head">
-          <h2 id="mapName"></h2>
-          <span class="mode-tag" id="modeTag"></span>
-          <span class="sample" id="sample"></span>
-        </div>
-        <p class="patch-note" id="patchNote" hidden></p>
-        <p class="insight" id="insight"></p>
-        <div class="board" id="board"></div>
-      </section>
-
-      <section class="panel" id="trendPanel" hidden>
-        <div class="tr-head">
-          <h3>영웅 추이</h3>
-          <select id="trendHero" aria-label="추이를 볼 영웅"></select>
-          <div class="seg tr-metric" role="group" aria-label="지표" id="trendMetric"></div>
-        </div>
-        <p class="hint" id="trendHint"></p>
-        <div class="tr-chart" id="trendChart"></div>
-      </section>
-
-      <section class="panel" id="scatterPanel">
-        <h3>메타 지도</h3>
-        <p class="hint">가로는 픽률(로그 눈금), 세로는 승률, 원 크기는 밴률, 색은 티어입니다. 원을 누르면 해당 영웅이 표와 맵별 티어 비교에서 강조됩니다.</p>
-        <div id="scatter"></div>
-      </section>
-
-      <section class="panel" id="tablePanel">
-        <h3>세부 수치</h3>
-        <p class="hint" id="tableHint"></p>
-        <div class="table-wrap"><table class="detail" id="detail"></table></div>
-      </section>
-    </main>
-  </div>
-
-  <section class="panel" id="heatPanel">
-    <h3>맵별 티어 비교</h3>
-    <p class="hint">행은 선택한 역할의 영웅(종합 지수 순), 열은 맵입니다. 칸이나 맵 이름을 누르면 위 티어표가 그 맵으로 바뀝니다.</p>
-    <div class="heat-wrap"><table class="heat" id="heat"></table></div>
-  </section>
+    <div class="dbar" id="dBar"></div>
+    <div class="dcols">
+      <aside class="drail" id="dRail" aria-label="맵 목록"></aside>
+      <main class="dmain" id="dMain"></main>
+    </div>
+    <section class="dheat" id="dHeat" aria-labelledby="heatTitle"></section>
   </div>
 
   <div id="methodView">
-  <section class="panel method" id="method">
-    <h3>계산 방식</h3>
-    <div class="fresh-box" id="freshText"></div>
-    <p class="m-lead">픽률·승률·밴률을 역할별로 표준화해 하나의 메타 지수(평균 50)로 합치고, 지수 구간으로 S~D 티어를 나눕니다.</p>
-    <div class="m-grid">
-      <div class="m-card">
-        <h4>메타 지수</h4>
+    <article class="mart">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h1>계산 방식</h1>
+        <p class="mlead">픽률·승률·밴률을 역할별로 표준화해 하나의 메타 지수(평균 50)로 합치고, 지수 구간으로 S~D 티어를 나눕니다.</p>
+      </div>
+      <nav class="mtoc" aria-label="목차">
+        <a class="op-chip" href="#method" data-toc="ms1">메타 지수</a>
+        <a class="op-chip" href="#method" data-toc="ms2">티어 기준</a>
+        <a class="op-chip" href="#method" data-toc="ms3">데이터</a>
+        <a class="op-chip" href="#method" data-toc="ms4">추정 경기 수</a>
+        <a class="op-chip" href="#method" data-toc="ms5">표본 보정</a>
+        <a class="op-chip" href="#method" data-toc="ms6">화면 표시</a>
+        <a class="op-chip" href="#method" data-toc="ms7">주의할 점</a>
+      </nav>
+      <section class="msec" id="ms1">
+        <h2>메타 지수</h2>
         <div class="formula">
-          종합 = 승률 50% + 픽률 30% + 밴률 20% (기본값)<br>
-          승률 점수 = (미러전 제외 승률 − 50) ÷ σ<br>
-          미러전 제외 승률 = 50 + (승률 − 50) ÷ (1 − 픽률)<br>
-          픽률 점수 = (ln(픽률 ÷ (1 − 밴률)) − μ) ÷ σ<br>
-          밴률 점수 = (ln(1 + 밴률) − μ) ÷ σ
+          <span><b>종합</b> = 승률 50% + 픽률 30% + 밴률 20% (기본값)</span>
+          <span><b>승률 점수</b> = (미러전 제외 승률 − 50) ÷ σ</span>
+          <span><b>미러전 제외 승률</b> = 50 + (승률 − 50) ÷ (1 − 픽률)</span>
+          <span><b>픽률 점수</b> = (ln(픽률 ÷ (1 − 밴률)) − μ) ÷ σ</span>
+          <span><b>밴률 점수</b> = (ln(1 + 밴률) − μ) ÷ σ</span>
         </div>
-        <ul class="m-list">
+        <ul class="mlist-ul">
           <li>μ·σ는 서버·구간·역할마다, 실제로 점수를 매기는 값(보정값, 보정을 끄면 원본)의 분포로 정합니다. 그래서 세 점수의 폭이 같아져 50/30/20 비율이 그대로 반영됩니다.</li>
           <li>종합 점수는 구간·역할 안의 모든 맵·영웅 기준 평균 50, 표준편차 10으로 바꿉니다.</li>
           <li>미러전(양 팀이 같은 영웅)은 한 번 이기고 한 번 지는 판이라 인기 영웅의 승률을 50% 쪽으로 누르므로 걷어냅니다.</li>
           <li>같은 구간·역할 안에서만 비교하세요.</li>
         </ul>
-        <div class="table-wrap"><table class="ctable" id="ctable"></table></div>
-      </div>
-      <div class="m-card">
-        <h4>티어 기준</h4>
-        <p class="m-tiers"><span class="tp"><span class="badge t-S">S</span>62 이상</span><span class="tp"><span class="badge t-A">A</span>55~61</span><span class="tp"><span class="badge t-B">B</span>46~54</span><span class="tp"><span class="badge t-C">C</span>40~45</span><span class="tp"><span class="badge t-D">D</span>39 이하</span></p>
-        <h4>데이터</h4>
-        <ul class="m-list">
+      </section>
+      <section class="msec" id="ms2">
+        <h2>티어 기준</h2>
+        <div class="mtiers"><div><span class="op-tier op-tier-S">S</span>62 이상</div><div><span class="op-tier op-tier-A">A</span>55~61</div><div><span class="op-tier op-tier-B">B</span>46~54</div><div><span class="op-tier op-tier-C">C</span>40~45</div><div><span class="op-tier op-tier-D">D</span>39 이하</div></div>
+        <p class="mnote">지수를 반올림한 뒤 구간을 나눕니다.</p>
+      </section>
+      <section class="msec" id="ms3">
+        <h2>데이터</h2>
+        <ul class="mlist-ul">
           <li>한국: 넥슨 영웅 통계 / 아시아·아메리카·유럽: 블리자드 영웅 통계</li>
           <li>중국: 넷이즈 영웅 순위(英雄榜). 맵별 수치와 경기 수가 없어 전체 맵 티어만 제공. 픽 점유율은 역할별 픽률로, 밴 점유율은 다른 서버의 경기당 밴 수를 곱해 밴률로 환산</li>
           <li>경쟁전 역할 고정, PC, 8개 등급 × 전체 맵·맵별</li>
-          <li>전체 구간은 공식 "전체 티어" 수치를 그대로 사용</li>
-          <li>하위(브론즈~골드)·중위(플래티넘~다이아)·상위(마스터 이상)는 소속 등급을 맵마다 합산</li>
+          <li>모든 랭크를 고르면 공식 "전체 티어" 수치를 그대로 사용</li>
+          <li>랭크 범위를 좁히면 그 안에 든 등급을 맵마다 합산</li>
           <li>픽률·밴률은 경기 수로, 승률은 플레이된 판 수로 가중 평균</li>
         </ul>
-      </div>
-      <div class="m-card">
-        <h4>추정 경기 수</h4>
-        <ul class="m-list">
-          <li>공식 통계는 경기 수를 공개하지 않아 추정합니다.</li>
+      </section>
+      <section class="msec" id="ms4">
+        <h2>추정 경기 수</h2>
+        <p class="mbody">공식 통계는 경기 수를 공개하지 않아 추정합니다.</p>
+        <ul class="mlist-ul">
           <li>그랜드마스터: 밴률의 0.1% 단위 표시로 역산</li>
           <li>마스터: 그랜드마스터와의 로그 회귀</li>
           <li>브론즈~다이아: 공식 전체 티어 수치로 맵마다 등급 비중을 풀어 환산</li>
-          <li>영웅 신뢰도(그 맵에서 플레이된 판 수): 400판 이상 높음, 100~399 보통, 100 미만 낮음(티어표에서 흐리게)</li>
+          <li>영웅 신뢰도(그 맵에서 플레이된 판 수): 400판 이상 높음, 100~399 보통, 100 미만 낮음(상세 화면에서 흐리게)</li>
         </ul>
-        <h4>표본 보정</h4>
-        <ul class="m-list">
+      </section>
+      <section class="msec" id="ms5">
+        <h2>표본 보정</h2>
+        <ul class="mlist-ul">
           <li>경기가 적은 맵의 수치를 사전값 쪽으로 당깁니다.</li>
           <li>사전값 = 그 영웅의 서버 전체 맵 성적 × 해외 같은 구간의 맵 경향</li>
           <li>무게는 갱신마다 데이터에서 추정합니다(맵 사이 실제 차이가 작을수록 크게): <span id="kInfo"></span></li>
-          <li>상세 화면에서 끄면 원본 수치로 계산</li>
         </ul>
-      </div>
-      <div class="m-card">
-        <h4>화면 표시</h4>
-        <ul class="m-list">
-          <li><b>맵 카드</b>: 그 맵의 역할별 지수 상위 돌격 1·공격 2·지원 2 (역할마다 따로 뽑은 것이라 실제 함께 쓰인 조합은 아님)</li>
-          <li><b>★</b>: 전체 맵 종합에서는 상위(돌격 1위, 공격·지원 2위 안)가 아니지만 이 맵에서는 상위에 든 영웅</li>
-          <li><b>▲▼</b>: 직전 기록 대비 티어 변동(기본 가중치·보정 기준)</li>
-          <li><b>영웅 추이</b>: 하루 한 번 저장한 전체 맵 기록(지수는 기본 가중치·보정, 픽률·승률·밴률은 원본)</li>
-          <li><b>패치 감지</b>: 그랜드마스터 경기 수가 직전의 70% 아래로 떨어지면 새 패치로 보고, 7일 동안 지난 패치 마지막 기록과 비교(이틀 안에 경기 수가 회복되면 감지 취소)</li>
-          <li><b>공식 통계 오류</b>: 다른 서버에는 기록이 있는데 이 서버 공식 통계만 빈 표로 주는 맵은 영웅 없이 '공식 통계 오류'로만 표시하고, 지수 계산에서도 제외(예: 넥슨 할리우드)</li>
-          <li><b>새 시즌 초반</b>: 공식 통계가 비어 있거나 경기가 너무 적어 픽률 합이 맞지 않는 서버는 지난 시즌 마지막 수치를 유지하고, 경기가 적은 랭크 하나는 그 회차에서만 제외</li>
-          <li><b>역할 변경</b>: 역할이 바뀐 영웅은 새 영웅으로 취급. 이전 역할 기록은 따로 보관하고, 공식 통계가 새 역할 경기를 반영할 때까지(역할별 픽률 합이 다시 100·200%로 맞을 때까지) 표에서 제외</li>
-        </ul>
-        <h4>주의할 점</h4>
-        <ul class="m-list muted">
+      </section>
+      <section class="msec" id="ms6">
+        <h2>화면 표시</h2>
+        <dl class="mdl">
+          <dt>요약 탭</dt><dd>역할마다 S·A 티어 영웅만 보여줍니다. 나머지 티어는 돌격·공격·지원 탭에 있습니다.</dd>
+          <dt>맵 카드</dt><dd>큰 초상화는 그 맵의 역할별 지수 상위 돌격 1·공격 2·지원 2, 작은 원은 그다음 두 명입니다. 역할마다 따로 뽑은 것이라 실제 함께 쓰인 조합은 아닙니다.</dd>
+          <dt>주황 표시</dt><dd>그 맵 지수가 전체 맵 지수보다 6 이상 높은 영웅. 평소보다 이 맵에서 유독 강하다는 뜻입니다.</dd>
+          <dt>맵 순서</dt><dd>추정 경기 수가 많은 맵부터 보여줍니다.</dd>
+          <dt>영웅 추이</dt><dd>하루 한 번 저장한 전체 맵 기록(지수는 기본 가중치·보정, 픽률·승률·밴률은 원본)</dd>
+          <dt>패치 감지</dt><dd>그랜드마스터 경기 수가 직전의 70% 아래로 떨어지면 새 패치로 보고, 7일 동안 지난 패치 마지막 기록과 비교(이틀 안에 경기 수가 회복되면 감지 취소)</dd>
+          <dt>공식 통계 오류</dt><dd>다른 서버에는 기록이 있는데 이 서버 공식 통계만 빈 표로 주는 맵은 영웅 없이 안내만 표시하고, 지수 계산에서도 제외(예: 넥슨 할리우드)</dd>
+          <dt>새 시즌 초반</dt><dd>공식 통계가 비어 있거나 경기가 너무 적어 픽률 합이 맞지 않는 서버는 지난 시즌 마지막 수치를 유지하고, 경기가 적은 랭크 하나는 그 회차에서만 제외</dd>
+          <dt>역할 변경</dt><dd>역할이 바뀐 영웅은 새 영웅으로 취급. 이전 역할 기록은 따로 보관하고, 공식 통계가 새 역할 경기를 반영할 때까지(역할별 픽률 합이 다시 100·200%로 맞을 때까지) 표에서 제외</dd>
+        </dl>
+      </section>
+      <section class="msec" id="ms7">
+        <h2>주의할 점</h2>
+        <ul class="mlist-ul">
           <li>돌격 픽률 합은 100%, 공격·지원은 200%</li>
           <li>미러전 보정은 두 팀이 서로 독립적으로 영웅을 고른다는 가정의 근사</li>
           <li>공식 밴률의 분모, 경기를 어느 등급으로 집계하는지는 공개되지 않아 추정에 가정이 들어감</li>
           <li>밴률에는 성능 외에 상대하기 싫은 정도도 섞임</li>
           <li>패치 직후에는 표본이 작아 보정 비중이 큼</li>
         </ul>
-      </div>
-    </div>
-    <p class="foot">출처: <a href="https://overwatch.nexon.com/hero/rate" target="_blank" rel="noopener">오버워치 영웅 통계(넥슨)</a>, <a href="https://overwatch.blizzard.com/ko-kr/rates/" target="_blank" rel="noopener">오버워치 영웅 통계(블리자드)</a>, <a href="https://ow.blizzard.cn/herolist/" target="_blank" rel="noopener">守望先锋 英雄榜(넷이즈·중국)</a>. 맵 이미지, 영웅 초상화, 등급 아이콘은 Blizzard Entertainment의 저작물입니다.</p>
-  </section>
+      </section>
+      <p class="msrc">출처: <a href="https://overwatch.nexon.com/hero/rate" target="_blank" rel="noopener">오버워치 영웅 통계(넥슨)</a>, <a href="https://overwatch.blizzard.com/ko-kr/rates/" target="_blank" rel="noopener">오버워치 영웅 통계(블리자드)</a>, <a href="https://ow.blizzard.cn/herolist/" target="_blank" rel="noopener">守望先锋 英雄榜(넷이즈·중국)</a>. 맵 이미지, 영웅 초상화, 등급 아이콘은 Blizzard Entertainment의 저작물입니다.</p>
+    </article>
   </div>
 </div>
 
 <script>
 (function(){
-  const RANK_ICONS = {
-    all: [['bronze','브론즈'],['gold','골드'],['diamond','다이아몬드'],['champion','챔피언']],
-    low: [['bronze','브론즈'],['silver','실버'],['gold','골드']],
-    mid: [['platinum','플래티넘'],['emerald','에메랄드'],['diamond','다이아몬드']],
-    high: [['master','마스터'],['grandmaster','그랜드마스터'],['champion','챔피언']]
-  };
+  'use strict';
+  // ---------------------------------------------------------------- constants
+  // nine rank icons; the sources report grandmaster and champion together, so the data has eight ranks (0..7)
+  const ICONS = [['bronze','브론즈',22],['silver','실버',22],['gold','골드',22],['platinum','플래티넘',22],['emerald','에메랄드',22],
+    ['diamond','다이아몬드',22],['master','마스터',23],['grandmaster','그랜드마스터',24],['champion','챔피언',24]];
+  const TOP = 7;
   const ROLES = [['tank','돌격'],['damage','공격'],['support','지원']];
+  const ROLE_LABEL = {tank:'돌격', damage:'공격', support:'지원'};
   const TIERS = ['S','A','B','C','D'];
   const DEFAULT_W = {wr:50, pr:30, br:20};
-  const SOURCE_NAME = {nexon:'넥슨', blizzard:'블리자드', netease:'넷이즈(중국)'};
-  // China publishes shares only: no per-map numbers and no match totals (the exported counts are nominal)
-  const hidden = () => !!(D && D.meta && D.meta.matchesHidden);
-  const nText = n => hidden() ? '경기 수 비공개' : `추정 ${fmtInt(n)}경기`;
-  // a map the source returned empty while other servers have it: an official-stats error, shown as such
-  const mapErr = (mid, b) => mid !== 'all-maps' && !hidden() && ((b || BK()).N[mid] || 0) === 0;
-  const errText = () => `${srcName()} 공식 통계가 이 맵을 빈 표로 주고 있어 보여줄 수 없습니다.`;
+  const HOT = 6;                       // this map's index this much above the all-maps index = unusually strong here
+  const TABS = [['summary','요약'],['tank','돌격'],['damage','공격'],['support','지원']];
+  const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+  const ERR_IMG = `onerror="this.onerror=null;this.src='${BLANK}'"`;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtInt = n => Math.round(n).toLocaleString('ko-KR');
+  const tierOf = mi => { const x = Math.round(mi); return x >= 62 ? 'S' : x >= 55 ? 'A' : x >= 46 ? 'B' : x >= 40 ? 'C' : 'D'; };
+  const rel = n => n >= 600 ? '높음' : n >= 150 ? '보통' : '낮음';
+  const md = s => Number(s.slice(5, 7)) + '/' + Number(s.slice(8, 10));
+  const mdK = s => Number(s.slice(5, 7)) + '월 ' + Number(s.slice(8, 10)) + '일';
+  const rid = (lo, hi) => (lo === 0 && hi === TOP) ? 'all' : `${lo}-${hi}`;
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const store = {
@@ -680,688 +508,661 @@ body.map-err #scatterPanel,body.map-err #tablePanel{display:none}
     set(k, v){ try { localStorage.setItem('ow-tier:' + k, JSON.stringify(v)); } catch(e){} }
   };
 
-  let INDEX = null, D = null, H = [], MAPS = [], MAP_IDS = [], ALL_IDS = [], MODES = [], MAP_BY_ID = {}, BRS = [];
-  const CACHE = {};
-  // the first screen is always the map overview for all ranks; the rest of the settings are remembered
-  const state = {homeRole:'tank', view:'home', server:'kr', bracket:'all', role:'tank', map:'all-maps', focus:null, w:Object.assign({}, DEFAULT_W), smooth:true, sort:{key:'mi', dir:-1}};
+  // ---------------------------------------------------------------- state (address bar first, then remembered settings)
+  const state = {view:'home', server:'kr', lo:0, hi:TOP, tab:'summary', mode:'all', role:'tank', map:'all-maps', focus:null,
+    w:Object.assign({}, DEFAULT_W), smooth:true, sort:{key:'mi', dir:-1}, metric:'mi', wOpen:false, srvOpen:false};
   const saved = store.get('state');
   if (saved) {
-    for (const k of ['server','role','map']) if (typeof saved[k] === 'string') state[k] = saved[k];
+    if (typeof saved.server === 'string') state.server = saved.server;
     if (saved.w && ['wr','pr','br'].every(k => typeof saved.w[k] === 'number')) {
       const t = saved.w.wr + saved.w.pr + saved.w.br;
-      if (t > 0) {
-        const a = Math.round(saved.w.wr / t * 20) * 5, b = Math.min(100, a + Math.round(saved.w.pr / t * 20) * 5);
-        state.w = {wr:a, pr:b - a, br:100 - b};
-      }
+      if (t > 0) { const a = Math.round(saved.w.wr / t * 20) * 5, b = Math.min(100, a + Math.round(saved.w.pr / t * 20) * 5); state.w = {wr:a, pr:b - a, br:100 - b}; }
     }
     if (typeof saved.smooth === 'boolean') state.smooth = saved.smooth;
   }
+  const viewFromHash = () => location.hash === '#tier' ? 'detail' : location.hash === '#method' ? 'method' : 'home';
+  function readURL(){
+    const sp = new URLSearchParams(location.search);
+    state.view = viewFromHash();
+    if (sp.get('server')) state.server = sp.get('server');
+    const lo = parseInt(sp.get('lo'), 10), hi = parseInt(sp.get('hi'), 10);
+    if (lo >= 0 && lo <= 8 && hi >= 0 && hi <= 8) { state.lo = Math.min(TOP, Math.min(lo, hi)); state.hi = Math.min(TOP, Math.max(lo, hi)); }
+    else { state.lo = 0; state.hi = TOP; }
+    const tab = sp.get('tab'); state.tab = TABS.some(t => t[0] === tab) ? tab : 'summary';
+    state.mode = sp.get('mode') || 'all';
+    state.map = sp.get('map') || 'all-maps';
+    const role = sp.get('role'); state.role = ROLE_LABEL[role] ? role : 'tank';
+    state.focus = sp.get('hero') || null;
+  }
+  readURL();
+  function query(over){
+    const s = Object.assign({}, state, over || {});
+    const p = new URLSearchParams();
+    if (s.server !== 'kr') p.set('server', s.server);
+    if (!(s.lo === 0 && s.hi === TOP)) { p.set('lo', s.lo); p.set('hi', s.hi === TOP ? 8 : s.hi); }
+    if (s.tab !== 'summary') p.set('tab', s.tab);
+    if (s.mode !== 'all') p.set('mode', s.mode);
+    if (s.map !== 'all-maps') p.set('map', s.map);
+    if (s.role !== 'tank') p.set('role', s.role);
+    if (s.focus) p.set('hero', s.focus);
+    const q = p.toString();
+    return q ? '?' + q : '';
+  }
+  const hrefOf = (view, over) => location.pathname + query(over) + (view === 'detail' ? '#tier' : view === 'method' ? '#method' : '');
+  function writeURL(push){
+    const url = hrefOf(state.view);
+    if (url === location.pathname + location.search + location.hash) return;
+    history[push ? 'pushState' : 'replaceState']({view:state.view}, '', url);
+  }
 
-  const $ = id => document.getElementById(id);
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const tierOf = mi => { const x = Math.round(mi); return x >= 62 ? 'S' : x >= 55 ? 'A' : x >= 46 ? 'B' : x >= 40 ? 'C' : 'D'; };
-  const pct = x => (x == null ? '—' : x.toFixed(1) + '%');
-  const fmtInt = n => Math.round(n).toLocaleString('ko-KR');
-  const relOf = n => n >= 600 ? ['r-hi','높음'] : n >= 150 ? ['r-mid','보통'] : ['r-lo','낮음'];
-  const roleIdx = () => H.map((h, i) => i).filter(i => H[i].role === state.role);
-  const curB = () => (state.view !== 'detail' && BRS.some(x => x.id === 'all')) ? 'all' : state.bracket;
-  const BK = () => BRS.find(x => x.id === curB()) || BRS[0];
-  const srcName = () => SOURCE_NAME[(INDEX && (INDEX.servers.find(s => s.id === state.server) || {}).source)] || '공식';
-  const portrait = (i, cls) => H[i].img ? `<img class="${cls}" src="${esc(H[i].img)}" alt="" width="28" height="28" loading="lazy" decoding="async" onerror="this.remove()">` : '';
-
-  function setData(d){
-    D = d; H = d.heroes; MAPS = d.maps; MAP_IDS = MAPS.map(m => m.id); ALL_IDS = ['all-maps'].concat(MAP_IDS);
+  // ---------------------------------------------------------------- data
+  let INDEX = null, D = null, B = null, H = [], MAPS = [], MAP_IDS = [], ALL_IDS = [], MAP_BY_ID = {}, MODES = [];
+  const BASE = {}, RANGE = {}, RANGE_P = {}, ARC = {};
+  const hashOf = s => ((INDEX && INDEX.servers.find(x => x.id === s)) || {}).hash || '';
+  async function getJSON(url){ const r = await fetch(url); if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }
+  async function loadBase(s){ if (!BASE[s]) BASE[s] = await getJSON(`data/${s}.json?v=${hashOf(s)}`); return BASE[s]; }
+  function loadRange(s, r){
+    const k = s + '/' + r;
+    if (!RANGE_P[k]) RANGE_P[k] = getJSON(`data/${s}/${r}.json?v=${hashOf(s)}`).then(d => { d._server = s; RANGE[k] = d; return d; }).catch(e => { delete RANGE_P[k]; throw e; });
+    return RANGE_P[k];
+  }
+  function setBase(d){
+    D = d; H = d.heroes; MAPS = d.maps || []; MAP_IDS = MAPS.map(m => m.id); ALL_IDS = ['all-maps'].concat(MAP_IDS);
+    MAP_BY_ID = Object.fromEntries(MAPS.map(m => [m.id, m]));
     MODES = ((d.modes && d.modes.length) ? d.modes : Array.from(new Set(MAPS.map(m => m.mode)))).filter(mode => MAPS.some(m => m.mode === mode));
-    MAP_BY_ID = Object.fromEntries(MAPS.map(m => [m.id, m])); BRS = d.brackets;
-    if (!BRS.some(x => x.id === state.bracket)) state.bracket = (BRS.find(x => x.id === 'all') || BRS.find(x => x.id === 'high') || BRS[0]).id;
-    if (!ALL_IDS.includes(state.map)) state.map = 'all-maps';
-    if (!d.roles[state.role]) state.role = 'tank';
   }
-  let loadSeq = 0;
-  // resolves true once the server's data is in place; false if a later switch superseded this one
-  async function loadServer(id){
-    const entry = INDEX.servers.find(s => s.id === id) || INDEX.servers[0];
-    const tok = ++loadSeq;
-    if (!CACHE[entry.id]) {
-      $('board').setAttribute('aria-busy', 'true');
-      try {
-        const r = await fetch(`data/${entry.id}.json?v=${entry.hash}`);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        CACHE[entry.id] = await r.json();
-      } finally {
-        if (tok === loadSeq) $('board').removeAttribute('aria-busy');
-      }
-    }
-    if (tok !== loadSeq) return false;
-    state.server = entry.id;
-    const focusId = state.focus != null && H[state.focus] ? H[state.focus].id : null;
-    setData(CACHE[entry.id]);
-    state.focus = focusId ? (H.findIndex(h => h.id === focusId) >= 0 ? H.findIndex(h => h.id === focusId) : null) : null;
-    return true;
+  // ranks this server has data for (a rank whose own range was not published is left off the bar)
+  function visibleGrades(){
+    const rs = (D && D.ranges) || [];
+    const g = [0,1,2,3,4,5,6,7].filter(x => rs.includes(rid(x, x)));
+    return g.length ? g : [0,1,2,3,4,5,6,7];
+  }
+  function snapRange(){
+    const G = visibleGrades();
+    const up = v => G.find(x => x >= v) ?? G[G.length - 1], down = v => [...G].reverse().find(x => x <= v) ?? G[0];
+    if (!G.includes(state.lo)) state.lo = up(state.lo);
+    if (!G.includes(state.hi)) state.hi = down(state.hi);
+    if (state.lo > state.hi) { state.lo = G[0]; state.hi = G[G.length - 1]; }
+    if (state.lo === G[0] && state.hi === G[G.length - 1]) { state.lo = 0; state.hi = TOP; }
+    if (D && D.ranges && !D.ranges.includes(rid(state.lo, state.hi))) { state.lo = 0; state.hi = TOP; }
+  }
+  const curRid = () => rid(state.lo, state.hi);
+  function validate(){
+    if (!ALL_IDS.includes(state.map)) state.map = 'all-maps';
+    if (state.mode !== 'all' && !MODES.includes(state.mode)) state.mode = 'all';
+    if (state.focus && !H.some(h => h.id === state.focus)) state.focus = null;
+  }
+  let syncTok = 0;
+  // brings D (heroes, maps) and B (the chosen rank range) in line with the state, then renders; while a range
+  // file is on its way the previous range of the same server stays on screen
+  async function sync(opts){
+    opts = opts || {};
+    const tok = ++syncTok;
+    try {
+      const base = await loadBase(state.server);
+      if (tok !== syncTok) return;
+      if (D !== base) { setBase(base); if (B && B._server !== state.server) B = null; }
+      snapRange(); validate();
+      const k = state.server + '/' + curRid();
+      if (RANGE[k]) { B = RANGE[k]; render(opts); return; }
+      if (B) render(opts);
+      const data = await loadRange(state.server, curRid());
+      if (tok !== syncTok) return;
+      B = data; render(opts);
+      loadRange(state.server, 'all').catch(() => {});
+    } catch (e) { fail(e); }
+  }
+  function fail(e){
+    const el = $('loadError');
+    el.textContent = `데이터를 불러오지 못했어요(${e.message}). 잠시 후 새로고침해 주세요.`;
+    el.hidden = false;
   }
 
-  // win rate without mirror matches (both teams on the hero = one win + one loss): 50 + (wr - 50) / (1 - p)
+  // ---------------------------------------------------------------- meta index (same math as before)
   const mirror = (wr, pr) => 50 + (wr - 50) / (1 - Math.min(Math.max(pr, 0) / 100, 0.9));
   function vals(cell, smooth){
     if (smooth) return {pr:cell[0], wr:cell[1], br:cell[2], miss:!!cell[7]};
     if (cell[7]) return {pr:0, wr:50, br:0, miss:true};
     return {pr:cell[3], wr:(cell[4] == null ? 50 : mirror(cell[4], cell[3])), br:cell[5], miss:false};
   }
-  const relHero = g => g >= 400 ? '높음' : g >= 100 ? '보통' : '낮음';
-  const consts = role => { const b = BK(); return ((!state.smooth && b.cr) ? b.cr : b.c)[role]; };
+  const consts = role => ((!state.smooth && B.cr) ? B.cr : B.c)[role];
   function comps(v, C){
     const prav = Math.max(0.1, v.pr) / Math.max(0.3, 1 - v.br / 100);
     return [(v.wr - 50) / C.wr_sd, (Math.log(prav) - C.pr_mu) / C.pr_sd, (Math.log(1 + Math.max(0, v.br)) - C.br_mu) / C.br_sd];
   }
-  function weights(w){
-    const t = w.wr + w.pr + w.br;
-    if (t <= 0) return [1/3, 1/3, 1/3];
-    return [w.wr / t, w.pr / t, w.br / t];
-  }
-
-  let MI = {}, MI0 = {}, IDX = [], PREV = null;
-  function miFor(w, smooth, role){
-    role = role || state.role;
+  function weights(w){ const t = w.wr + w.pr + w.br; return t <= 0 ? [1/3, 1/3, 1/3] : [w.wr / t, w.pr / t, w.br / t]; }
+  function miFor(role, w, smooth){
     const idx = H.map((h, i) => i).filter(i => H[i].role === role);
-    const C = consts(role);
-    const ww = weights(w);
-    const cells = BK().cells;
-    const comp = {}, pool = [];
+    const C = consts(role), ww = weights(w), cells = B.cells, comp = {}, pool = [];
     for (const m of ALL_IDS) {
       const arr = new Array(H.length).fill(NaN);
       for (const i of idx) {
         const z = comps(vals(cells[m][i], smooth), C);
         arr[i] = ww[0]*z[0] + ww[1]*z[1] + ww[2]*z[2];
-        if (m !== 'all-maps' && BK().N[m] > 0) pool.push(arr[i]);
+        if (m !== 'all-maps' && B.N[m] > 0) pool.push(arr[i]);
       }
       comp[m] = arr;
     }
     // a server without map numbers (China) standardizes on its all-maps scores, with the spread taken back to
     // map-pool scale by the ratio the other servers show, so its tiers spread like theirs
     let ratio = 1;
-    if (!pool.length) { for (const i of idx) pool.push(comp['all-maps'][i]); ratio = (BK().poolRatio || {})[role] || 1; }
+    if (!pool.length) { for (const i of idx) pool.push(comp['all-maps'][i]); ratio = (B.poolRatio || {})[role] || 1; }
     const mu = pool.reduce((a, b) => a + b, 0) / pool.length;
     const sd = (Math.sqrt(pool.reduce((a, b) => a + (b - mu) * (b - mu), 0) / pool.length) || 1) / ratio;
     const out = {};
     for (const m of ALL_IDS) out[m] = comp[m].map(x => Number.isNaN(x) ? NaN : 50 + 10 * (x - mu) / sd);
     return out;
   }
+  let MR = {}, PREV = null;
   function compute(){
-    IDX = roleIdx();
-    MI = miFor(state.w, state.smooth);
-    MI0 = BK().mi0 || miFor(DEFAULT_W, true);   // basis for change markers: exactly what the snapshots stored
+    MR = {};
+    for (const [r] of ROLES) MR[r] = miFor(r, state.w, state.smooth);
     PREV = null;
-    const cmp = D.compare;
-    if (cmp && cmp.mi && cmp.mi[curB()]) {
+    const cmp = B.compare;
+    if (cmp && cmp.mi) {
       const pos = Object.fromEntries((cmp.heroes || []).map((id, k) => [id, k]));
-      const src = cmp.mi[curB()];
-      PREV = {label: cmp.patch ? '지난 패치' : '지난 갱신', at: cmp.at, get(m, i){ const arr = src[m]; const k = pos[H[i].id]; return arr && k != null && arr[k] != null ? arr[k] : null; }};
+      PREV = {at:cmp.at, get(i){ const k = pos[H[i].id]; return k != null && cmp.mi[k] != null ? cmp.mi[k] : null; }};
     }
   }
-  // tier change vs comparison snapshot: {from, to, dir} or null
-  function move(m, i){
-    if (!PREV) return null;
-    const p = PREV.get(m, i); if (p == null) return {from:null, to:tierOf(MI0[m][i]), dir:'new'};
-    const a = tierOf(p), b = tierOf(MI0[m][i]);
-    if (a === b) return {from:a, to:b, dir:null, diff:Math.round(MI0[m][i] - p)};
-    return {from:a, to:b, dir:TIERS.indexOf(b) < TIERS.indexOf(a) ? 'up' : 'down', diff:Math.round(MI0[m][i] - p)};
-  }
+  const byRole = r => H.map((h, i) => i).filter(i => H[i].role === r);
+  const ranked = (m, r) => byRole(r).sort((a, b) => MR[r][m][b] - MR[r][m][a]);
+  const isHidden = () => !!(D && D.meta && D.meta.matchesHidden);
+  const hasMaps = () => MAP_IDS.length > 0;
+  const mapErr = mid => mid !== 'all-maps' && !isHidden() && (B.N[mid] || 0) === 0;
+  const rankLabel = () => {
+    if (state.lo === 0 && state.hi === TOP) return '모든 랭크';
+    const a = state.lo, b = state.hi === TOP ? 8 : state.hi;
+    return a === b ? ICONS[a][1] : `${ICONS[a][1]}~${ICONS[b][1]}`;
+  };
+  const avatar = (i, size, extra) => H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="" width="${size}" height="${size}" style="width:${size}px;height:${size}px${extra || ''}" loading="lazy" decoding="async" ${ERR_IMG}>`
+    : `<span class="op-avatar" style="width:${size}px;height:${size}px${extra || ''}"></span>`;
+  window.__noimg = new Set();
+  const mapImg = (id, cls, w, h) => window.__noimg.has(id) ? `<span class="${cls} op-map-noimg">이미지 없음</span>`
+    : `<img class="${cls}" src="assets/maps/${esc(id)}.jpg" alt="" width="${w}" height="${h}" loading="lazy" decoding="async" onerror="window.__noimg.add('${esc(id)}');this.outerHTML='<span class=&quot;${cls} op-map-noimg&quot;>이미지 없음</span>'">`;
 
-  function renderControls(){
-    $('segS').innerHTML = INDEX.servers.map(s =>
-      `<button type="button" data-server="${s.id}" aria-pressed="${state.server === s.id}">${esc(s.label)}</button>`).join('');
-    const order = ['all', 'low', 'mid', 'high'];
-    const brs = BRS.slice().sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-    $('segB').innerHTML = brs.map(x =>
-      `<button type="button" data-bracket="${x.id}" aria-pressed="${state.bracket === x.id}" title="${esc(x.label)}: ${esc(x.ranks)}"><span class="bl">${esc(x.label)}</span><span class="rk${x.id === 'all' ? ' mini' : ''}">${(RANK_ICONS[x.id] || []).map(([f, n]) => `<img src="assets/ranks/${f}.png" alt="${n}" width="26" height="26" loading="lazy">`).join('')}</span></button>`).join('');
-    document.body.dataset.view = state.view;
-    for (const a of document.querySelectorAll('.vtab')) { if (a.dataset.view === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
-    $('seg').innerHTML = ROLES.map(([k, label]) =>
-      `<button type="button" data-role="${k}" aria-pressed="${state.role === k}">${label}</button>`).join('');
-    $('smooth').checked = state.smooth;
-    const w = weights(state.w);
-    $('wlabel').innerHTML = `<span class="wn">승률 </span>${Math.round(w[0]*100)} / <span class="wn">픽률 </span>${Math.round(w[1]*100)} / <span class="wn">밴률 </span>${Math.round(w[2]*100)}`;
-    syncWeights();
+  // ---------------------------------------------------------------- rank range
+  function rankInner(){
+    const G = visibleGrades();
+    const icons = []; for (const g of G) { icons.push(g); if (g === TOP) icons.push(8); }
+    const n = icons.length;
+    const loI = state.lo, hiI = state.hi === TOP ? 8 : state.hi;
+    const pL = icons.indexOf(loI), pH = icons.indexOf(hiI);
+    let h = `<span class="op-range-fill" style="left:${pL / n * 100}%;width:${(pH - pL + 1) / n * 100}%"></span>`;
+    icons.forEach((ic, p) => {
+      const inR = ic >= loI && ic <= hiI, end = p === pL || p === pH;
+      h += `<span class="op-range-cell${inR ? '' : ' is-out'}${end ? ' is-end' : ''}" data-icon="${ic}" title="${ICONS[ic][1]}"><img class="op-range-icon" src="assets/ranks/${ICONS[ic][0]}.png" alt="" draggable="false" style="width:${ICONS[ic][2]}px">`
+        + (p === pL ? '<span class="op-range-knob op-range-knob-l"></span>' : '') + (p === pH ? '<span class="op-range-knob op-range-knob-r"></span>' : '') + '</span>';
+    });
+    const nm = g => g === TOP ? '그랜드마스터·챔피언' : ICONS[g][1];
+    h += `<button type="button" class="op-range-slider" role="slider" data-slider="lo" aria-label="가장 낮은 랭크" aria-valuemin="0" aria-valuemax="${state.hi}" aria-valuenow="${state.lo}" aria-valuetext="${nm(state.lo)}" style="left:${pL / n * 100}%"></button>`;
+    h += `<button type="button" class="op-range-slider" role="slider" data-slider="hi" aria-label="가장 높은 랭크" aria-valuemin="${state.lo}" aria-valuemax="${TOP}" aria-valuenow="${state.hi}" aria-valuetext="${nm(state.hi)}" style="left:${(pH + 1) / n * 100}%"></button>`;
+    return {html:h, n};
   }
+  const resetBtn = () => (state.lo === 0 && state.hi === TOP) ? '' :
+    `<button type="button" class="op-range-reset" data-act="rk-reset" aria-label="모든 랭크로 되돌리기" title="모든 랭크로 되돌리기"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
+  function rankBar(where){
+    const r = rankInner();
+    return `<div class="op-range" data-rk="${where}"><span class="rk-reset">${resetBtn()}</span><div class="op-range-bar" role="group" aria-label="랭크 구간. 양쪽 손잡이를 끌거나 화살표 키로 옮기세요" style="width:${r.n * 48}px">${r.html}</div></div>`;
+  }
+  function paintBar(bar){
+    bar.innerHTML = rankInner().html;
+    const box = bar.closest('.op-range');
+    if (box) box.querySelector('.rk-reset').innerHTML = resetBtn();
+  }
+  let drag = null;
+  function gradeAt(bar, x){
+    const G = visibleGrades(); const icons = []; for (const g of G) { icons.push(g); if (g === TOP) icons.push(8); }
+    const r = bar.getBoundingClientRect();
+    const p = Math.max(0, Math.min(icons.length - 1, Math.floor((x - r.left) / r.width * icons.length)));
+    return Math.min(TOP, icons[p]);
+  }
+  document.addEventListener('pointerdown', e => {
+    const bar = e.target.closest('.op-range-bar');
+    if (!bar || e.button > 0) return;
+    e.preventDefault();
+    const g = gradeAt(bar, e.clientX);
+    const fixed = g === state.lo ? state.hi : g === state.hi ? state.lo : (Math.abs(g - state.lo) < Math.abs(g - state.hi) ? state.hi : state.lo);
+    drag = {bar, fixed, id:e.pointerId, before:curRid()};
+    state.lo = Math.min(fixed, g); state.hi = Math.max(fixed, g);
+    try { bar.setPointerCapture(e.pointerId); } catch(err) {}
+    bar.classList.add('is-drag');
+    paintBar(bar);
+  });
+  document.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const g = gradeAt(drag.bar, e.clientX);
+    const lo = Math.min(drag.fixed, g), hi = Math.max(drag.fixed, g);
+    if (lo !== state.lo || hi !== state.hi) { state.lo = lo; state.hi = hi; paintBar(drag.bar); }
+  });
+  const endDrag = e => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    drag.bar.classList.remove('is-drag');
+    const changed = curRid() !== drag.before;
+    drag = null;
+    if (changed) sync();
+  };
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
+  document.addEventListener('keydown', e => {
+    const sl = e.target.closest && e.target.closest('[data-slider]');
+    if (!sl) return;
+    const G = visibleGrades(), isLo = sl.dataset.slider === 'lo';
+    const cur = isLo ? state.lo : state.hi, k = G.indexOf(cur);
+    let next = null;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = G[Math.max(0, k - 1)];
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = G[Math.min(G.length - 1, k + 1)];
+    else if (e.key === 'Home') next = G[0];
+    else if (e.key === 'End') next = G[G.length - 1];
+    if (next == null) return;
+    e.preventDefault();
+    if (isLo) state.lo = Math.min(next, state.hi); else state.hi = Math.max(next, state.lo);
+    sync();
+  });
 
-  // ---- map search: name, short name, English id and Korean initial consonants (e.g. ㄹㅈ → 리장 타워)
+  // ---------------------------------------------------------------- header: navigation, server menu, search
+  function renderHeader(){
+    for (const a of document.querySelectorAll('[data-nav]')) {
+      a.setAttribute('href', hrefOf(a.dataset.nav));
+      if (a.closest('.nav')) { if (a.dataset.nav === state.view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
+    }
+    const servers = INDEX ? INDEX.servers : [];
+    const cur = servers.find(s => s.id === state.server) || {label:''};
+    $('srvBox').innerHTML = `<button type="button" class="srv-btn" data-act="srv-toggle" aria-expanded="${state.srvOpen}" aria-haspopup="true" aria-label="서버: ${esc(cur.label)}">${esc(cur.label)} ▾</button>`
+      + (state.srvOpen ? `<div class="op-pop srv-pop" role="group" aria-label="서버 선택">${servers.map(s => `<button type="button" class="srv-item" data-server-pick="${s.id}" aria-pressed="${s.id === state.server}">${esc(s.label)}</button>`).join('')}</div>` : '');
+  }
   const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
   const chosung = t => Array.from(t).map(ch => { const c = ch.charCodeAt(0) - 0xAC00; return c >= 0 && c < 11172 ? CHO[Math.floor(c / 588)] : ch; }).join('');
-  const norm = t => String(t).toLowerCase().replace(/[\s:·\-_]/g, '');
-  let searchHits = [], searchSel = 0;
-  function mapMatches(q){
+  const norm = t => String(t).toLowerCase().replace(/[\s:·'’\-_.]/g, '');
+  let hits = [], hitSel = 0;
+  function matches(q){
     const n = norm(q);
-    if (!n) return [];
+    if (!n || !D || !B) return {heroes:[], maps:[]};
     const onlyCho = /^[ㄱ-ㅎ]+$/.test(n);
-    const all = [{id:'all-maps', name:'전체 맵 종합', short:'전체', mode:`${MAP_IDS.length}개 맵`}].concat(MAPS);
-    const scored = [];
-    for (const m of all) {
-      const keys = [m.name, m.short, m.id.replace(/-/g, ' ')].map(norm);
-      const cho = norm(chosung(m.name));
-      let score = -1;
-      for (const k of keys) { if (k.startsWith(n)) score = Math.max(score, 3); else if (k.includes(n)) score = Math.max(score, 2); }
-      if (onlyCho && cho.includes(n)) score = Math.max(score, cho.startsWith(n) ? 2.5 : 1.5);
-      if (score >= 0) scored.push([score, m]);
-    }
-    return scored.sort((a, b) => b[0] - a[0]).map(x => x[1]);
+    const hit = (...names) => names.some(x => x && (onlyCho ? norm(chosung(x)).includes(n) : norm(x).includes(n)));
+    const heroes = H.map((h, i) => i).filter(i => hit(H[i].name, H[i].id.replace(/-/g, ' ')))
+      .sort((a, b) => MR[H[b].role]['all-maps'][b] - MR[H[a].role]['all-maps'][a]).slice(0, 5);
+    const maps = [{id:'all-maps', name:'전체 맵 종합', short:'', mode:'종합'}].concat(MAPS.slice().sort((a, b) => (B.N[b.id] || 0) - (B.N[a.id] || 0)))
+      .filter(m => hit(m.name, m.short, m.id === 'all-maps' ? '' : m.id.replace(/-/g, ' '))).slice(0, 5);
+    return {heroes, maps};
   }
-  // wide screens: the search box sits on top of the sidebar and filters it in place (arrow keys walk the visible items);
-  // narrow screens hide the sidebar list, so the same box shows a dropdown with thumbnails instead
-  const NARROW = window.matchMedia('(max-width: 900px)');
   function renderSearch(){
-    const q = $('mapSearch').value;
-    const box = $('mapResults');
+    const q = $('q').value, pop = $('searchPop');
     const open = norm(q).length > 0;
-    filterRail(q);
-    if (NARROW.matches) {
-      searchHits = mapMatches(q).slice(0, 8);
-      if (searchSel >= searchHits.length) searchSel = 0;
-      box.hidden = !open;
-      $('mapSearch').setAttribute('aria-controls', 'mapResults');
-      $('mapSearch').setAttribute('aria-expanded', String(open));
-      box.innerHTML = !open ? '' : searchHits.length ? searchHits.map((m, k) =>
-        `<button type="button" role="option" id="mr-${k}" data-map="${esc(m.id)}" data-search-pick="1" aria-selected="${k === searchSel}">${m.id === 'all-maps' ? '<span class="mr-img"></span>' : `<img class="mr-img" src="assets/maps/${esc(m.id)}.jpg" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`}<span class="mr-nm">${esc(m.name)}</span><span class="mr-mode">${esc(m.mode)}</span></button>`).join('')
-        : `<div class="mr-none">일치하는 맵이 없습니다.</div>`;
-      $('mapSearch').setAttribute('aria-activedescendant', open && searchHits.length ? `mr-${searchSel}` : '');
-      return;
+    $('q').setAttribute('aria-expanded', String(open));
+    if (!open) { pop.hidden = true; pop.innerHTML = ''; hits = []; $('q').removeAttribute('aria-activedescendant'); return; }
+    const r = matches(q);
+    hits = r.heroes.map(i => ({kind:'hero', id:H[i].id})).concat(r.maps.map(m => ({kind:'map', id:m.id})));
+    if (hitSel >= hits.length) hitSel = 0;
+    let h = '', k = 0;
+    const kb = () => k === hitSel ? ' is-kb' : '';
+    if (r.heroes.length) {
+      h += `<div class="op-search-group" role="presentation">영웅</div>`;
+      for (const i of r.heroes) {
+        const mi = MR[H[i].role]['all-maps'][i];
+        h += `<button type="button" class="op-search-hit${kb()}" id="sh-${k}" role="option" aria-selected="${k === hitSel}" data-pick-hero="${esc(H[i].id)}">${avatar(i, 32)}<span class="op-search-name">${esc(H[i].name)}</span><span class="op-search-meta">${ROLE_LABEL[H[i].role]} · ${tierOf(mi)} ${Math.round(mi)}</span></button>`;
+        k++;
+      }
     }
-    box.hidden = true;
-    const btns = open ? [...document.querySelectorAll('#rail .map-btn:not(.hide)')] : [];
-    searchHits = btns.map(b => ({id: b.dataset.map}));
-    if (searchSel >= searchHits.length) searchSel = 0;
-    btns.forEach((b, k) => b.classList.toggle('kb', k === searchSel));
-    $('mapSearch').setAttribute('aria-controls', 'rail');
-    $('mapSearch').setAttribute('aria-expanded', String(open));
-    $('mapSearch').setAttribute('aria-activedescendant', btns.length ? btns[searchSel].id : '');
-  }
-  function filterRail(q){
-    const ids = norm(q) ? new Set(mapMatches(q).map(m => m.id)) : null;
-    for (const b of document.querySelectorAll('#rail .map-btn')) { b.classList.toggle('hide', !!ids && !ids.has(b.dataset.map)); b.classList.remove('kb'); }
-    for (const g of document.querySelectorAll('#rail .mode')) g.classList.toggle('hide', !!ids && !g.querySelector('.map-btn:not(.hide)'));
-    const lg = document.querySelector('#rail .legend'); if (lg) lg.hidden = !!ids;
-    $('railNone').hidden = !ids || ids.size > 0;
-  }
-  function closeSearch(){ $('mapSearch').value = ''; searchSel = 0; renderSearch(); }
-  function renderRail(){
-    const item = (id, name, cls) => {
-      const n = BK().N[id]; const [rc, rl] = relOf(n);
-      return `<button type="button" class="map-btn ${cls || ''}" id="rb-${id}" data-map="${id}" aria-current="${state.map === id}" title="${hidden() ? '경기 수 비공개' : n ? `추정 ${fmtInt(n)}경기, 표본 신뢰도 ${rl}` : '공식 통계 오류'}"><span class="dot ${rc}" aria-hidden="true"></span><span class="nm">${esc(name)}</span><span class="n${n || hidden() ? '' : ' err'}">${hidden() ? '' : n ? fmtInt(n) : '오류'}</span></button>`;
-    };
-    let html = item('all-maps', '전체 맵 종합', 'all');
-    for (const mode of MODES) {
-      html += `<div class="mode"><div class="mode-name">${mode}</div>`;
-      for (const m of MAPS.filter(x => x.mode === mode)) html += item(m.id, m.name);
-      html += `</div>`;
+    if (r.maps.length) {
+      h += `<div class="op-search-group" role="presentation">맵</div>`;
+      for (const m of r.maps) {
+        const thumb = m.id === 'all-maps' ? `<span class="op-search-thumb"></span>` : `<img class="op-search-thumb" src="assets/maps/${esc(m.id)}.jpg" alt="" width="48" height="32" loading="lazy" onerror="this.onerror=null;this.src='${BLANK}'">`;
+        h += `<button type="button" class="op-search-hit${kb()}" id="sh-${k}" role="option" aria-selected="${k === hitSel}" data-pick-map="${esc(m.id)}">${thumb}<span class="op-search-name">${esc(m.name)}</span><span class="op-search-meta">${esc(m.mode)}</span></button>`;
+        k++;
+      }
     }
-    if (!hidden()) html += `<div class="legend"><span><span class="dot r-hi"></span>표본 높음 (600경기 이상)</span><span><span class="dot r-mid"></span>보통 (150~599)</span><span><span class="dot r-lo"></span>낮음 (150 미만)</span></div>`;
-    $('rail').innerHTML = html;
-    let opts = `<option value="all-maps"${state.map === 'all-maps' ? ' selected' : ''}>전체 맵 종합 (${nText(BK().N['all-maps'])})</option>`;
-    for (const mode of MODES) {
-      opts += `<optgroup label="${mode}">`;
-      for (const m of MAPS.filter(x => x.mode === mode)) opts += `<option value="${m.id}"${state.map === m.id ? ' selected' : ''}>${esc(m.name)} (${BK().N[m.id] ? `추정 ${fmtInt(BK().N[m.id])}경기` : '공식 통계 오류'})</option>`;
-      opts += `</optgroup>`;
-    }
-    $('mapSelect').innerHTML = opts;
-    renderSearch();
+    if (!hits.length) h = `<div class="op-search-empty">일치하는 맵이나 영웅이 없어요.</div>`;
+    pop.innerHTML = h; pop.hidden = false;
+    if (hits.length) $('q').setAttribute('aria-activedescendant', `sh-${hitSel}`); else $('q').removeAttribute('aria-activedescendant');
   }
+  function clearSearch(){ $('q').value = ''; hitSel = 0; renderSearch(); }
+  function pick(hit){
+    if (!hit) return;
+    if (hit.kind === 'map') { state.map = hit.id; state.focus = null; }
+    else { const h = H.find(x => x.id === hit.id); if (h) { state.role = h.role; state.focus = h.id; } }
+    clearSearch();
+    go('detail');
+  }
+  $('q').addEventListener('input', () => { hitSel = 0; renderSearch(); });
+  $('q').addEventListener('focus', () => { if ($('q').value) renderSearch(); });
+  $('q').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!hits.length) return;
+      e.preventDefault();
+      hitSel = (hitSel + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
+      renderSearch();
+      const el = $(`sh-${hitSel}`); if (el) el.scrollIntoView({block:'nearest'});
+    } else if (e.key === 'Enter') {
+      if (!hits.length) return;
+      e.preventDefault(); pick(hits[hitSel]);
+    } else if (e.key === 'Escape') { clearSearch(); }
+  });
 
-  function renderStale(){
-    const el = $('staleNote');
-    const t = INDEX && INDEX.collectedAt ? new Date(INDEX.collectedAt) : null;
-    const days = t && !isNaN(t) ? (Date.now() - t.getTime()) / 864e5 : 0;
-    const cur = INDEX && (INDEX.servers.find(x => x.id === state.server) || {});
-    el.hidden = days < 2 || !!(cur && cur.waiting);
-    if (!el.hidden) el.textContent = `공식 통계가 ${Math.floor(days)}일째 새로 반영되지 않았습니다. 자동 갱신이 멈췄을 수 있어, 지금 보이는 수치는 마지막으로 반영된 값입니다.`;
-    $('loadError').hidden = true;
+  // ---------------------------------------------------------------- home
+  function heroLink(i, role, size, cellW){
+    const mi = Math.round(MR[role]['all-maps'][i]);
+    return `<a class="op-hero" href="${esc(hrefOf('detail', {map:'all-maps', role, focus:H[i].id}))}" data-go-hero="${esc(H[i].id)}" style="width:${cellW}px" aria-label="${esc(H[i].name)}, ${tierOf(mi)} 티어, 지수 ${mi}">${avatar(i, size)}<span class="op-hero-label" aria-hidden="true"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi">${mi}</span></span></a>`;
   }
-  // Korean topic particle by the final consonant of the last syllable (솜브라 → 는, 독트린 → 은)
-  const josa = (w, withCoda, without) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 && c % 28 ? withCoda : without; };
-  function renderPatch(){
-    const el = $('patchNote');
-    const meta = D.meta || {};
-    const parts = [];
-    const entry = INDEX && INDEX.servers.find(x => x.id === state.server);
-    if (entry && entry.waiting) parts.push(`새 시즌이 시작돼 ${entry.label} 공식 통계가 아직 비어 있거나 경기 수가 너무 적습니다. 집계가 쌓일 때까지 지난 시즌 마지막 수치를 보여줍니다.`);
-    if (meta.patchStart) {
-      const days = Math.floor((Date.now() - new Date(meta.patchStart).getTime()) / 864e5) + 1;
-      if (days >= 1 && days <= 60) parts.push(`통계가 초기화된 뒤 ${days}일차 데이터입니다.`);
-    }
-    const ratio = meta.sampleRatio && meta.sampleRatio[curB()];
-    if (ratio != null && ratio < 0.5) parts.push(`이 구간의 경기 수가 아직 지난 패치의 ${Math.round(ratio * 100)}% 수준이라 티어가 크게 바뀔 수 있습니다.`);
-    if (meta.noMaps) parts.push(`${meta.label} 공식 통계(넷이즈)는 맵별 수치와 경기 수를 공개하지 않아, 전체 맵 기준 티어만 보여줍니다.`);
-    if ((meta.absent || []).length) parts.push(`${meta.absent.join(', ')}${josa(meta.absent[meta.absent.length - 1], '은', '는')} 이 서버 공식 통계에 아직 없어 표에서 뺐습니다.`);
-    for (const p of meta.pending || []) parts.push(`${p.name}${josa(p.name, '은', '는')} ${p.from}에서 ${p.to}으로 역할이 바뀌어 새 영웅으로 다룹니다. 공식 통계에 아직 ${p.from} 시절 경기만 잡혀 있어, ${p.to} 기록이 반영될 때까지 표에서 뺐습니다.`);
-    for (const e of [el, $('homePatch')]) { e.hidden = !parts.length; e.textContent = parts.join(' '); }
-  }
-
-  // ---- first screen: one card per map with the top tank, two damage and two support heroes
+  const badge = t => `<span class="op-tier op-tier-${t}" aria-label="${t} 티어">${t}</span>`;
   function renderHome(){
-    const B = BK();
-    const MR = {};
-    for (const [r] of ROLES) MR[r] = miFor(state.w, state.smooth, r);
-    const byRole = {};
-    for (const [r] of ROLES) byRole[r] = H.map((h, i) => i).filter(i => H[i].role === r);
-    const ranked = (m, r) => byRole[r].slice().sort((a, b) => MR[r][m][b] - MR[r][m][a]);
-    const SLOTS = {tank:1, damage:2, support:2};
-    const baseTop = {};
-    for (const [r] of ROLES) baseTop[r] = new Set(ranked('all-maps', r).slice(0, SLOTS[r]));
-    const face = (m, r, i) => {
-      const v = MR[r][m][i], t = tierOf(v);
-      const up = m !== 'all-maps' && !baseTop[r].has(i);   // in this map's lineup but not in the all-maps one
-      const d = m === 'all-maps' ? 0 : v - MR[r]['all-maps'][i];
-      const img = H[i].img ? `<img src="${esc(H[i].img)}" alt="" width="48" height="48" loading="lazy" decoding="async" onerror="this.remove()">` : esc(H[i].name.slice(0, 1));
-      const spec = up ? `<span class="spec" aria-hidden="true">★</span>` : '';
-      const tip = `${H[i].name}: ${t} (${Math.round(v)})` + (m !== 'all-maps' ? `, 전체 맵 대비 ${d >= 0 ? '+' : '−'}${Math.abs(Math.round(d))}` : '');
-      return `<span class="slot" title="${esc(tip)}"><span class="face t-${t}">${img}<b class="tb">${t}</b>${spec}</span><span class="hn">${esc(H[i].name)}</span></span>`;
-    };
-    const lineup = m => `<span class="lineup">${ROLES.map(([r, label]) => {
-      const order = ranked(m, r);
-      const top = order.slice(0, SLOTS[r]);
-      return `<span class="grp"><span class="gl">${label}</span><span class="gs">${top.map(i => face(m, r, i)).join('')}</span></span>`;
-    }).join('')}</span>`;
-    const names = m => ROLES.map(([r]) => ranked(m, r).slice(0, SLOTS[r]).map(i => H[i].name).join(', ')).join(' / ');
-    const bgImg = id => `<img src="assets/maps/${esc(id)}.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`;
-
-    // tier change vs the comparison snapshot, on the same basis as the detail view (default weights, smoothed)
-    const MI0R = {};
-    if (PREV) for (const [r] of ROLES) MI0R[r] = BK().mi0 || miFor(DEFAULT_W, true, r);
-    const markOf = (r, i) => {
-      if (!PREV) return '';
-      const p = PREV.get('all-maps', i); if (p == null) return '';
-      const a = tierOf(p), b = tierOf(MI0R[r]['all-maps'][i]);
-      if (a === b) return '';
-      const up = TIERS.indexOf(b) < TIERS.indexOf(a);
-      return `<span class="mv ${up ? 'up' : 'down'}" title="${PREV.label} ${a} → ${b}">${up ? '▲' : '▼'}</span>`;
-    };
-    // all-maps tier board: one dark panel per role, S row enlarged; on narrow screens one role at a time (tabs)
-    let board = `<div class="rt-tabs" role="group" aria-label="역할">${ROLES.map(([r, l]) => `<button type="button" data-home-role="${r}" aria-pressed="${state.homeRole === r}">${l}</button>`).join('')}</div><div class="rt-panels" id="rtPanels" data-active="${state.homeRole}">`;
-    for (const [r, label] of ROLES) {
-      const order = ranked('all-maps', r);
-      board += `<section class="rt-pn" data-role-panel="${r}" style="--cols:${r === 'damage' ? 6 : 4}" aria-label="${label} 티어"><div class="rt-ph"><span>${label}</span><span class="n">${order.length}명</span></div>`;
+    $('homeTabs').innerHTML = TABS.map(([k, l]) => `<button type="button" class="op-chip" data-tab="${k}" aria-pressed="${state.tab === k}">${l}</button>`).join('');
+    $('rkHome').innerHTML = rankBar('home');
+    let left = '';
+    if (state.tab === 'summary') {
+      for (const [r, label] of ROLES) {
+        const order = ranked('all-maps', r);
+        const rows = ['S', 'A'].map(t => [t, order.filter(i => tierOf(MR[r]['all-maps'][i]) === t)]).filter(x => x[1].length);
+        left += `<div class="hgroup"><h2>${label}</h2>` + (rows.length ? rows.map(([t, hs]) =>
+          `<div class="hrow">${badge(t)}<div class="hrow-heroes">${hs.map(i => heroLink(i, r, 60, 88)).join('')}</div></div>`).join('') : `<span class="none">해당 영웅 없음</span>`) + `</div>`;
+      }
+    } else {
+      const r = state.tab, order = ranked('all-maps', r);
+      const dense = order.length > 18;
+      const size = dense ? 56 : 64, cw = dense ? 78 : 88, gap = dense ? '12px 8px' : '12px 16px';
       for (const t of TIERS) {
         const hs = order.filter(i => tierOf(MR[r]['all-maps'][i]) === t);
-        board += `<div class="rt-tr t-${t}${t === 'S' ? ' rt-top' : ''}"><div class="rt-tl" aria-label="${t} 티어">${t}</div><div class="rt-hs">${hs.length ? hs.map(i => {
-          const img = H[i].img ? `<img src="${esc(H[i].img)}" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">` : '';
-          return `<button type="button" class="rt-h" data-go="all-maps" data-go-role="${r}" data-go-hero="${i}" title="${esc(H[i].name)} ${t} (${Math.round(MR[r]['all-maps'][i])}): 맵·영웅 상세에서 보기">${img}<span class="nm">${esc(H[i].name)}${markOf(r, i)}</span><span class="sc">${Math.round(MR[r]['all-maps'][i])}</span></button>`;
-        }).join('') : '<span class="none">없음</span>'}</div></div>`;
-      }
-      board += `</section>`;
-    }
-    board += `</div>`;
-    $('homeBoard').innerHTML = board;
-    const bs = $('homeBoardSub');
-    bs.innerHTML = PREV ? `<span class="mv up">▲</span><span class="mv down">▼</span> ${PREV.label} 대비 티어 변동` : '';
-    bs.hidden = !PREV;
-
-    // modes two per row; an odd one out is stacked under the shorter group of the row above
-    const modes = MODES.filter(mode => MAPS.some(x => x.mode === mode));
-    const cnt = mode => MAPS.filter(x => x.mode === mode).length;
-    const rows = [];
-    for (let k = 0; k < modes.length; k += 2) rows.push(modes.slice(k, k + 2).map(m => [m]));
-    if (rows.length > 1 && rows[rows.length - 1].length === 1) {
-      const last = rows.pop()[0][0], prev = rows[rows.length - 1];
-      const size = cell => cell.reduce((a, m) => a + cnt(m) + 1, 0);
-      (size(prev[0]) <= size(prev[1]) ? prev[0] : prev[1]).push(last);
-    }
-    let html = '';
-    for (const row of rows) for (const cell of row) {
-    html += `<div class="mcol">`;
-    for (const mode of cell) {
-      const ms = MAPS.filter(x => x.mode === mode);
-      html += `<section class="mgroup"><h3 class="mode-h">${esc(mode)}<span>${ms.length}개 맵</span></h3><div class="mlist">`;
-      for (const m of ms) {
-        const n = B.N[m.id]; const [, rl] = relOf(n);
-        html += `<button type="button" class="mcard" data-go="${m.id}" aria-label="${esc(m.name)} 상세 보기. ${n ? '메타 ' + esc(names(m.id)) : '공식 통계 오류'}">
-          <span class="bg" aria-hidden="true">${bgImg(m.id)}</span>
-          <span class="mtop"><span class="mname">${esc(m.name)}</span>${n ? `<span class="mmeta${n < 150 ? ' low' : ''}" title="표본 신뢰도 ${rl}">추정 ${fmtInt(n)}경기${n < 150 ? ' · 표본 적음' : ''}</span>` : ''}</span>
-          ${n ? lineup(m.id) : `<span class="merr"><span class="mmeta low">공식 통계 오류</span></span>`}
-        </button>`;
-      }
-      html += `</div></section>`;
-    }
-    html += `</div>`;
-    }
-    $('mgrid').innerHTML = html;
-    $('homeSample').textContent = `${D.meta.label} · 전체 티어(${B.ranks}) · ` + (MAP_IDS.length ? `${MAP_IDS.length}개 맵 종합 · ` : '전체 맵 기준 · ') + nText(B.N['all-maps']);
-    const noMaps = !MAP_IDS.length;
-    $('mapsHead').hidden = noMaps; $('mgrid').hidden = noMaps; $('noMapsNote').hidden = !noMaps;
-    if (noMaps) $('noMapsNote').textContent = `${D.meta.label} 공식 통계는 맵별 수치를 공개하지 않아 맵별 메타가 없습니다.`;
-    const custom = !state.smooth || ['wr','pr','br'].some(k => state.w[k] !== DEFAULT_W[k]);
-    const cn = $('homeCustom');
-    cn.hidden = !custom;
-    if (custom) {
-      const w = weights(state.w);
-      cn.innerHTML = `상세 화면에서 바꾼 설정(${state.smooth ? '' : '표본 보정 끔, '}가중치 승률 ${Math.round(w[0]*100)} / 픽률 ${Math.round(w[1]*100)} / 밴률 ${Math.round(w[2]*100)})이 적용된 결과입니다. <button type="button" class="linklike" id="homeReset">기본값으로 보기</button>`;
-    }
-  }
-
-  function renderBoard(){
-    const mi = MI[state.map];
-    const isAll = state.map === 'all-maps';
-    const m = MAP_BY_ID[state.map];
-    const n = BK().N[state.map]; const [, rl] = relOf(n);
-    const roleLabel = D.roles[state.role].label;
-    $('mapName').textContent = isAll ? '전체 맵 종합' : m.name;
-    $('modeTag').textContent = isAll ? (MAP_IDS.length ? `${MAP_IDS.length}개 맵` : '맵 구분 없음') : m.mode;
-    document.body.classList.toggle('no-maps', !MAP_IDS.length);
-    $('sample').textContent = `${D.meta.label} ${BK().label}(${BK().ranks}) ${roleLabel}, ` + (n || isAll
-      ? nText(n) + (isAll || hidden() ? '' : `, 표본 신뢰도 ${rl}`)
-      : '공식 통계 오류');
-
-    let ins;
-    if (isAll) {
-      ins = MAP_IDS.length ? `${MAP_IDS.length}개 맵을 모두 합친 종합 순위입니다. 맵을 고르면 그 맵의 티어와 종합 대비 오르내린 영웅이 나옵니다.`
-        : `${D.meta.label} 공식 통계는 맵을 나누지 않아, 모든 경기를 합친 순위만 볼 수 있습니다.`;
-    } else {
-      const base = MI['all-maps'];
-      const d = IDX.map(i => [i, mi[i] - base[i]]);
-      const up = d.filter(x => x[1] >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
-      const dn = d.filter(x => x[1] <= -3).sort((a, b) => a[1] - b[1]).slice(0, 3);
-      const f = (arr, cls) => arr.map(([i, v]) => `${esc(H[i].name)} <span class="${cls}">${v > 0 ? '+' : '−'}${Math.abs(Math.round(v))}</span>`).join(', ');
-      ins = (up.length ? `종합 대비 오른 영웅: ${f(up, 'up')}.` : '종합 순위와 큰 차이가 없습니다.') + (dn.length ? ` 내려간 영웅: ${f(dn, 'down')}.` : '');
-      if (n < 150) ins += `<span class="warn">${state.smooth ? `경기 수가 적어 영웅의 ${esc(D.meta.label)} 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 크게 보정된 결과입니다.` : '경기 수가 적어 원본 수치의 흔들림이 큽니다. 표본 보정을 켜고 보는 것을 권합니다.'}</span>`;
-    }
-    if (PREV) {
-      const moved = IDX.map(i => [i, move(state.map, i)]).filter(([, v]) => v && (v.dir === 'up' || v.dir === 'down'));
-      const when = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul', month:'long', day:'numeric'}).format(new Date(PREV.at));
-      ins += `<span class="warn">${PREV.label}(${when}) 대비 티어가 바뀐 영웅 ${moved.length}명${moved.length ? ': ' + moved.slice(0, 6).map(([i, v]) => `${esc(H[i].name)} ${v.from}→${v.to}`).join(', ') : ''}. 변동은 기본 가중치와 표본 보정 기준입니다.</span>`;
-    }
-    $('insight').innerHTML = ins;
-
-    const order = IDX.slice().sort((a, b) => mi[b] - mi[a]);
-    let html = '';
-    for (const t of TIERS) {
-      const hs = order.filter(i => tierOf(mi[i]) === t);
-      const chips = hs.length ? hs.map(i => {
-        const mv = move(state.map, i);
-        const mark = mv && mv.dir === 'up' ? `<span class="mv up" title="${PREV.label} ${mv.from} → ${mv.to}">▲</span>` : mv && mv.dir === 'down' ? `<span class="mv down" title="${PREV.label} ${mv.from} → ${mv.to}">▼</span>` : '';
-        const g = BK().cells[state.map][i][6];
-        const thin = !hidden() && g != null && g < 100;
-        return `<button type="button" class="chip${state.focus === i ? ' on' : ''}${thin ? ' thin' : ''}" data-hero="${i}" aria-pressed="${state.focus === i}"${thin ? ` title="표본 적음(약 ${fmtInt(g)}판)"` : ''}>${portrait(i, 'pt')}<span class="nm">${esc(H[i].name)}</span><span class="sc">${Math.round(mi[i])}</span>${mark}</button>`;
-      }).join('') : `<span class="none">해당 영웅 없음</span>`;
-      html += `<div class="tier-row t-${t}"><div class="tier-label" aria-label="${t} 티어">${t}</div><div class="tier-chips">${chips}</div></div>`;
-    }
-    const err = mapErr(state.map);
-    document.body.classList.toggle('map-err', err);
-    if (err) {
-      html = `<div class="board-err"><span class="mmeta low">공식 통계 오류</span></div>`;
-      $('insight').textContent = '';
-    }
-    $('board').innerHTML = html;
-  }
-
-  // ---- hero trend from the daily archive
-  const ARC = {};
-  const METRICS = [['mi','지수'],['pr','픽률'],['wr','승률'],['br','밴률']];
-  let trendMetric = 'mi';
-  // shown only while a hero is selected
-  function renderTrend(){
-    const panel = $('trendPanel');
-    const idxHero = (state.focus != null && H[state.focus] && H[state.focus].role === state.role) ? state.focus : null;
-    panel.hidden = idxHero == null;
-    if (idxHero == null) return;
-    const sel = $('trendHero');
-    sel.innerHTML = IDX.slice().sort((a, b) => H[a].name.localeCompare(H[b].name, 'ko')).map(i => `<option value="${i}"${i === idxHero ? ' selected' : ''}>${esc(H[i].name)}</option>`).join('');
-    $('trendMetric').innerHTML = METRICS.map(([k, l]) => `<button type="button" data-tmetric="${k}" aria-pressed="${trendMetric === k}">${l}</button>`).join('');
-    const sv = state.server;
-    const entry = INDEX.servers.find(x => x.id === sv);
-    if (ARC[sv] === undefined) {
-      ARC[sv] = null;
-      fetch(`archive/${sv}.json?v=${entry ? entry.hash : Date.now()}`)
-        .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-        .then(a => { ARC[sv] = a; if (state.server === sv && state.view === 'detail') renderTrend(); })
-        .catch(() => { ARC[sv] = false; if (state.server === sv && state.view === 'detail') renderTrend(); });
-    }
-    const arc = ARC[sv];
-    const chart = $('trendChart'), hint = $('trendHint');
-    if (!arc) {
-      chart.innerHTML = `<div class="tr-empty">${arc === false ? '기록을 불러오지 못했습니다.' : '기록을 불러오는 중입니다…'}</div>`;
-      hint.textContent = ''; return;
-    }
-    const hid = H[idxHero].id, bid = curB();
-    const pts = arc.days.map(d => { const b = d.b[bid]; const v = b && b.h[hid]; return v ? {d:d.d, mi:v[0], pr:v[1], wr:v[2], br:v[3]} : null; }).filter(Boolean);
-    const bl = BK().label;
-    hint.textContent = `${D.meta.label} · ${bl} 구간 · 전체 맵 · 하루 1회 기록` + (pts.length ? ` · ${pts.length}일째 (${pts[0].d.slice(5).replace('-', '.')}부터)` : '');
-    if (!pts.length) { chart.innerHTML = `<div class="tr-empty">이 영웅의 기록이 아직 없습니다.</div>`; return; }
-
-    const key = trendMetric;
-    const W = Math.max(300, Math.round(chart.clientWidth || 720)), HH = W < 500 ? 220 : 250, M = {l:40, r:key === 'mi' ? 28 : 14, t:14, b:30};
-    const vs = pts.map(p => p[key]);
-    let y0, y1;
-    if (key === 'mi') { y0 = Math.min(30, Math.floor(Math.min(...vs) - 3)); y1 = Math.max(72, Math.ceil(Math.max(...vs) + 3)); }
-    else if (key === 'wr') { y0 = Math.min(45, Math.floor(Math.min(...vs) - 1)); y1 = Math.max(55, Math.ceil(Math.max(...vs) + 1)); }
-    else { y0 = 0; y1 = Math.max(key === 'br' ? 2 : 4, Math.ceil(Math.max(...vs) * 1.2)); }
-    const t0 = Date.parse(pts[0].d), t1 = Date.parse(pts[pts.length - 1].d);
-    const span = Math.max(t1 - t0, 864e5 * 6);   // at least a week wide so a few days don't stretch edge to edge
-    const x = d => M.l + (Date.parse(d) - t0) / span * (W - M.l - M.r);
-    const y = v => M.t + (1 - (v - y0) / (y1 - y0)) * (HH - M.t - M.b);
-    const fmt = v => key === 'mi' ? String(Math.round(v)) : v.toFixed(1) + '%';
-    let g = `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="${esc(H[idxHero].name)} ${METRICS.find(m => m[0] === key)[1]} 추이">`;
-    if (key === 'mi') {
-      const bands = [['S', 62, 200, '--t-s'], ['A', 55, 62, '--t-a'], ['B', 46, 55, '--t-b'], ['C', 40, 46, '--t-c'], ['D', -100, 40, '--t-d']];
-      for (const [t, lo, hi, c] of bands) {
-        const a = Math.max(lo, y0), b = Math.min(hi, y1); if (b <= a) continue;
-        g += `<rect x="${M.l}" y="${y(b)}" width="${W - M.l - M.r}" height="${y(a) - y(b)}" fill="var(${c})" fill-opacity=".10"/>`;
-        g += `<text x="${W - M.r + 8}" y="${(y(a) + y(b)) / 2 + 4}" font-size="11" font-weight="700" fill="var(--faint)">${t}</text>`;
+        left += `<div class="ttier">${badge(t)}<div class="ttier-heroes" style="gap:${gap}">${hs.length ? hs.map(i => heroLink(i, r, size, cw)).join('') : '<span class="none" style="align-self:center">해당 영웅 없음</span>'}</div></div>`;
       }
     }
-    const steps = key === 'mi' ? 10 : key === 'wr' ? (y1 - y0 > 16 ? 5 : 2) : Math.max(1, Math.ceil((y1 - y0) / 5));
-    for (let v = Math.ceil(y0 / steps) * steps; v <= y1; v += steps) {
-      g += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/>`;
-      g += `<text x="${M.l - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${key === 'mi' ? v : v + '%'}</text>`;
+    $('homeLeft').innerHTML = left;
+
+    let right = `<h2 class="hright-title" id="mapsTitle">맵별 메타</h2>`;
+    if (!hasMaps()) {
+      right += `<p class="hnote">${esc(D.meta.label)} 공식 통계는 맵별 수치를 공개하지 않아 전체 맵 티어만 볼 수 있어요.</p>`;
+      $('homeRight').innerHTML = right; return;
     }
-    if (key === 'wr') g += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(50)}" y2="${y(50)}" stroke="var(--faint)" stroke-width="1.4"/>`;
-    // date ticks: first, last and a few in between
-    const tickN = Math.min(pts.length, W < 500 ? 4 : 6);
-    const ticks = [...new Set(Array.from({length:tickN}, (_, k) => pts[Math.round(k * (pts.length - 1) / Math.max(1, tickN - 1))].d))];
-    for (const d of ticks) g += `<text x="${x(d)}" y="${HH - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${d.slice(5).replace('-', '.')}</text>`;
-    for (const ps of arc.patches || []) {
-      const d = ps.slice(0, 10); const t = Date.parse(d);
-      if (t < t0 || t > t0 + span) continue;
-      g += `<line x1="${x(d)}" x2="${x(d)}" y1="${M.t}" y2="${HH - M.b}" stroke="var(--t-a)" stroke-width="1.4" stroke-dasharray="4 4"/><text x="${x(d) + 4}" y="${M.t + 11}" font-size="10.5" fill="var(--muted)">패치</text>`;
-    }
-    if (pts.length > 1) g += `<polyline points="${pts.map(p => `${x(p.d).toFixed(1)},${y(p[key]).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    for (const p of pts) g += `<circle cx="${x(p.d).toFixed(1)}" cy="${y(p[key]).toFixed(1)}" r="4" fill="var(--accent)" stroke="var(--panel)" stroke-width="2"/>`;
-    const last = pts[pts.length - 1];
-    g += `<text x="${x(last.d) - 6}" y="${y(last[key]) - 10}" text-anchor="${pts.length > 1 ? 'end' : 'start'}" font-size="12" font-weight="700" fill="var(--ink)" stroke="var(--panel)" stroke-width="3" paint-order="stroke">${fmt(last[key])}</text>`;
-    g += `<line id="trX" x1="0" x2="0" y1="${M.t}" y2="${HH - M.b}" stroke="var(--ink)" stroke-width="1" opacity="0"/>`;
-    g += `<rect id="trHit" x="${M.l}" y="${M.t}" width="${W - M.l - M.r}" height="${HH - M.t - M.b}" fill="transparent"/></svg>`;
-    chart.innerHTML = g + `<div class="tr-tip" id="trTip" hidden></div>` + (pts.length < 2 ? `<div class="tr-empty">기록이 쌓이는 중입니다. 하루에 한 번 기록되며, 이틀째부터 선으로 이어집니다.</div>` : '');
-    const svg = chart.querySelector('svg'), tip = $('trTip'), cross = $('trX');
-    const show = ev => {
-      const r = svg.getBoundingClientRect();
-      const sx = (ev.clientX - r.left) / r.width * W;
-      let best = pts[0];
-      for (const p of pts) if (Math.abs(x(p.d) - sx) < Math.abs(x(best.d) - sx)) best = p;
-      const px = x(best.d);
-      cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('opacity', '.35');
-      tip.innerHTML = `<b>${best.d}</b><span class="badge t-${tierOf(best.mi)}">${tierOf(best.mi)}</span>지수 ${best.mi}<br>픽률 ${pct(best.pr)} · 승률 ${pct(best.wr)} · 밴률 ${pct(best.br)}`;
-      tip.hidden = false;
-      const left = px / W * r.width, top = y(best[key]) / HH * r.height;
-      tip.style.left = Math.min(Math.max(0, left + 12), r.width - tip.offsetWidth) + 'px';
-      tip.style.top = Math.max(0, top - tip.offsetHeight - 10) + 'px';
+    const maps = MAPS.slice().sort((a, b) => (B.N[b.id] || 0) - (B.N[a.id] || 0));
+    const rows = state.mode === 'all' ? maps : maps.filter(m => m.mode === state.mode);
+    const games = state.mode === 'all' ? B.N['all-maps'] : rows.reduce((a, m) => a + (B.N[m.id] || 0), 0);
+    const tab = (k, label, n) => `<button type="button" class="op-tab" role="tab" data-mode="${esc(k)}" aria-selected="${state.mode === k}">${esc(label)}<span class="op-tab-count">${n}</span></button>`;
+    right += `<div class="op-tabs" role="tablist" aria-label="게임 모드">${tab('all', '전체', maps.length)}${MODES.map(m => tab(m, m, maps.filter(x => x.mode === m).length)).join('')}<span class="op-tabs-meta">추정 ${fmtInt(games)}경기</span></div>`;
+    const SLOTS = {tank:1, damage:2, support:2};
+    const card = m => {
+      const n = B.N[m.id] || 0, err = n === 0;
+      let body = mapImg(m.id, 'op-map-img', 167, 94);
+      if (err) body += `<span class="op-map-err">공식 통계가 비어 있어 계산에서 제외했어요.</span>`;
+      else {
+        body += `<div class="op-map-roles">` + ROLES.map(([r]) => {
+          const order = ranked(m.id, r), top = order.slice(0, SLOTS[r]), more = order.slice(SLOTS[r], SLOTS[r] + 2);
+          const info = i => { const here = Math.round(MR[r][m.id][i]), usual = Math.round(MR[r]['all-maps'][i]); const hot = here - usual >= HOT;
+            return {here, usual, hot, tip:`${H[i].name} · 이 맵 지수 ${here}` + (hot ? ` (전체 맵 지수 ${usual}보다 ${here - usual} 높음)` : '')}; };
+          return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
+              return `<div class="op-map-pick${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}"><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="op-map-hotmark" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></div>`; }).join('')}</div>`
+            + `<div class="op-map-more">${more.map(i => { const x = info(i);
+              return `<span class="op-map-reserve${x.hot ? ' is-hot' : ''}" title="${esc(x.tip)}">${H[i].img ? `<img class="op-avatar" src="${esc(H[i].img)}" alt="${esc(H[i].name)}" width="20" height="20" loading="lazy" ${ERR_IMG}>` : ''}${x.here}</span>`; }).join('')}</div></div>`;
+        }).join('') + `</div>`;
+      }
+      return `<a class="op-map" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"><div class="op-map-head"><span class="op-map-name">${esc(m.name)}</span><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></a>`;
     };
-    const hide = () => { tip.hidden = true; cross.setAttribute('opacity', '0'); };
-    const hit = $('trHit');
-    hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show); hit.addEventListener('pointerleave', hide);
+    right += `<div class="mlist scroll" id="mlist">${rows.map(card).join('')}</div><span class="mfade" aria-hidden="true"></span>`;
+    $('homeRight').innerHTML = right;
   }
 
-  function renderScatter(){
-    const cells = BK().cells[state.map];
-    const mi = MI[state.map];
-    const avg = D.roles[state.role].avg;
-    const W = 720, HH = 410, M = {l:46, r:18, t:30, b:44};
-    const vs = {}; for (const i of IDX) vs[i] = vals(cells[i], state.smooth);
-    const wrs = IDX.map(i => vs[i].wr), prs = IDX.map(i => vs[i].pr);
-    let Y0 = Math.floor((Math.min(50, ...wrs) - 1.5) / 5) * 5;
-    let Y1 = Math.ceil((Math.max(50, ...wrs) + 1.5) / 5) * 5;
-    Y0 = Math.max(0, Y0); Y1 = Math.min(100, Y1);
-    if (Y1 - Y0 < 15) { Y0 = 40; Y1 = 60; }
-    const yStep = (Y1 - Y0) > 40 ? 10 : 5;
-    const XMAX = Math.max(60, Math.max(...prs) * 1.15), XMIN = 0.3;
-    const X0 = Math.log(XMIN), X1 = Math.log(XMAX);
-    const x = p => M.l + (Math.log(Math.min(XMAX, Math.max(XMIN, p))) - X0) / (X1 - X0) * (W - M.l - M.r);
-    const y = w => M.t + (1 - (Math.min(Y1, Math.max(Y0, w)) - Y0) / (Y1 - Y0)) * (HH - M.t - M.b);
-    const r = b => 4 + Math.sqrt(Math.max(0, b)) * 1.7;
-    let s = `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="픽률과 승률 분포">`;
-    const gridC = 'var(--line)', txtC = 'var(--muted)';
-    for (const t of [0.5, 1, 2, 5, 10, 20, 50]) {
-      if (t > XMAX) continue;
-      const xx = x(t);
-      s += `<line x1="${xx}" y1="${M.t}" x2="${xx}" y2="${HH - M.b}" stroke="${gridC}" stroke-width="1"/>`;
-      s += `<text x="${xx}" y="${HH - M.b + 16}" text-anchor="middle" font-size="11" fill="${txtC}">${t}%</text>`;
+  // ---------------------------------------------------------------- detail
+  function selHero(idx, mm){
+    const f = state.focus != null ? H.findIndex(h => h.id === state.focus) : -1;
+    if (f >= 0 && idx.includes(f)) return f;
+    return idx.slice().sort((a, b) => mm[b] - mm[a])[0];
+  }
+  function renderBar(){
+    const w = state.w;
+    let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
+    h += `<div class="dbar-r">`;
+    h += `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
+    h += `<div class="wsel"><button type="button" class="op-chip" data-act="w-toggle" aria-expanded="${state.wOpen}">지수 가중치<span class="op-chip-value" id="wLabel">${w.wr} · ${w.pr} · ${w.br}</span><span aria-hidden="true">▾</span></button>`;
+    if (state.wOpen) {
+      h += `<div class="op-pop wpop" role="group" aria-label="지수 가중치"><p>손잡이 두 개로 100을 승률·픽률·밴률에 나눠 줍니다.</p>`
+        + `<div class="wsplit"><div class="wtrack" id="wTrack"></div><input type="range" min="0" max="100" step="5" id="wA" value="${w.wr}" aria-label="승률과 픽률의 경계"><input type="range" min="0" max="100" step="5" id="wB" value="${w.wr + w.pr}" aria-label="픽률과 밴률의 경계"></div>`
+        + `<div class="wvals"><span>승률 <b id="oWr">${w.wr}</b></span><span>픽률 <b id="oPr">${w.pr}</b></span><span>밴률 <b id="oBr">${w.br}</b></span></div>`
+        + `<button type="button" class="op-chip" data-act="w-reset" style="align-self:flex-start">기본값(50 / 30 / 20)으로 되돌리기</button></div>`;
     }
-    for (let t = Y0; t <= Y1; t += yStep) {
-      const yy = y(t);
-      s += `<line x1="${M.l}" y1="${yy}" x2="${W - M.r}" y2="${yy}" stroke="${t === 50 ? 'var(--faint)' : gridC}" stroke-width="${t === 50 ? 1.4 : 1}"/>`;
-      s += `<text x="${M.l - 6}" y="${yy + 4}" text-anchor="end" font-size="11" fill="${txtC}">${t}%</text>`;
+    h += `</div>${rankBar('detail')}</div>`;
+    $('dBar').innerHTML = h;
+    if (state.wOpen) paintWeights();
+  }
+  function paintWeights(){
+    const w = state.w;
+    const tr = $('wTrack'); if (!tr) return;
+    tr.innerHTML = `<span style="width:${w.wr}%;background:var(--text)"></span><span style="width:${w.pr}%;background:var(--text-meta)"></span><span style="width:${w.br}%;background:var(--tier-c)"></span>`;
+    $('oWr').textContent = w.wr; $('oPr').textContent = w.pr; $('oBr').textContent = w.br;
+    $('wLabel').textContent = `${w.wr} · ${w.pr} · ${w.br}`;
+    $('wA').setAttribute('aria-valuetext', `승률 ${w.wr}, 픽률 ${w.pr}`);
+    $('wB').setAttribute('aria-valuetext', `픽률 ${w.pr}, 밴률 ${w.br}`);
+  }
+  function renderRail(){
+    const rail = $('dRail');
+    rail.hidden = !hasMaps();
+    if (!hasMaps()) { rail.innerHTML = ''; return; }
+    const item = (id, name) => {
+      const n = B.N[id] || 0, on = state.map === id;
+      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${n ? `추정 ${fmtInt(n)}경기, 표본 신뢰도 ${rel(n)}` : '공식 통계 오류'}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${n ? fmtInt(n) : '오류'}</span></button>`;
+    };
+    let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체 맵 종합')}</nav>`;
+    for (const mode of MODES) h += `<nav class="op-rail" aria-label="${esc(mode)} 맵"><span class="op-rail-label">${esc(mode)}</span>${MAPS.filter(m => m.mode === mode).map(m => item(m.id, m.name)).join('')}</nav>`;
+    // narrow screens: the same list as one drop-down
+    const opt = (id, name) => { const n = B.N[id] || 0; return `<option value="${esc(id)}"${state.map === id ? ' selected' : ''}>${esc(name)} (${n ? fmtInt(n) : '오류'})</option>`; };
+    h += `<select class="rail-select" id="railSelect" aria-label="맵 선택">${opt('all-maps', '전체 맵 종합')}${MODES.map(mode => `<optgroup label="${esc(mode)}">${MAPS.filter(m => m.mode === mode).map(m => opt(m.id, m.name)).join('')}</optgroup>`).join('')}</select>`;
+    rail.innerHTML = h;
+  }
+  function renderMain(){
+    const r = state.role, mi = MR[r], isAll = state.map === 'all-maps', m = MAP_BY_ID[state.map];
+    const mm = mi[state.map], ALL = mi['all-maps'], cells = B.cells[state.map];
+    const n = B.N[state.map] || 0, err = mapErr(state.map);
+    const idx = byRole(r);
+    const delta = i => Math.round(mm[i]) - Math.round(ALL[i]);
+    const hero = selHero(idx, err ? ALL : mm);
+    let h = `<section class="dsec" aria-label="티어">`;
+    h += `<div class="dhead">${isAll ? '' : mapImg(m.id, 'dhead-img', 240, 135)}<div class="dhead-txt"><div class="dhead-title"><h1>${isAll ? '전체 맵 종합' : esc(m.name)}</h1>${isAll ? (hasMaps() ? `<span class="mode-tag">${MAP_IDS.length}개 맵</span>` : '') : `<span class="mode-tag">${esc(m.mode)}</span>`}</div>`;
+    const parts = [esc(D.meta.label), rankLabel(), ROLE_LABEL[r]];
+    if (err) parts.push('공식 통계 오류');
+    else if (!isHidden()) parts.push(`추정 ${fmtInt(n)}경기` + (isAll ? '' : ` · 표본 신뢰도 ${rel(n)}`));
+    h += `<span class="dsample">${parts.join(' · ')}</span></div></div>`;
+    if (D.meta.patchStart) {
+      const day = Math.floor((Date.now() - new Date(D.meta.patchStart).getTime()) / 864e5) + 1;
+      if (day >= 1 && day <= 14) {
+        const ratio = B.sampleRatio;
+        h += `<p class="notice">통계가 초기화된 뒤 ${day}일차 데이터입니다.${ratio != null && ratio < 1 ? ` 경기 수가 아직 지난 패치의 ${Math.max(1, Math.round(ratio * 100))}% 수준이라 티어가 크게 바뀔 수 있습니다.` : ''}</p>`;
+      }
     }
-    const avgX = x(avg);
-    s += `<line x1="${avgX}" y1="${M.t}" x2="${avgX}" y2="${HH - M.b}" stroke="var(--faint)" stroke-width="1.4" stroke-dasharray="4 4"/>`;
-    s += `<text x="${avgX + 4}" y="${M.t - 6}" font-size="10.5" fill="${txtC}">평균 픽률 ${avg.toFixed(1)}%</text>`;
-    s += `<text x="${(M.l + W - M.r) / 2}" y="${HH - 6}" text-anchor="middle" font-size="11.5" fill="${txtC}" font-weight="600">픽률</text>`;
-    s += `<text x="${M.l - 6}" y="${M.t - 12}" text-anchor="end" font-size="11.5" fill="${txtC}" font-weight="600">승률</text>`;
-    const pts = IDX.map(i => { const v = vs[i]; return {i, v, cx:x(v.pr), cy:y(v.wr), rr:r(v.br), t:tierOf(mi[i])}; }).sort((a, b) => b.rr - a.rr);
-    const tierVar = {S:'--t-s', A:'--t-a', B:'--t-b', C:'--t-c', D:'--t-d'};
+    if (err) {
+      h += `<p class="notice big">이 서버의 공식 통계가 비어 있어 이 맵은 계산에서 제외했어요.</p></section>`;
+      $('dMain').innerHTML = h; $('dHeat').innerHTML = ''; $('dHeat').hidden = true;
+      return;
+    }
+    if (isAll) {
+      h += `<p class="dline">${hasMaps() ? `${MAP_IDS.length}개 맵을 모두 합친 종합 순위입니다. 맵을 고르면 그 맵의 티어와 종합 대비 오르내린 영웅이 나옵니다.` : `${esc(D.meta.label)} 공식 통계는 맵별 수치를 공개하지 않아, 모든 경기를 합친 순위만 볼 수 있습니다.`}</p>`;
+      if (PREV) {
+        const MI0 = B.mi0 && B.mi0['all-maps'];
+        const now0 = i => MI0 && MI0[i] != null ? MI0[i] : ALL[i];
+        const moved = idx.filter(i => PREV.get(i) != null && tierOf(PREV.get(i)) !== tierOf(now0(i)));
+        h += `<p class="dprev">${mdK(PREV.at)} 대비 티어가 바뀐 영웅 ${moved.length}명${moved.length ? ': ' + moved.slice(0, 6).map(i => `${esc(H[i].name)} ${tierOf(PREV.get(i))}→${tierOf(now0(i))}`).join(', ') : ''}. 변동은 기본 가중치와 표본 보정 기준입니다.</p>`;
+      }
+    } else {
+      const ds = idx.map(i => [i, delta(i)]);
+      const up = ds.filter(x => x[1] >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      const dn = ds.filter(x => x[1] <= -3).sort((a, b) => a[1] - b[1]).slice(0, 3);
+      const mv = up.concat(dn);
+      if (mv.length) h += `<div class="moves"><span class="moves-l">종합 대비</span>${mv.map(([i, v]) => `<button type="button" class="mchip" data-hero="${i}" title="전체 맵 지수 ${Math.round(ALL[i])} → 이 맵 ${Math.round(mm[i])}">${avatar(i, 24)}${esc(H[i].name)}<b style="color:${v > 0 ? 'var(--accent)' : 'var(--text-meta)'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</b></button>`).join('')}</div>`;
+      else h += `<p class="dline">종합 순위와 큰 차이가 없습니다.</p>`;
+    }
+    // tier board
+    const order = idx.slice().sort((a, b) => mm[b] - mm[a]);
+    h += `<div class="tboard">`;
+    for (const t of TIERS) {
+      const hs = order.filter(i => tierOf(mm[i]) === t);
+      h += `<div class="trow">${badge(t)}<div class="trow-heroes">` + (hs.length ? hs.map(i => {
+        const hot = !isAll && delta(i) >= HOT, sel = i === hero, low = !isHidden() && cells[i][6] < 100;
+        const ring = hot || sel ? `;box-shadow:${hot ? '0 0 0 2px var(--accent)' : '0 0 0 2px var(--bg)'}${sel ? ',0 0 0 4px var(--text)' : ''}` : '';
+        const tip = `${H[i].name} · 지수 ${Math.round(mm[i])}` + (hot ? ` (전체 맵보다 ${delta(i)} 높음)` : '') + (low ? ' · 표본이 적어요' : '');
+        return `<button type="button" class="op-hero" data-hero="${i}" aria-pressed="${sel}" title="${esc(tip)}">${avatar(i, 56, ring + (low ? ';opacity:.45' : ''))}<span class="op-hero-label"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi">${Math.round(mm[i])}</span></span></button>`;
+      }).join('') : `<span class="none" style="align-self:center">해당 영웅 없음</span>`) + `</div></div>`;
+    }
+    h += `</div></section>`;
+    // trend
+    const METRICS = [['mi','지수'],['pr','픽률'],['wr','승률'],['br','밴률']];
+    h += `<section class="dsec tight" aria-labelledby="trTitle" style="gap:12px"><div class="tr-head"><h2 id="trTitle">영웅 추이</h2><span class="selchip">${avatar(hero, 24)}${esc(H[hero].name)}</span><div class="tr-metrics" role="group" aria-label="지표">${METRICS.map(([k, l]) => `<button type="button" class="op-chip" data-metric="${k}" aria-pressed="${state.metric === k}">${l}</button>`).join('')}</div></div>`;
+    h += `<span class="dhint">티어표나 아래 표에서 영웅을 누르면 바뀌어요. 하루 한 번 저장한 전체 맵 기록이에요.</span><div class="panel" id="trendBox">${trendHTML(hero)}</div></section>`;
+    // scatter
+    h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><span class="dhint">가로는 픽률(로그 눈금), 세로는 승률, 원 크기는 밴률, 색은 티어입니다. 원을 누르면 그 영웅이 표와 맵별 티어 비교에서 강조됩니다.</span><div class="scatter">${scatterHTML(idx, cells, mm, hero)}</div></section>`;
+    // table
+    h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><span class="dhint">${state.smooth ? '큰 숫자는 보정값(표본 보정, 승률은 미러전 제외), 작은 회색 숫자는 원본입니다.' : '표본 보정이 꺼져 있어 원본으로 계산했습니다(승률만 미러전 제외, 회색은 원본).'} 표본은 이 맵에서 플레이된 판 수 추정치예요. 열 제목을 누르면 정렬됩니다.</span><div class="twrap">${tableHTML(idx, cells, mm, ALL, hero, isAll)}</div></section>`;
+    $('dMain').innerHTML = h;
+    renderHeat(idx, hero);
+    loadTrend(hero);
+  }
+
+  // ---- hero trend (daily all-maps archive of this server and rank range)
+  function arcKey(){ return state.server + '/' + curRid(); }
+  function loadTrend(hero){
+    const k = arcKey();
+    if (ARC[k] !== undefined) return;
+    ARC[k] = null;
+    const sv = state.server, r = curRid();
+    Promise.all([getJSON(`archive/${sv}/${r}.json?v=${hashOf(sv)}`), ARC[sv + '/meta'] ? Promise.resolve(ARC[sv + '/meta']) : getJSON(`archive/${sv}/meta.json?v=${hashOf(sv)}`).catch(() => ({}))])
+      .then(([a, meta]) => { ARC[k] = a; ARC[sv + '/meta'] = meta; })
+      .catch(() => { ARC[k] = false; })
+      .then(() => { if (arcKey() === k && state.view === 'detail' && $('trendBox')) { const sel = currentHero(); if (sel != null) $('trendBox').innerHTML = trendHTML(sel); } });
+  }
+  function currentHero(){
+    const idx = byRole(state.role), err = mapErr(state.map);
+    return idx.length ? selHero(idx, err ? MR[state.role]['all-maps'] : MR[state.role][state.map]) : null;
+  }
+  function trendHTML(hero){
+    const arc = ARC[arcKey()];
+    if (!arc) return `<div class="tr-empty">${arc === false ? '기록을 불러오지 못했어요.' : '기록을 불러오는 중이에요…'}</div>`;
+    const K = {mi:0, pr:1, wr:2, br:3}[state.metric], label = {mi:'지수', pr:'픽률', wr:'승률', br:'밴률'}[state.metric];
+    const days = arc.days || [];
+    const tr = days.map(d => { const v = d.h && d.h[H[hero].id]; return v && v[K] != null ? v[K] : null; });
+    const vs = tr.filter(v => v != null);
+    if (vs.length < 2) return `<div class="tr-empty">기록이 쌓이는 중이에요. 하루에 한 번 기록되고 이틀째부터 선으로 이어져요.</div>`;
+    const vLo = Math.min(...vs), vHi = Math.max(...vs), pad = vHi === vLo ? 1 : 0;
+    const X = k => 10 + k * 700 / (tr.length - 1), Y = v => 16 + (vHi + pad - v) * 108 / (vHi - vLo + 2 * pad);
+    const pts = []; let firstK = -1, lastK = 0;
+    tr.forEach((v, k) => { if (v != null) { pts.push(X(k).toFixed(1) + ',' + Y(v).toFixed(1)); lastK = k; if (firstK < 0) firstK = k; } });
+    const num = v => K === 0 ? String(Math.round(v)) : v.toFixed(1) + '%';
+    const show = v => K === 0 ? '지수 ' + Math.round(v) : `${label} ${v.toFixed(1)}%`;
+    const meta = ARC[state.server + '/meta'] || {};
+    const ps = (D.meta.patchStart || [...(meta.patches || [])].pop() || '').slice(0, 10);
+    let pk = -1;
+    if (ps && days.length && ps > days[0].d && ps <= days[days.length - 1].d) days.forEach((d, k) => { if (d.d < ps) pk = k + 0.5; });
+    let g = `<svg viewBox="0 0 720 150" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
+    g += `<line x1="0" y1="${Y(vHi)}" x2="720" y2="${Y(vHi)}" stroke="#26262B" stroke-width="1"/><line x1="0" y1="${Y(vLo)}" x2="720" y2="${Y(vLo)}" stroke="#26262B" stroke-width="1"/>`;
+    if (pk >= 0) g += `<line x1="${X(pk)}" y1="6" x2="${X(pk)}" y2="132" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/>`;
+    g += `<polyline points="${pts.join(' ')}" fill="none" stroke="#F2F2F3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    g += `<circle cx="${X(lastK)}" cy="${Y(tr[lastK])}" r="5" fill="var(--accent)" stroke="#151518" stroke-width="2"/></svg>`;
+    g += `<div class="tr-foot"><span>${md(days[firstK].d)} · ${show(tr[firstK])}</span><span>${pk >= 0 ? `점선 = 패치 시작 ${md(ps)} · ` : ''}범위 ${num(vLo)}~${num(vHi)}</span><span>${md(days[lastK].d)} · ${show(tr[lastK])}</span></div>`;
+    return g;
+  }
+
+  // ---- meta map (scatter)
+  function scatterHTML(idx, cells, mm, hero){
+    const vs = {}; for (const i of idx) vs[i] = vals(cells[i], state.smooth);
+    const prs = idx.map(i => Math.max(vs[i].pr, 0.2)), wrs = idx.map(i => vs[i].wr);
+    const lx0 = Math.log(Math.max(0.2, Math.min(...prs) * 0.7)), lx1 = Math.log(Math.max(...prs) * 1.4);
+    const wy0 = Math.floor((Math.min(...wrs) - 2) / 5) * 5, wy1 = Math.ceil((Math.max(...wrs) + 2) / 5) * 5;
+    const SX = p => 56 + (Math.log(Math.max(p, 0.2)) - lx0) / (lx1 - lx0) * 828, SY = v => 356 - (v - wy0) / (wy1 - wy0) * 340;
+    const F = 'font-family="Pretendard Variable, Pretendard, sans-serif"';
+    let s = `<svg viewBox="0 0 900 400" role="img" aria-label="픽률과 승률 산점도">`;
+    for (let wv = wy0; wv <= wy1; wv += 5) s += `<line x1="56" x2="884" y1="${SY(wv).toFixed(1)}" y2="${SY(wv).toFixed(1)}" stroke="#1F1F23" stroke-width="1"/><text x="48" y="${(SY(wv) + 4).toFixed(1)}" fill="#8A8A92" font-size="12" text-anchor="end" ${F}>${wv}%</text>`;
+    for (const p of [0.2, 0.5, 1, 2, 5, 10, 20, 50]) { const x = SX(p); if (x >= 56 && x <= 884) s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="16" y2="356" stroke="#1F1F23" stroke-width="1"/><text x="${x.toFixed(1)}" y="376" fill="#8A8A92" font-size="12" text-anchor="middle" ${F}>${p}%</text>`; }
+    const avg = D.roles[state.role].avg, ax = SX(avg);
+    if (ax >= 56 && ax <= 884) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="16" y2="356" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="12" dx="6" fill="#8A8A92" font-size="12" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
+    s += `<text x="470" y="396" fill="#A1A1A8" font-size="12" text-anchor="middle" ${F}>픽률</text><text x="12" y="186" fill="#A1A1A8" font-size="12" text-anchor="middle" transform="rotate(-90 12 186)" ${F}>승률</text>`;
+    const COL = {S:'var(--tier-s)', A:'#C4C4CA', B:'#8A8A92', C:'#4A4A50', D:'#2C2C31'};
+    const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:5 + Math.sqrt(Math.max(0, v.br)) * 1.9, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
     for (const p of pts) {
-      const on = state.focus === p.i;
-      s += `<circle data-hero="${p.i}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.rr.toFixed(1)}" fill="var(${tierVar[p.t]})" fill-opacity="${state.focus == null || on ? 0.9 : 0.35}" stroke="${on ? 'var(--ink)' : 'var(--panel)'}" stroke-width="${on ? 2.5 : 1.2}" style="cursor:pointer"><title>${esc(H[p.i].name)}: 픽률 ${p.v.pr.toFixed(1)}%, 승률 ${p.v.wr.toFixed(1)}%, 밴률 ${p.v.br.toFixed(1)}%, 지수 ${Math.round(mi[p.i])} (${p.t})</title></circle>`;
+      const on = p.i === hero;
+      s += `<circle data-hero="${p.i}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.rr.toFixed(1)}" fill="${COL[p.t]}" fill-opacity=".9" stroke="${on ? '#F2F2F3' : '#0E0E10'}" stroke-width="${on ? 3 : 1}"><title>${esc(H[p.i].name)}: 픽률 ${p.v.pr.toFixed(1)}%, 승률 ${p.v.wr.toFixed(1)}%, 밴률 ${p.v.br.toFixed(1)}%, 지수 ${Math.round(mm[p.i])} (${p.t})</title></circle>`;
     }
-    const tw = str => { let w = 0; for (const ch of str) w += /[\u0000-ÿ]/.test(ch) ? 6.3 : 11.2; return w; };
+    // labels: try spots around each circle, skipping ones that cover another label or circle
+    const tw = str => { let w = 0; for (const ch of str) w += /[\u0000-ÿ]/.test(ch) ? 6.8 : 12; return w; };
     const placed = [];
     const hitsLabel = b => placed.some(o => !(b.x2 < o.x1 || b.x1 > o.x2 || b.y2 < o.y1 || b.y1 > o.y2));
-    const hitsDot = (b, self) => pts.some(o => {
-      if (o.i === self) return false;
-      const nx = Math.max(b.x1, Math.min(o.cx, b.x2)), ny = Math.max(b.y1, Math.min(o.cy, b.y2));
-      return (nx - o.cx) ** 2 + (ny - o.cy) ** 2 < (o.rr + 1) ** 2;
-    });
-    const labelOrder = pts.slice().sort((a, b) => (b.i === state.focus) - (a.i === state.focus) || mi[b.i] - mi[a.i]);
-    let labels = '';
-    for (const p of labelOrder) {
-      const name = H[p.i].name; const w = tw(name); const hgt = 12; const d = p.rr + 3; const dd = d * 0.72;
-      const cands = [
-        [p.cx + d, p.cy + 4, 'start'], [p.cx - d, p.cy + 4, 'end'], [p.cx, p.cy - d - 1, 'middle'], [p.cx, p.cy + d + 10, 'middle'],
-        [p.cx + dd, p.cy - dd, 'start'], [p.cx + dd, p.cy + dd + 9, 'start'], [p.cx - dd, p.cy - dd, 'end'], [p.cx - dd, p.cy + dd + 9, 'end'],
-        [p.cx + d + 8, p.cy - 8, 'start'], [p.cx - d - 8, p.cy + 16, 'end']
-      ];
-      const box = c => { const x1 = c[2] === 'start' ? c[0] : c[2] === 'end' ? c[0] - w : c[0] - w / 2; return {x1, x2:x1 + w, y1:c[1] - hgt + 2, y2:c[1] + 2}; };
-      const inside = b => b.x1 >= M.l + 2 && b.x2 <= W - 2 && b.y1 >= M.t - 2 && b.y2 <= HH - M.b - 2;
-      let chosen = null;
-      for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b) && !hitsDot(b, p.i)) { chosen = [c, b]; break; } }
-      if (!chosen) for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b)) { chosen = [c, b]; break; } }
-      if (!chosen && state.focus !== p.i) continue;
-      if (!chosen) { const c = cands[0]; chosen = [c, box(c)]; }
-      placed.push(chosen[1]);
-      const on = state.focus === p.i;
-      labels += `<text x="${chosen[0][0].toFixed(1)}" y="${chosen[0][1].toFixed(1)}" text-anchor="${chosen[0][2]}" font-size="11.5" font-weight="${on ? 700 : 500}" fill="${on ? 'var(--ink)' : 'var(--muted)'}" stroke="var(--panel)" stroke-width="3" stroke-linejoin="round" paint-order="stroke" pointer-events="none">${esc(name)}</text>`;
+    const hitsDot = (b, self) => pts.some(o => { if (o.i === self) return false; const nx = Math.max(b.x1, Math.min(o.cx, b.x2)), ny = Math.max(b.y1, Math.min(o.cy, b.y2)); return (nx - o.cx) ** 2 + (ny - o.cy) ** 2 < (o.rr + 1) ** 2; });
+    const order = pts.slice().sort((a, b) => (b.i === hero) - (a.i === hero) || mm[b.i] - mm[a.i]);
+    for (const p of order) {
+      const name = H[p.i].name, w = tw(name), hg = 13, d = p.rr + 4, dd = d * 0.72;
+      const cands = [[p.cx + d, p.cy + 4, 'start'], [p.cx - d, p.cy + 4, 'end'], [p.cx, p.cy - d - 1, 'middle'], [p.cx, p.cy + d + 11, 'middle'],
+        [p.cx + dd, p.cy - dd, 'start'], [p.cx + dd, p.cy + dd + 10, 'start'], [p.cx - dd, p.cy - dd, 'end'], [p.cx - dd, p.cy + dd + 10, 'end']];
+      const box = c => { const x1 = c[2] === 'start' ? c[0] : c[2] === 'end' ? c[0] - w : c[0] - w / 2; return {x1, x2:x1 + w, y1:c[1] - hg + 2, y2:c[1] + 2}; };
+      const inside = b => b.x1 >= 58 && b.x2 <= 898 && b.y1 >= 14 && b.y2 <= 358;
+      let ch = null;
+      for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b) && !hitsDot(b, p.i)) { ch = [c, b]; break; } }
+      if (!ch) for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b)) { ch = [c, b]; break; } }
+      if (!ch && p.i !== hero) continue;
+      if (!ch) ch = [cands[0], box(cands[0])];
+      placed.push(ch[1]);
+      const on = p.i === hero;
+      s += `<text x="${ch[0][0].toFixed(1)}" y="${ch[0][1].toFixed(1)}" text-anchor="${ch[0][2]}" fill="${on ? '#F2F2F3' : '#A1A1A8'}" font-size="12" font-weight="${on ? 700 : 400}" stroke="#0E0E10" stroke-width="3" stroke-linejoin="round" paint-order="stroke" pointer-events="none" ${F}>${esc(name)}</text>`;
     }
-    s += labels + `</svg>`;
-    $('scatter').innerHTML = s;
+    return s + `</svg>`;
   }
 
-  function renderTable(){
-    const cells = BK().cells[state.map];
-    const mi = MI[state.map];
-    const base = MI['all-maps'];
-    const isAll = state.map === 'all-maps';
-    const cols = [['name','영웅'],['mi','메타 지수']].concat(PREV ? [['mv', PREV.label + ' 대비']] : []).concat(isAll ? [] : [['delta','종합 대비']]).concat([['pr','픽률'],['wr','승률'],['br','밴률'],['g','표본']]);
-    if ((isAll && state.sort.key === 'delta') || (!PREV && state.sort.key === 'mv')) state.sort = {key:'mi', dir:-1};
-    const rows = IDX.map(i => { const mv = move(state.map, i); return {i, cell:cells[i], v:vals(cells[i], state.smooth), mi:mi[i], delta:mi[i] - base[i], mv, mvv: mv && mv.diff != null ? mv.diff : -999}; });
-    const key = state.sort.key, dir = state.sort.dir;
-    const getv = r => key === 'name' ? H[r.i].name : key === 'mi' ? r.mi : key === 'delta' ? r.delta : key === 'mv' ? r.mvv : key === 'g' ? r.cell[6] : r.v[key];
-    rows.sort((a, b) => { const A = getv(a), B = getv(b); return (typeof A === 'string' ? A.localeCompare(B, 'ko') : A - B) * dir; });
-    let h = '<thead><tr>' + cols.map(([k, label]) => {
-      const sorted = state.sort.key === k;
-      const arrow = sorted ? (state.sort.dir < 0 ? ' ▼' : ' ▲') : '';
-      return `<th scope="col"${sorted ? ` aria-sort="${state.sort.dir < 0 ? 'descending' : 'ascending'}"` : ''}><button type="button" data-sort="${k}">${label}${arrow}</button></th>`;
-    }).join('') + '</tr></thead><tbody>';
-    const rawNote = (adj, raw, missing) => {
-      if (missing) return '<span class="raw">원본 없음</span>';
-      if (raw == null) return '';
-      return Math.abs(adj - raw) >= 0.1 ? `<span class="raw">원본 ${raw.toFixed(1)}</span>` : '';
-    };
+  // ---- table
+  function tableHTML(idx, cells, mm, ALL, hero, isAll){
+    const COLS = [['name','영웅'],['mi','메타 지수'],['delta','종합 대비'],['pr','픽률'],['wr','승률'],['br','밴률'],['g','표본']];
+    if (isAll && state.sort.key === 'delta') state.sort = {key:'mi', dir:-1};
+    const sk = state.sort.key, dir = state.sort.dir;
+    const rows = idx.map(i => ({i, c:cells[i], v:vals(cells[i], state.smooth), mi:mm[i], dl:Math.round(mm[i]) - Math.round(ALL[i])}));
+    const val = r => sk === 'name' ? H[r.i].name : sk === 'mi' ? r.mi : sk === 'delta' ? r.mi - ALL[r.i] : sk === 'g' ? r.c[6] : r.v[sk];
+    rows.sort((a, b) => { const A = val(a), Bv = val(b); return (typeof A === 'string' ? A.localeCompare(Bv, 'ko') : A - Bv) * dir; });
+    let t = `<table class="dtable"><thead><tr>${COLS.map(([k, l]) => { const on = k === sk;
+      return `<th scope="col"${on ? ` aria-sort="${dir < 0 ? 'descending' : 'ascending'}"` : ''}><button type="button" data-sort="${k}" aria-label="${l} 기준 정렬">${l}${on ? (dir < 0 ? ' ▾' : ' ▴') : ''}</button></th>`; }).join('')}</tr></thead><tbody>`;
     for (const r of rows) {
-      const t = tierOf(r.mi); const miss = !!r.cell[7];
-      const dl = Math.round(r.delta);
-      h += `<tr data-hero="${r.i}" class="${state.focus === r.i ? 'focus' : ''}">`;
-      h += `<td><div class="who">${portrait(r.i, 'pt')}<div><strong>${esc(H[r.i].name)}</strong><span class="sub">${esc(H[r.i].sub)}</span></div></div></td>`;
-      h += `<td class="mi"><span class="badge t-${t}">${t}</span>${Math.round(r.mi)}</td>`;
-      if (PREV) {
-        const mv = r.mv;
-        let txt = '—';
-        if (mv && mv.dir === 'new') txt = '<span class="muted">새로 집계</span>';
-        else if (mv && mv.from) {
-          const d = mv.diff; const cls = mv.dir === 'up' ? 'up' : mv.dir === 'down' ? 'down' : '';
-          txt = `<span class="delta ${cls}">${mv.dir ? `${mv.from}→${mv.to} ` : ''}${d > 0 ? '+' : d < 0 ? '−' : '±'}${Math.abs(d)}</span>`;
-        }
-        h += `<td>${txt}</td>`;
+      const tr = tierOf(r.mi), sel = r.i === hero, hot = !isAll && r.dl >= HOT, miss = !!r.c[7];
+      const n = r.c[6];
+      const sample = isHidden() ? '—' : miss ? '데이터 부족' : n < 1 ? '1판 미만' : `약 ${fmtInt(n)}판`;
+      t += `<tr class="${sel ? 'is-sel' : ''}" data-hero="${r.i}"><td><button type="button" class="who" data-hero="${r.i}" aria-pressed="${sel}">${avatar(r.i, 28)}<span>${esc(H[r.i].name)}</span></button></td>`
+        + `<td><span class="mi-cell"><span class="op-tier op-tier-sm op-tier-${tr}">${tr}</span><b>${Math.round(r.mi)}</b></span></td>`
+        + `<td class="${hot ? 'hot' : 'meta'}">${isAll ? '–' : r.dl > 0 ? '+' + r.dl : r.dl < 0 ? '−' + Math.abs(r.dl) : '0'}</td>`
+        + `<td>${r.v.pr.toFixed(1)}%</td>`
+        + `<td class="wr-cell">${miss && !state.smooth ? '—' : r.v.wr.toFixed(1) + '%'}${r.c[4] != null ? `<span class="raw">원본 ${r.c[4].toFixed(1)}</span>` : ''}</td>`
+        + `<td>${r.v.br.toFixed(1)}%</td>`
+        + `<td class="${!isHidden() && !miss && n < 100 ? 'faint' : ''}">${sample}</td></tr>`;
+    }
+    return t + `</tbody></table>`;
+  }
+
+  // ---- tier by map
+  function renderHeat(idx, hero){
+    const box = $('dHeat');
+    box.hidden = !hasMaps();
+    if (!hasMaps()) { box.innerHTML = ''; return; }
+    const ALL = MR[state.role]['all-maps'];
+    const rows = idx.slice().sort((a, b) => ALL[b] - ALL[a]);
+    const cols = [{id:'all-maps', name:'전체 맵', short:'전체 맵'}];
+    for (const mode of MODES) for (const m of MAPS.filter(x => x.mode === mode)) cols.push(m);
+    let h = `<h2 id="heatTitle">맵별 티어 비교</h2><span class="dhint">행은 고른 역할의 영웅(종합 지수 순), 열은 맵입니다. 칸이나 맵 이름을 누르면 위 티어표가 그 맵으로 바뀝니다.</span>`;
+    h += `<div class="hwrap scroll"><div class="hgrid" style="grid-template-columns:124px repeat(${cols.length}, minmax(20px, 1fr))"><span></span>`;
+    h += `<span class="hg-mode" style="grid-column:span 1" title="종합">종합</span>`;
+    for (const mode of MODES) h += `<span class="hg-mode" style="grid-column:span ${MAPS.filter(m => m.mode === mode).length}" title="${esc(mode)}">${esc(mode)}</span>`;
+    h += `<span></span>`;
+    for (const c of cols) { const on = c.id === state.map; h += `<button type="button" class="hg-col${on ? ' is-cur' : ''}" data-map="${esc(c.id)}" title="${esc(c.name)}"><span>${esc(c.short || c.name)}</span></button>`; }
+    for (const i of rows) {
+      const on = i === hero;
+      h += `<button type="button" class="hg-hero${on ? ' is-sel' : ''}" data-hero="${i}">${avatar(i, 20)}${esc(H[i].name)}</button>`;
+      for (const c of cols) {
+        const bad = mapErr(c.id);
+        if (bad) { h += `<button type="button" class="hg-cell is-na" data-cell="${esc(c.id)}|${i}" aria-label="${esc(H[i].name)} · ${esc(c.name)} · 공식 통계 오류" title="${esc(H[i].name)} · ${esc(c.name)} · 공식 통계 오류">–</button>`; continue; }
+        const t = tierOf(MR[state.role][c.id][i]), low = !isHidden() && B.cells[c.id][i][6] < 100, here = c.id === state.map && on;
+        const label = `${H[i].name} · ${c.name} · ${t} 티어`;
+        h += `<button type="button" class="hg-cell op-tier-${t}${low ? ' is-low' : ''}${here ? ' is-here' : ''}" data-cell="${esc(c.id)}|${i}" aria-label="${esc(label)}" title="${esc(label)}">${t}</button>`;
       }
-      if (!isAll) h += `<td><span class="delta ${dl >= 3 ? 'up' : dl <= -3 ? 'down' : ''}">${dl > 0 ? '+' : dl < 0 ? '−' : ''}${Math.abs(dl)}</span></td>`;
-      h += `<td>${pct(r.v.pr)}${rawNote(r.v.pr, r.cell[3], miss)}</td>`;
-      h += `<td>${miss && !state.smooth ? '—' : pct(r.v.wr)}${rawNote(r.v.wr, r.cell[4], miss)}</td>`;
-      h += `<td>${pct(r.v.br)}${rawNote(r.v.br, r.cell[5], miss)}</td>`;
-      h += `<td>${miss ? '데이터 부족' : hidden() ? '비공개' : r.cell[6] < 1 ? '1판 미만' : '약 ' + fmtInt(r.cell[6]) + '판'}${miss || hidden() ? '' : `<span class="raw">신뢰도 ${relHero(r.cell[6])}</span>`}</td>`;
-      h += '</tr>';
     }
-    h += '</tbody>';
-    $('detail').innerHTML = h;
-    $('tableHint').textContent = (state.smooth
-      ? `큰 숫자는 보정값(표본 보정, 승률은 미러전 제외), 작은 회색 숫자는 ${srcName()} 원본입니다. `
-      : `표본 보정이 꺼져 있어 ${srcName()} 원본으로 계산했습니다(승률만 미러전 제외, 회색은 원본). `)
-      + (PREV ? `${PREV.label} 대비 열은 기본 가중치와 표본 보정 기준의 지수 변화입니다. ` : '')
-      + '표본은 해당 영웅이 이 맵에서 플레이된 팀 기준 판 수 추정치입니다. 열 제목을 누르면 정렬됩니다.';
+    h += `</div></div>`;
+    box.innerHTML = h;
   }
 
-  function renderHeat(){
-    $('heatPanel').hidden = !MAP_IDS.length;
-    if (!MAP_IDS.length) { $('heat').innerHTML = ''; return; }
-    const base = MI['all-maps'];
-    const order = IDX.slice().sort((a, b) => base[b] - base[a]);
-    const groups = MODES.map(mode => [mode, MAPS.filter(m => m.mode === mode)]);
-    let h = '<thead><tr><th class="corner" rowspan="2"></th><th class="modeh">종합</th><th class="gap" rowspan="2"></th>';
-    groups.forEach(([mode, ms], gi) => { h += `<th class="modeh" colspan="${ms.length}">${mode}</th>` + (gi < groups.length - 1 ? '<th class="gap" rowspan="2"></th>' : ''); });
-    h += '</tr><tr>';
-    h += `<th class="mc${state.map === 'all-maps' ? ' sel' : ''}"><button type="button" data-map="all-maps">전체 맵</button></th>`;
-    groups.forEach(([mode, ms]) => { for (const m of ms) h += `<th class="mc${state.map === m.id ? ' sel' : ''}"><button type="button" data-map="${m.id}" title="${esc(m.name)}">${esc(m.short)}</button></th>`; });
-    h += '</tr></thead><tbody>';
-    for (const i of order) {
-      h += `<tr class="${state.focus === i ? 'focus' : ''}"><th class="hn" scope="row" data-hero="${i}" style="cursor:pointer"><span class="who">${portrait(i, 'pt sm')}${esc(H[i].name)}</span></th>`;
-      const cell = (mid) => { if (mapErr(mid)) return `<td class="hc na" data-map="${mid}" title="${esc(MAP_BY_ID[mid].name)}: 공식 통계 오류">—</td>`;
-        const v = MI[mid][i]; const t = tierOf(v); const nm = mid === 'all-maps' ? '전체 맵' : MAP_BY_ID[mid].name;
-        return `<td class="hc t-${t}${state.map === mid ? ' sel' : ''}" data-map="${mid}" data-hero="${i}" title="${esc(H[i].name)}, ${esc(nm)}: ${t} (${Math.round(v)})">${t}</td>`; };
-      h += cell('all-maps') + '<td class="gap"></td>';
-      groups.forEach(([mode, ms], gi) => { for (const m of ms) h += cell(m.id); if (gi < groups.length - 1) h += '<td class="gap"></td>'; });
-      h += '</tr>';
-    }
-    h += '</tbody>';
-    $('heat').innerHTML = h;
+  // ---------------------------------------------------------------- method
+  function renderMethod(){
+    const k = B.k, el = $('kInfo');
+    if (!k) { el.textContent = ''; return; }
+    el.textContent = isHidden() ? `${D.meta.label}은 경기 수를 공개하지 않아, 표본 보정 강도는 다른 서버에서 추정한 값을 씁니다.`
+      : `지금 ${D.meta.label} · ${rankLabel()} 기준 승률 약 ${fmtInt(k.wr)}판, 픽률은 픽률 5% 영웅 약 ${fmtInt(k.pr5)}경기·20% 영웅 약 ${fmtInt(k.pr20)}경기, 밴률 5% 영웅 약 ${fmtInt(k.br5)}경기`;
   }
 
-  function renderConsts(){
-    const f = (x, d) => x.toFixed(d);
-    const k = BK().k;
-    $('kInfo').textContent = k && hidden() ? `${D.meta.label}은 경기 수를 공개하지 않아, 표본 보정 강도는 다른 서버에서 추정한 값을 씁니다.` : k ? `지금 ${BK().label} 구간 기준 승률 약 ${fmtInt(k.wr)}판, 픽률은 픽률 5% 영웅 약 ${fmtInt(k.pr5)}경기·20% 영웅 약 ${fmtInt(k.pr20)}경기, 밴률 5% 영웅 약 ${fmtInt(k.br5)}경기` : '';
-    let h = `<caption>현재 상수 (${esc(D.meta.label)} · ${esc(BK().label)} 구간, 보정값 기준)</caption><thead><tr><th>역할</th><th>σ승률</th><th>μ픽률</th><th>σ픽률</th><th>μ밴률</th><th>σ밴률</th></tr></thead><tbody>`;
-    for (const [k, label] of ROLES) {
-      const c = BK().c[k];
-      h += `<tr><td>${label}</td><td>${f(c.wr_sd,2)}</td><td>${f(c.pr_mu,2)}</td><td>${f(c.pr_sd,2)}</td><td>${f(c.br_mu,2)}</td><td>${f(c.br_sd,2)}</td></tr>`;
-    }
-    $('ctable').innerHTML = h + '</tbody>';
-  }
-
-  function renderFresh(){
-    const f = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul', month:'long', day:'numeric', hour:'numeric', minute:'2-digit'});
-    const ago = t => { const hrs = (Date.now() - t.getTime()) / 36e5; return hrs < 1 ? '1시간 이내' : hrs < 48 ? `${Math.floor(hrs)}시간 전` : `${Math.floor(hrs / 24)}일 전`; };
-    const rows = INDEX.servers.map(sv => {
-      const t = sv.collectedAt ? new Date(sv.collectedAt) : null;
-      const ok = t && !isNaN(t);
-      return `<tr${sv.id === state.server ? ' class="cur"' : ''}><th scope="row"><span class="live" aria-hidden="true"></span>${esc(sv.label)}</th><td>${SOURCE_NAME[sv.source] || '공식'} 영웅 통계</td><td>${ok ? f.format(t) : '—'}</td><td class="ago">${ok ? ago(t) : ''}</td></tr>`;
-    }).join('');
-    $('freshText').innerHTML = `<table class="fresh-table"><caption>데이터 반영 시각 · 6시간마다 자동으로 확인합니다</caption><tbody>${rows}</tbody></table>`;
-  }
-
-  // controls are re-created on every render: remember which one had focus and put focus back afterwards
-  const FOCUS_KEYS = ['data-server','data-bracket','data-role','data-map','data-hero','data-sort','data-home-role','data-tmetric','data-go','data-go-hero','data-view'];
+  // ---------------------------------------------------------------- render
+  const FOCUS_KEYS = ['data-tab','data-mode','data-role','data-map','data-hero','data-sort','data-metric','data-act','data-slider','data-server-pick','data-go-hero','data-go-map','data-cell','data-nav'];
   function focusKey(){
     const el = document.activeElement;
     if (!el || el === document.body || el.id) return null;
@@ -1369,152 +1170,89 @@ body.map-err #scatterPanel,body.map-err #tablePanel{display:none}
     const attrs = FOCUS_KEYS.filter(a => el.hasAttribute(a)).map(a => `[${a}="${CSS.escape(el.getAttribute(a))}"]`).join('');
     return attrs ? (scope ? `#${CSS.escape(scope.id)} ` : '') + attrs : null;
   }
-  function restoreFocus(sel){
-    if (!sel) return;
-    const el = document.querySelector(sel);
-    if (el && el !== document.activeElement) el.focus({preventScroll:true});
-  }
-  function renderAll(){
-    const fk = focusKey();
-    renderAllInner();
-    restoreFocus(fk);
-  }
-  function renderAllInner(){
-    compute();
-    renderControls();
-    renderStale();
-    renderPatch();
-    renderFresh();
-    if (state.view === 'home') renderHome();
-    else if (state.view === 'method') renderConsts();
-    else { renderRail(); renderBoard(); renderTrend(); renderScatter(); renderTable(); renderHeat(); }
-    store.set('state', {server:state.server, role:state.role, map:state.map, w:state.w, smooth:state.smooth});
-  }
-  function lightRender(){ const fk = focusKey(); renderBoard(); renderTrend(); renderScatter(); renderTable(); renderHeat(); restoreFocus(fk); }
-  function setView(v, opts){
+  function restoreFocus(sel){ if (!sel) return; const el = document.querySelector(sel); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  function render(opts){
     opts = opts || {};
-    if (!['home', 'detail', 'method'].includes(v)) v = 'home';
-    const changed = state.view !== v;
-    state.view = v;
-    if (changed && !opts.fromHistory) history.pushState({view:v}, '', v === 'detail' ? '#tier' : v === 'method' ? '#method' : location.pathname + location.search);
-    if (D) renderAll();
-    if (opts.anchor) { const el = $(opts.anchor); if (el) el.scrollIntoView({block:'start'}); }
-    else if (changed) window.scrollTo(0, 0);
+    if (!D || !B) return;
+    const fk = focusKey();
+    $('loadError').hidden = true;
+    document.body.dataset.view = state.view;
+    compute();
+    renderHeader();
+    if (state.view === 'home') renderHome();
+    else if (state.view === 'detail') { renderBar(); renderRail(); renderMain(); }
+    else renderMethod();
+    if ($('q').value) renderSearch();
+    restoreFocus(fk);
+    store.set('state', {server:state.server, w:state.w, smooth:state.smooth});
+    writeURL(!!opts.push);
+    if (opts.top) window.scrollTo(0, 0);
   }
-  function scrollToBoard(){ $('boardPanel').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block:'start'}); }
-  function fail(e){
-    const el = $('loadError');
-    el.textContent = `데이터를 불러오지 못했습니다(${e.message}). 잠시 후 새로고침해 주세요.`;
-    el.hidden = false;
-    $('board').removeAttribute('aria-busy');
+  function go(view, opts){
+    opts = opts || {};
+    const changed = state.view !== view;
+    state.view = view; state.wOpen = false; state.srvOpen = false;
+    if (D && B) render({push:changed || opts.push, top:changed});
+    else writeURL(changed);
   }
+  let raf = 0;
+  const lightDetail = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const fk = focusKey(); compute(); renderRail(); renderMain(); restoreFocus(fk); store.set('state', {server:state.server, w:state.w, smooth:state.smooth}); }); };
 
+  // ---------------------------------------------------------------- events
   document.addEventListener('click', e => {
     const t = e.target;
-    const tmEl = t.closest('[data-tmetric]');
-    if (tmEl) { trendMetric = tmEl.dataset.tmetric; renderTrend(); return; }
-    const hrEl = t.closest('[data-home-role]');
-    if (hrEl) {
-      state.homeRole = hrEl.dataset.homeRole;
-      $('rtPanels').dataset.active = state.homeRole;
-      for (const b of document.querySelectorAll('[data-home-role]')) b.setAttribute('aria-pressed', String(b.dataset.homeRole === state.homeRole));
-      return;
-    }
-    const goEl = t.closest('[data-go]');
-    if (goEl) {
-      state.map = goEl.dataset.go; state.focus = null;
-      if (BRS.some(x => x.id === 'all')) state.bracket = 'all';
-      if (goEl.dataset.goRole) { state.role = goEl.dataset.goRole; state.focus = +goEl.dataset.goHero; }
-      setView('detail'); return;
-    }
-    if (t.closest('.crumb .back[data-view="home"]') && history.state && (history.state.view === 'detail' || history.state.view === 'method') && history.length > 1) { history.back(); return; }
-    const viewEl = t.closest('[data-view]');
-    if (viewEl && (viewEl.tagName === 'BUTTON' || viewEl.tagName === 'A')) {
-      if (viewEl.tagName === 'A') { if (e.ctrlKey || e.metaKey || e.shiftKey || e.button) return; e.preventDefault(); }
-      setView(viewEl.dataset.view, {anchor: viewEl.dataset.anchor}); return;
-    }
-    const svEl = t.closest('[data-server]');
-    if (svEl) { if (svEl.dataset.server !== state.server) loadServer(svEl.dataset.server).then(ok => { if (ok) renderAll(); }).catch(fail); return; }
-    const bkEl = t.closest('[data-bracket]');
-    if (bkEl) { state.bracket = bkEl.dataset.bracket; renderAll(); return; }
-    const roleEl = t.closest('[data-role]');
-    if (roleEl) { if (state.role !== roleEl.dataset.role) { state.role = roleEl.dataset.role; state.focus = null; } renderAll(); return; }
-    const sortEl = t.closest('[data-sort]');
-    if (sortEl) {
-      const k = sortEl.dataset.sort;
-      if (state.sort.key === k) state.sort.dir *= -1; else state.sort = {key:k, dir: k === 'name' ? 1 : -1};
-      renderTable(); return;
-    }
-    const mapEl = t.closest('[data-map]');
-    const heroEl = t.closest('[data-hero]');
-    if (mapEl && heroEl && mapEl === heroEl) { state.map = mapEl.dataset.map; state.focus = +heroEl.dataset.hero; renderAll(); scrollToBoard(); return; }
-    if (mapEl) {
-      state.map = mapEl.dataset.map;
-      if (mapEl.dataset.searchPick || (mapEl.closest('#rail') && $('mapSearch').value)) { closeSearch(); }
-      renderAll(); if (mapEl.closest('#heat')) scrollToBoard(); return;
-    }
-    if (heroEl) { const i = +heroEl.dataset.hero; state.focus = (state.focus === i ? null : i); lightRender(); return; }
+    if (state.srvOpen && !t.closest('#srvBox')) { state.srvOpen = false; renderHeader(); }
+    if (state.wOpen && !t.closest('.wsel')) { state.wOpen = false; if (state.view === 'detail') renderBar(); }
+    if (!t.closest('#searchBox')) { $('searchPop').hidden = true; $('q').setAttribute('aria-expanded', 'false'); }
+    const link = t.closest('a[data-nav],a[data-go-hero],a[data-go-map],a[data-toc]');
+    if (link && (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button)) return;
+    const el = t.closest('[data-nav],[data-go-hero],[data-go-map],[data-toc],[data-act],[data-server-pick],[data-pick-hero],[data-pick-map],[data-tab],[data-mode],[data-role],[data-sort],[data-metric],[data-cell],[data-map],[data-hero]');
+    if (!el) return;
+    const d = el.dataset;
+    if (el.tagName === 'A') e.preventDefault();
+    if (d.nav) { go(d.nav); return; }
+    if (d.toc) { const s = $(d.toc); if (s) { s.scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); s.querySelector('h2').setAttribute('tabindex', '-1'); s.querySelector('h2').focus({preventScroll:true}); } return; }
+    if (d.goHero) { const h = H.find(x => x.id === d.goHero); if (h) { state.map = 'all-maps'; state.role = h.role; state.focus = h.id; go('detail'); } return; }
+    if (d.goMap) { state.map = d.goMap; state.focus = null; go('detail'); return; }
+    if (d.pickHero) { pick({kind:'hero', id:d.pickHero}); return; }
+    if (d.pickMap) { pick({kind:'map', id:d.pickMap}); return; }
+    if (d.serverPick) { state.srvOpen = false; if (d.serverPick !== state.server) { state.server = d.serverPick; sync(); } else renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); return; }
+    if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
+    if (d.act === 'rk-reset') { state.lo = 0; state.hi = TOP; sync(); return; }
+    if (d.act === 'smooth') { state.smooth = !state.smooth; render(); return; }
+    if (d.act === 'w-toggle') { state.wOpen = !state.wOpen; renderBar(); return; }
+    if (d.act === 'w-reset') { state.w = Object.assign({}, DEFAULT_W); render(); return; }
+    if (d.tab) { state.tab = d.tab; render(); return; }
+    if (d.mode) { state.mode = d.mode; render(); const l = $('mlist'); if (l) l.scrollTop = 0; return; }
+    if (d.role) { if (state.role !== d.role) { state.role = d.role; state.focus = null; } render(); return; }
+    if (d.sort) { if (state.sort.key === d.sort) state.sort.dir *= -1; else state.sort = {key:d.sort, dir:d.sort === 'name' ? 1 : -1}; lightDetail(); return; }
+    if (d.metric) { state.metric = d.metric; const box = $('trendBox'); const sel = currentHero(); if (box && sel != null) box.innerHTML = trendHTML(sel); for (const b of document.querySelectorAll('[data-metric]')) b.setAttribute('aria-pressed', String(b.dataset.metric === state.metric)); return; }
+    if (d.cell) { const [m, i] = d.cell.split('|'); state.map = m; state.focus = H[+i].id; render(); $('dMain').scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); return; }
+    if (d.map) { if (state.map !== d.map) { state.map = d.map; state.focus = null; } render(); if (el.closest('#dHeat')) $('dMain').scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); return; }
+    if (d.hero) { state.focus = H[+d.hero].id; render(); return; }
   });
-  $('mapSelect').addEventListener('change', e => { state.map = e.target.value; renderAll(); });
-  $('mapSearch').addEventListener('input', () => { searchSel = 0; renderSearch(); });
-  $('mapSearch').addEventListener('keydown', e => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      if (!searchHits.length) return;
-      e.preventDefault();
-      searchSel = (searchSel + (e.key === 'ArrowDown' ? 1 : -1) + searchHits.length) % searchHits.length;
-      renderSearch();
-      const el = NARROW.matches ? document.getElementById(`mr-${searchSel}`) : document.querySelector('#rail .map-btn.kb');
-      if (el) el.scrollIntoView({block:'nearest'});
-    } else if (e.key === 'Enter') {
-      if (!searchHits.length) return;
-      e.preventDefault();
-      state.map = searchHits[searchSel].id; closeSearch(); renderAll();
-    } else if (e.key === 'Escape') {
-      closeSearch();
-    }
-  });
-  document.addEventListener('click', e => { if (!e.target.closest('#mapSearchBox')) { $('mapResults').hidden = true; $('mapSearch').setAttribute('aria-expanded', 'false'); } });
-  $('mapSearch').addEventListener('focus', () => { if ($('mapSearch').value) renderSearch(); });
-  NARROW.addEventListener('change', renderSearch);
-  $('trendHero').addEventListener('change', e => { state.focus = +e.target.value; lightRender(); });
-  let rz = 0, lastW = window.innerWidth;
-  window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rz); rz = setTimeout(() => { if (state.view === 'detail' && D) renderTrend(); }, 150); });
-  $('smooth').addEventListener('change', e => { state.smooth = e.target.checked; renderAll(); });
-  let raf = 0;
-  // two handles on one 0-100 track: [0, a] win rate, [a, b] pick rate, [b, 100] ban rate; handles push each other
-  function syncWeights(){
-    const a = state.w.wr, b = state.w.wr + state.w.pr;
-    $('w-a').value = a; $('w-b').value = b;
-    $('o-wr').textContent = state.w.wr; $('o-pr').textContent = state.w.pr; $('o-br').textContent = state.w.br;
-    $('w-a').setAttribute('aria-valuetext', `승률 ${state.w.wr}, 픽률 ${state.w.pr}`);
-    $('w-b').setAttribute('aria-valuetext', `픽률 ${state.w.pr}, 밴률 ${state.w.br}`);
-    $('wtrack').style.background = `linear-gradient(90deg, var(--c-wr) 0 ${a}%, var(--c-pr) ${a}% ${b}%, var(--c-br) ${b}% 100%)`;
-  }
-  function onSplit(which){
-    let a = +$('w-a').value, b = +$('w-b').value;
-    if (a > b) { if (which === 'a') b = a; else a = b; }
+  document.addEventListener('change', e => { if (e.target.id === 'railSelect') { state.map = e.target.value; state.focus = null; render(); } });
+  document.addEventListener('input', e => {
+    if (e.target.id !== 'wA' && e.target.id !== 'wB') return;
+    let a = +$('wA').value, b = +$('wB').value;
+    if (a > b) { if (e.target.id === 'wA') b = a; else a = b; $('wA').value = a; $('wB').value = b; }
     state.w = {wr:a, pr:b - a, br:100 - b};
-    syncWeights();
-    cancelAnimationFrame(raf); raf = requestAnimationFrame(renderAll);
-  }
-  $('w-a').addEventListener('input', () => onSplit('a'));
-  $('w-b').addEventListener('input', () => onSplit('b'));
-  $('wreset').addEventListener('click', () => { state.w = Object.assign({}, DEFAULT_W); renderAll(); });
-  document.addEventListener('click', e => { if (e.target.id === 'homeReset') { state.w = Object.assign({}, DEFAULT_W); state.smooth = true; renderAll(); } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { const d = $('weights'); if (d.open) d.open = false; } });
+    paintWeights(); lightDetail();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (state.srvOpen) { state.srvOpen = false; renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); }
+    if (state.wOpen) { state.wOpen = false; renderBar(); const b = document.querySelector('[data-act="w-toggle"]'); if (b) b.focus(); }
+  });
+  window.addEventListener('popstate', () => { readURL(); state.wOpen = false; state.srvOpen = false; sync({top:true}); });
 
-  const viewFromHash = () => location.hash === '#tier' ? 'detail' : location.hash === '#method' ? 'method' : 'home';
-  state.view = viewFromHash();
-  window.addEventListener('popstate', () => setView(viewFromHash(), {fromHistory:true}));
+  // ---------------------------------------------------------------- start
   document.body.dataset.view = state.view;
-
   fetch('data/index.json?t=' + Math.floor(Date.now() / 6e5), {cache:'no-cache'})
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    .then(idx => { INDEX = idx; return loadServer(INDEX.servers.some(s => s.id === state.server) ? state.server : INDEX.servers[0].id); })
-    .then(ok => { if (ok) renderAll(); })
+    .then(idx => { INDEX = idx; if (!INDEX.servers.some(s => s.id === state.server)) state.server = INDEX.servers[0].id; renderHeader(); return sync(); })
     .catch(fail);
 })();
 </script>
-
 </body>
 </html>

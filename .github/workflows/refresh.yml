@@ -9,9 +9,18 @@ on:
         description: "공식 수치가 그대로여도 다시 계산"
         type: boolean
         default: false
+  push:                       # 화면이나 계산 코드를 바꾸면 다시 계산해서 배포
+    branches: [main]
+    paths-ignore:
+      - "history/**"
+      - "archive/**"
+      - "data/**"
+      - "README.md"
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: refresh
@@ -21,6 +30,8 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      deploy: ${{ steps.done.outputs.deploy }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,15 +42,45 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: 넥슨·블리자드 통계 수집과 계산
-        run: python refresh.py ${{ inputs.force && '--force' || '' }}
+      # Pages 설정이 "GitHub Actions"면 화면용 데이터(data/)는 저장소에 두지 않고 이 작업이 배포한다.
+      # 아직 "브랜치에서 배포"면 예전처럼 data/를 커밋한다(설정을 바꾸는 즉시 자동으로 넘어감).
+      - name: 배포 방식 확인
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mode=$(curl -s -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" | python3 -c "import sys,json; print(json.load(sys.stdin).get('build_type') or 'legacy')" || echo legacy)
+          echo "Pages build type: $mode"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: 지금 사이트의 데이터 받기
+        if: steps.mode.outputs.mode == 'workflow'
+        run: python tools/pull_live.py data
+
+      - name: 넥슨·블리자드·넷이즈 통계 수집과 계산
+        id: refresh
+        run: |
+          set -o pipefail
+          python refresh.py ${{ (inputs.force || github.event_name == 'push') && '--force' || '' }} | tee refresh.log
+          echo "result=$(grep -o 'RESULT: [A-Z]*' refresh.log | tail -1 | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
 
       - name: 바뀐 내용 커밋
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "$MODE" = "workflow" ] && git ls-files --error-unmatch data/index.json >/dev/null 2>&1; then
+            # the site is deployed by this workflow now: stop keeping the generated data in the repository
+            git rm -r -q --cached data
+            grep -qx 'data/' .gitignore || echo 'data/' >> .gitignore
+            git add .gitignore
+          fi
+          paths="history archive"
+          [ "$MODE" = "workflow" ] || paths="data history archive"
           commit_all() {
-            git add data history archive
+            git add $paths
             git diff --cached --quiet && return 1
             git commit -m "공식 통계 갱신 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')"
           }
@@ -64,3 +105,36 @@ jobs:
             git commit --allow-empty -m "예약 실행 유지용 커밋"
             git push
           fi
+
+      - name: 배포할 파일 모으기
+        id: done
+        if: steps.mode.outputs.mode == 'workflow'
+        env:
+          RESULT: ${{ steps.refresh.outputs.result }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$RESULT" = "UPDATED" ] || [ "$EVENT" = "push" ] || [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ ! -f data/index.json ]; then echo "no data to deploy"; exit 1; fi
+            mkdir -p _site
+            cp -r index.html assets data archive _site/
+            touch _site/.nojekyll
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "변동 없음: 지금 배포된 사이트를 그대로 둔다"
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.done.outputs.deploy == 'true'
+        with:
+          path: _site
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - id: pages
+        uses: actions/deploy-pages@v4

@@ -8,8 +8,9 @@ Sources (competitive role queue, PC):
   Korea                      -> https://overwatch.nexon.com/hero/rate       (8 ranks + all ranks)
   Asia / Americas / Europe   -> https://overwatch.blizzard.com/ko-kr/rates/ (8 ranks + all ranks)
 
-Writes data/index.json, data/<server>.json, history/<server>.json and archive/<server>.json
-(one entry per day, KST, for the trend charts; --archive-only rebuilds today's entry from data/).
+Writes data/index.json, data/<server>.json (heroes, maps, meta), data/<server>/<range>.json (one per rank range:
+'all' or '<lo>-<hi>' over the 8 ranks), history/<server>.json and archive/<server>/<range>.json (one entry per
+day, KST, for the trend charts; --archive-only rebuilds today's entries from data/).
 The final line is always one of:
     RESULT: UPDATED     (files written; commit them)
     RESULT: UNCHANGED   (source numbers identical to the last run; nothing written)
@@ -50,12 +51,22 @@ CN_NOMINAL = 1_000_000   # China publishes shares only: match counts are a fixed
 CN = {"season": None}
 PRIOR_SERVERS = ["asia", "americas", "europe"]   # pooled for map-effect priors
 RANKS = ["bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster"]
-GROUPS = [  # id, label, rank label, ranks
-    ("all", "전체", "브론즈~챔피언", RANKS),
-    ("high", "상위", "마스터·그랜드마스터·챔피언", ["master", "grandmaster"]),
-    ("mid", "중위", "플래티넘·에메랄드·다이아몬드", ["platinum", "emerald", "diamond"]),
-    ("low", "하위", "브론즈·실버·골드", ["bronze", "silver", "gold"]),
-]
+RANK_NAMES = ["브론즈", "실버", "골드", "플래티넘", "에메랄드", "다이아몬드", "마스터", "그랜드마스터·챔피언"]
+
+
+def range_id(lo, hi):
+    """Rank range id: 'all' for every rank (the official all-ranks numbers), else '<lo>-<hi>' (indexes into RANKS;
+    the sources report grandmaster and champion together, so there are 8 ranks)."""
+    return "all" if (lo, hi) == (0, len(RANKS) - 1) else f"{lo}-{hi}"
+
+
+# every contiguous rank range (36): the page lets the reader pick any of them, and each is computed exactly like
+# the others (merged by estimated matches, its own prior weights, its own map-effect priors and constants)
+GROUPS = [(range_id(lo, hi), "모든 랭크" if (lo, hi) == (0, len(RANKS) - 1) else
+           RANK_NAMES[lo] if lo == hi else f"{RANK_NAMES[lo]}~{RANK_NAMES[hi]}", "", RANKS[lo:hi + 1])
+          for lo in range(len(RANKS)) for hi in range(lo, len(RANKS))]
+RANKS_OF = {g[0]: g[3] for g in GROUPS}
+LEGACY_IDS = {"high": "6-7", "mid": "3-5", "low": "0-2"}   # the four fixed brackets before rank ranges
 ROLE_ORDER = {"tank": 0, "damage": 1, "support": 2}
 ROLE_LABEL = {"tank": "돌격", "damage": "공격", "support": "지원"}
 ROLE_PICK_SUM = {"tank": 100.0, "damage": 200.0, "support": 200.0}
@@ -72,7 +83,7 @@ RANK_SUM_TOL = 15.0      # a rank whose pick shares miss 500% by more than this 
 ROLE_CLEAN_TOL = 1.0     # after a role change, both roles' pick shares must be back within this of 100/200   # plausible master : grandmaster match ratio (observed 2.5-3.6 where both are exact)
 HISTORY_KEEP = 40
 PATCH_COMPARE_DAYS = 7   # after a reset, compare against the last pre-reset snapshot for this long
-MODEL_VERSION = "2026-10-07.1"  # part of the change hash: a model change recomputes even if the sources did not move
+MODEL_VERSION = "2026-11-15.1"  # part of the change hash: a model change recomputes even if the sources did not move
 FETCH_DEADLINE = 20 * 60        # seconds; beyond this the scrape is abandoned (the job limit is 30 minutes)
 FAIL_STREAK = 8                 # consecutive failed pages from one source = blocked / down, stop early
 
@@ -146,11 +157,23 @@ _t_start = time.time()
 
 
 def curl(url, headers=()):
+    # OW_FETCH_CACHE=<dir> (development only): answer repeated requests from disk instead of the sites
+    cache = os.environ.get("OW_FETCH_CACHE")
+    if cache:
+        key = os.path.join(cache, hashlib.sha256((url + "|".join(headers)).encode()).hexdigest()[:24])
+        if os.path.exists(key):
+            with open(key, encoding="utf-8") as f:
+                return f.read()
     cmd = ["curl", "-s", "-f", "-L", "--max-time", "25", "-A", UA]
     for hd in headers:
         cmd += ["-H", hd]
     r = subprocess.run(cmd + [url], capture_output=True, timeout=60)
-    return r.stdout.decode("utf-8", "ignore")
+    out = r.stdout.decode("utf-8", "ignore")
+    if cache and out:
+        os.makedirs(cache, exist_ok=True)
+        with open(key, "w", encoding="utf-8") as f:
+            f.write(out)
+    return out
 
 
 def retry(fn, what, tries=4, source=None):
@@ -531,6 +554,8 @@ def mi_cells(heroes, map_ids, cells, consts, w=(0.5, 0.3, 0.2), ratio=None):
 
 
 # ---------------------------------------------------------------- daily archive
+# archive/<server>/meta.json holds the hero list, retired heroes and patch starts; archive/<server>/<range>.json one
+# all-maps entry per day for that rank range: estimated matches and, per hero, [meta index, pick, win, ban].
 def default_mi(exp, bracket):
     if bracket.get("mi0"):
         return {h["id"]: v for h, v in zip(exp["heroes"], bracket["mi0"]["all-maps"])}
@@ -538,31 +563,64 @@ def default_mi(exp, bracket):
     return {h["id"]: v for h, v in zip(exp["heroes"], mi["all-maps"])}
 
 
-def retire_hero(hist, arc_path, h, old_role, name, img, at):
+def archive_files(arc_dir):
+    return [os.path.join(arc_dir, f) for f in sorted(os.listdir(arc_dir)) if f.endswith(".json") and f != "meta.json"] \
+        if os.path.isdir(arc_dir) else []
+
+
+def migrate_archive(arc_dir):
+    """Until Nov 2026 the archive was one file per server holding the four fixed brackets: split it into the
+    per-range layout once (the fixed brackets become their rank ranges; other ranges start from today)."""
+    old_path = arc_dir + ".json"
+    old = load_json(old_path, None)
+    if not old:
+        return
+    per = {}
+    for d in old.get("days", []):
+        for bid, b in (d.get("b") or {}).items():
+            per.setdefault(LEGACY_IDS.get(bid, bid), []).append({"d": d["d"], "at": d.get("at"), "n": b.get("n"), "h": b.get("h", {})})
+    os.makedirs(arc_dir, exist_ok=True)
+    for gid, days in per.items():
+        write_json(os.path.join(arc_dir, f"{gid}.json"), {"range": gid, "days": days})
+    write_json(os.path.join(arc_dir, "meta.json"), {"server": old.get("server"), "label": old.get("label"),
+                                                    "heroes": old.get("heroes", {}), "retired": old.get("retired", {}),
+                                                    "patches": old.get("patches", [])})
+    os.remove(old_path)
+    log(f"archive {old_path} split into {len(per)} rank-range files")
+
+
+def retire_hero(hist, arc_dir, h, old_role, name, img, at):
     """A hero that changed role is a new hero from then on: its earlier records are kept under '<id>~<old role>'
     in the daily archive and the history snapshots, so trends and change markers start fresh."""
     rid = f"{h}~{old_role}"
     for sn in (hist.get("snapshots") or []) + ([hist["patchBase"]] if hist.get("patchBase") else []):
         sn["heroes"] = [rid if x == h else x for x in sn.get("heroes", [])]
-    arc = load_json(arc_path, None)
-    if arc:
+    migrate_archive(arc_dir)
+    for path in archive_files(arc_dir):
+        arc = load_json(path, None)
+        if not arc:
+            continue
         for d in arc.get("days", []):
-            for b in d.get("b", {}).values():
-                if h in b.get("h", {}):
-                    b["h"][rid] = b["h"].pop(h)
-        arc.setdefault("retired", {})[rid] = {"name": f"{name} ({ROLE_LABEL[old_role]})", "role": old_role,
-                                              "img": img, "until": at}
-        write_json(arc_path, arc)
+            if h in d.get("h", {}):
+                d["h"][rid] = d["h"].pop(h)
+        write_json(path, arc)
+    meta_path = os.path.join(arc_dir, "meta.json")
+    meta = load_json(meta_path, None) or {}
+    meta.setdefault("retired", {})[rid] = {"name": f"{name} ({ROLE_LABEL[old_role]})", "role": old_role,
+                                           "img": img, "until": at}
+    write_json(meta_path, meta)
 
 
-def update_archive(path, exp):
-    """Keep one all-maps entry per day (the day's latest data wins): per bracket the estimated matches and,
-    per hero, [meta index, pick, win, ban] with the source (unsmoothed, bracket-merged) rates."""
-    arc = load_json(path, None) or {"server": exp["meta"]["server"], "days": [], "patches": []}
+def update_archive(arc_dir, exp, brackets):
+    """Keep one all-maps entry per day and rank range (the day's latest data wins): the estimated matches and,
+    per hero, [meta index, pick, win, ban] with the source (unsmoothed, range-merged) rates."""
+    migrate_archive(arc_dir)
+    os.makedirs(arc_dir, exist_ok=True)
     at = exp["meta"]["collectedAt"]
     day = at[:10]
-    entry = {"d": day, "at": at, "b": {}}
-    for b in exp["brackets"]:
+    for b in brackets:
+        path = os.path.join(arc_dir, f"{b['id']}.json")
+        arc = load_json(path, None) or {"range": b["id"], "days": []}
         mi = default_mi(exp, b)
         h = {}
         for i, hero in enumerate(exp["heroes"]):
@@ -570,21 +628,67 @@ def update_archive(path, exp):
             if c[7]:
                 continue
             h[hero["id"]] = [mi[hero["id"]], c[3], c[4], c[5]]
-        entry["b"][b["id"]] = {"n": b["N"].get("all-maps"), "h": h}
-    same_day = next((x for x in arc.get("days", []) if x["d"] == day), None)
-    for bid, b in ((same_day or {}).get("b") or {}).items():
-        for k, v in b.get("h", {}).items():
-            if "~" in k and bid in entry["b"]:
-                entry["b"][bid]["h"].setdefault(k, v)
-    arc["label"] = exp["meta"]["label"]
-    arc["heroes"] = {x["id"]: {"name": x["name"], "role": x["role"], "img": x["img"]} for x in exp["heroes"]}
-    arc["days"] = [x for x in arc.get("days", []) if x["d"] != day] + [entry]
-    arc["days"].sort(key=lambda x: x["d"])
+        entry = {"d": day, "at": at, "n": b["N"].get("all-maps"), "h": h}
+        same_day = next((x for x in arc["days"] if x["d"] == day), None)
+        for k, v in ((same_day or {}).get("h") or {}).items():
+            if "~" in k:
+                entry["h"].setdefault(k, v)
+        arc["days"] = sorted([x for x in arc["days"] if x["d"] != day] + [entry], key=lambda x: x["d"])
+        write_json(path, arc)
+    meta_path = os.path.join(arc_dir, "meta.json")
+    meta = load_json(meta_path, None) or {"retired": {}, "patches": []}
+    meta["server"] = exp["meta"]["server"]
+    meta["label"] = exp["meta"]["label"]
+    meta["heroes"] = {x["id"]: {"name": x["name"], "role": x["role"], "img": x["img"]} for x in exp["heroes"]}
     ps = exp["meta"].get("patchStart")
-    if ps and ps not in arc.setdefault("patches", []):
-        arc["patches"].append(ps)
-        arc["patches"].sort()
-    write_json(path, arc)
+    if ps and ps not in meta.setdefault("patches", []):
+        meta["patches"].append(ps)
+        meta["patches"].sort()
+    write_json(meta_path, meta)
+
+
+def load_ranges(out, server, exp):
+    """The rank-range files of one exported server (data/<server>/<range>.json)."""
+    out_b = []
+    for gid in exp.get("ranges", []):
+        b = load_json(os.path.join(out, server, f"{gid}.json"))
+        if b:
+            out_b.append(b)
+    return out_b
+
+
+def migrate_history(hist):
+    """Snapshots written before rank ranges name the fixed brackets: give them their range ids."""
+    def ren(d):
+        return {LEGACY_IDS.get(k, k): v for k, v in d.items()} if isinstance(d, dict) else d
+    for sn in (hist.get("snapshots") or []) + ([hist["patchBase"]] if hist.get("patchBase") else []):
+        for key in ("mi", "totals"):
+            if key in sn:
+                sn[key] = ren(sn[key])
+    if hist.get("lastPatchTotals"):
+        hist["lastPatchTotals"] = ren(hist["lastPatchTotals"])
+    return hist
+
+
+def last_patch_total(gid, hist):
+    """A range's matches at the end of the previous patch: stored directly, from stored per-rank totals, or as a
+    sum of stored ranges that tile it exactly (the four fixed brackets of older snapshots)."""
+    lp = hist.get("lastPatchTotals") or {}
+    if lp.get(gid):
+        return lp[gid]
+    lr = hist.get("lastPatchRankTotals")
+    if lr:
+        return sum(lr.get(r, 0) for r in RANKS_OF[gid]) or None
+    lo, hi = (0, len(RANKS) - 1) if gid == "all" else map(int, gid.split("-"))
+    total, at = 0, lo
+    while at <= hi:
+        nxt = next(((k, int(k.split("-")[1])) for k in lp if "-" in k and int(k.split("-")[0]) == at
+                    and int(k.split("-")[1]) <= hi and lp.get(k)), None)
+        if not nxt:
+            return None
+        total += lp[nxt[0]]
+        at = nxt[1] + 1
+    return total or None
 
 
 # ---------------------------------------------------------------- main
@@ -601,8 +705,8 @@ def main():
         idx = load_json(os.path.join(args.out, "index.json"), {}) or {}
         for sv in idx.get("servers", []):
             exp = load_json(os.path.join(args.out, f"{sv['id']}.json"))
-            if exp:
-                update_archive(os.path.join(args.archive, f"{sv['id']}.json"), exp)
+            if exp and exp.get("ranges"):
+                update_archive(os.path.join(args.archive, sv["id"]), exp, load_ranges(args.out, sv["id"], exp))
                 log(f"archived {sv['id']}")
         print("RESULT: UPDATED", flush=True)
         return
@@ -1092,6 +1196,7 @@ def main():
     for s, label, kind, _ in SV:
         hist_path = os.path.join(args.history, f"{s}.json")
         hist = load_json(hist_path, {"snapshots": [], "patchStart": None}) or {"snapshots": [], "patchStart": None}
+        migrate_history(hist)
         # ---- role changes: from the change on, the hero is a new hero. Its earlier records are kept apart, and it
         #      stays off the tables until this server's numbers count its play in the new role (the source keeps
         #      season totals, so right after a change they are still the old role's games)
@@ -1106,7 +1211,7 @@ def main():
             old = prev_roles.get(h)
             if old and old != role_of[h] and old in ROLE_ORDER:
                 changes.append({"hero": h, "from": old, "to": role_of[h], "at": now_s})
-                retire_hero(hist, os.path.join(args.archive, f"{s}.json"), h, old, meta_all[h]["name"], img_of(h), now_s)
+                retire_hero(hist, os.path.join(args.archive, s), h, old, meta_all[h]["name"], img_of(h), now_s)
                 log(f"{label}: {h} changed role {old} -> {role_of[h]}; earlier records kept as {h}~{old}")
         if prev_roles != {h: role_of[h] for h in hero_ids}:
             hist["roles"] = {h: role_of[h] for h in hero_ids}
@@ -1137,8 +1242,10 @@ def main():
         no_maps = kind == "netease"                     # China publishes no per-map numbers
         mids = [] if no_maps else map_ids
         ALLs = ["all-maps"] + mids
-        for gid, glabel, granks, _ in GROUPS:
+        for gid, glabel, _, granks in GROUPS:
             NP, KR = MERGED[(s, gid)]
+            if gid != "all" and int(round(NP["all-maps"])) <= 0:
+                continue                                # no games in this range on this server (China has no emerald table)
             SM = smooth(s, gid)
             # maps this server's source left empty (an official-stats error, e.g. Nexon's Hollywood) carry no
             # information of their own: they stay out of the constants and the index pool, and the page hides them
@@ -1157,7 +1264,7 @@ def main():
                 for role, v in pool_ratio(hero_roles, mids_ok, cells, C_sm).items():
                     POOL_RATIOS.setdefault(gid, {}).setdefault(role, []).append(v)
             mi0 = mi_cells(hero_roles, mids_ok, cells, C_sm, ratio=ratio)
-            mi_now[gid] = mi0
+            mi_now[gid] = {"all-maps": mi0["all-maps"]}
             totals[gid] = int(NP["all-maps"])
             brackets.append({
                 "id": gid, "label": glabel, "ranks": granks, "c": C_sm, "cr": C_raw,
@@ -1166,6 +1273,8 @@ def main():
                 "N": {m: int(round(NP[m])) for m in ALLs},
                 "cells": cells, "mi0": mi0, **({"poolRatio": ratio} if ratio else {}),
             })
+            if gid not in ("all", *LEGACY_IDS.values()):
+                continue
             mi = {m: dict(zip(hs, mi0[m])) for m in ALLs}
             parts = []
             for role in sorted(ROLE_ORDER, key=ROLE_ORDER.get):
@@ -1193,6 +1302,7 @@ def main():
             if prev_gm and cur_gm < PATCH_DROP * prev_gm:
                 hist["patchStart"] = now_s          # stats were reset: a new patch began
                 hist["lastPatchTotals"] = prev.get("totals")
+                hist["lastPatchRankTotals"] = prev.get("rankTotals")
                 hist["lastPatchGm"] = prev_gm
                 hist["patchBase"] = prev
             elif hist.get("patchStart") and hist.get("lastPatchGm"):
@@ -1200,10 +1310,11 @@ def main():
                 age = now - datetime.fromisoformat(hist["patchStart"])
                 if age < timedelta(days=2) and cur_gm >= 0.9 * hist["lastPatchGm"]:
                     log(f"{label}: earlier patch detection undone (match counts recovered)")
-                    for k in ("patchStart", "lastPatchTotals", "lastPatchGm", "patchBase"):
+                    for k in ("patchStart", "lastPatchTotals", "lastPatchRankTotals", "lastPatchGm", "patchBase"):
                         hist.pop(k, None)
         if changed:
             snaps.append({"at": now_s, "hash": hashes[s], "totals": totals, "gm": cur_gm,
+                          "rankTotals": {r: int(N[s][r]["all-maps"]) for r in RANKS},
                           "heroes": hs, "mi": mi_now})
             hist["snapshots"] = snaps[-HISTORY_KEEP:]
         if changed or hist_dirty:
@@ -1212,28 +1323,30 @@ def main():
         in_patch_window = bool(hist.get("patchBase") and hist.get("patchStart")
                                and now - datetime.fromisoformat(hist["patchStart"]) < timedelta(days=PATCH_COMPARE_DAYS))
         base = hist["patchBase"] if in_patch_window else (hist["snapshots"][-2] if len(hist["snapshots"]) >= 2 else None)
-        compare = None
-        if base:
-            compare = {"at": base["at"], "heroes": base.get("heroes", []),
-                       "patch": in_patch_window,
-                       "mi": {g: {"all-maps": v.get("all-maps"), **{m: v.get(m) for m in map_ids if m in v}}
-                              for g, v in base.get("mi", {}).items()}}
-        last_patch = hist.get("lastPatchTotals") or {}
+        # per range: the comparison base's all-maps index and this patch's matches against the last patch's
+        for b in brackets:
+            bm = (base or {}).get("mi", {}).get(b["id"]) or {}
+            b["compare"] = ({"at": base["at"], "heroes": base.get("heroes", []), "patch": in_patch_window,
+                             "mi": bm.get("all-maps")} if base and bm.get("all-maps") else None)
+            lt = last_patch_total(b["id"], hist)
+            if lt:
+                b["sampleRatio"] = round(totals[b["id"]] / lt, 3)
         exported = {
             "meta": {"server": s, "label": label, "source": sources[kind], "collectedAt": now_s, "hash": hashes[s],
                      "shares": {r: round(shares[s][r] * 100, 2) for r in RANKS},
                      "patchStart": hist.get("patchStart"),
-                     "sampleRatio": {g: round(totals[g] / last_patch[g], 3) for g in totals if last_patch.get(g)},
                      "pending": [{"id": c["hero"], "name": meta_all[c["hero"]]["name"], "from": ROLE_LABEL[c["from"]],
                                   "to": ROLE_LABEL[c["to"]], "since": c["at"]} for c in pending],
                      "absent": [meta_all[h]["name"] for h in absent],
                      **({"noMaps": True, "matchesHidden": True, "season": CN["season"]} if no_maps else {})},
             "roles": roles_out_of(hs), "modes": mode_order, "heroes": heroes_out_of(hs),
             "maps": [] if no_maps else [{"id": mp["id"], "name": mp["name"], "short": short(mp), "mode": mp["mode"]} for mp in maps],
-            "brackets": brackets, "compare": compare,
+            "ranges": [b["id"] for b in brackets],
         }
         write_json(os.path.join(args.out, f"{s}.json"), exported)
-        update_archive(os.path.join(args.archive, f"{s}.json"), exported)
+        for b in brackets:
+            write_json(os.path.join(args.out, s, f"{b['id']}.json"), b)
+        update_archive(os.path.join(args.archive, s), exported, brackets)
         index_servers.append({"id": s, "label": label, "source": kind, "hash": hashes[s], "collectedAt": now_s})
 
     prev_entries = {x["id"]: x for x in prev_index.get("servers", [])}
