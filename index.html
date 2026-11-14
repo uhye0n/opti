@@ -436,8 +436,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       <nav class="nav" aria-label="화면 선택">
         <a href="./" data-nav="home">한눈에 보기</a>
         <a href="#tier" data-nav="detail">맵·영웅 상세</a>
-        <a href="#method" data-nav="method">계산 방식</a>
         <a href="#patch" data-nav="patch">패치 노트</a>
+        <a href="#method" data-nav="method">계산 방식</a>
       </nav>
     </div>
     <div class="hdr-r">
@@ -1343,8 +1343,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---------------------------------------------------------------- patch notes
   let PATCHES = null, pnFilter = 'all';
-  const VERDICT = {buff:'버프', nerf:'너프', mixed:'버프·너프', rework:'개편', change:'조정', hitbox:'타점'};
-  const GROUPS_PN = [['buff', '버프'], ['nerf', '너프'], ['mixed', '버프와 너프가 섞인 변경'], ['rework', '개편'], ['change', '기타 조정']];
+  const VERDICT = {buff:'버프', nerf:'너프', mixed:'조정', rework:'개편', change:'변경', hitbox:'타점'};
+  const GROUPS_PN = [['buff', '버프'], ['nerf', '너프'], ['mixed', '조정'], ['rework', '개편'], ['change', '기타 변경']];
   function loadPatches(){
     if (PATCHES !== null) return;
     PATCHES = false;
@@ -1409,7 +1409,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
         body = x.groups.slice(0, k).map(ab).join('')
           + (k < x.groups.length ? `<details class="pn-more"><summary>나머지 ${total - n}줄 더 보기 ▾</summary><div>${x.groups.slice(k).map(ab).join('')}</div></details>` : '');
       }
-      return `<div class="pn-card v-${x.verdict}"><div class="pn-hero-row" style="display:flex;align-items:center;gap:10px">${link}<span class="pn-tag">${mi}<span class="pn-verdict v-${x.verdict}">${VERDICT[x.verdict] || '조정'}</span></span></div>${body}</div>`;
+      return `<div class="pn-card v-${x.verdict}"><div class="pn-hero-row" style="display:flex;align-items:center;gap:10px">${link}<span class="pn-tag">${mi}<span class="pn-verdict v-${x.verdict}">${VERDICT[x.verdict] || '변경'}</span></span></div>${body}</div>`;
     };
     const show = v => pnFilter === 'all' || pnFilter === v || (pnFilter === 'other' && !['buff', 'nerf'].includes(v));
     let any = false;
