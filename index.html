@@ -134,7 +134,7 @@ img{display:block}
 .op-range-duo .op-range-icon{position:absolute;max-width:none;width:auto!important;height:19px}
 .op-range-duo .op-range-icon:first-child{left:0;top:0;filter:brightness(.8)}
 .op-range-duo .op-range-icon:last-child{left:13px;top:9px;filter:drop-shadow(0 0 1.5px #17171A) drop-shadow(0 0 1px #17171A)}
-.op-range-cell.is-end{cursor:ew-resize}
+.op-range-cell.is-end{cursor:grab}
 .op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
 .op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
 .op-range-knob-l{left:-7px}
@@ -1008,13 +1008,26 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (!drag || e.pointerId !== drag.id) return;
     const g = gradeAt(drag.bar, e.clientX);
     const lo = Math.min(drag.fixed, g), hi = Math.max(drag.fixed, g);
-    if (lo !== state.lo || hi !== state.hi) { drag.moved = true; state.lo = lo; state.hi = hi; paintBar(drag.bar); }
+    drag.moved = true;
+    if (lo !== state.lo || hi !== state.hi) { state.lo = lo; state.hi = hi; paintBar(drag.bar); }
+    followFill(drag, e.clientX);
   });
+  // while dragging, the moving edge of the span (and its knob) stays under the pointer; it settles on a rank on release
+  function followFill(d, x){
+    const f = d.bar.querySelector('.op-range-fill'); if (!f) return;
+    const {G, at, total} = rankGeom(), r = d.bar.getBoundingClientRect();
+    const xp = Math.max(0, Math.min(100, (x - r.left) / r.width * 100));
+    const pf = G.indexOf(d.fixed), fl = at[pf] / total * 100, fr = at[pf + 1] / total * 100;
+    const [L, R] = xp >= fr ? [fl, xp] : xp <= fl ? [xp, fr] : [fl, fr];
+    for (const a of f.getAnimations()) a.cancel();
+    f.style.left = L + '%'; f.style.width = (R - L) + '%';
+  }
   const endDrag = e => {
     if (!drag || (e && e.pointerId !== drag.id)) return;
     drag.bar.classList.remove('is-drag');
-    const changed = curRid() !== drag.before;
+    const changed = curRid() !== drag.before, bar = drag.bar, moved = drag.moved;
     drag = null;
+    if (moved) paintBar(bar);              // glide from the pointer to the nearest rank edge
     if (changed) sync();
   };
   document.addEventListener('pointerup', endDrag);
@@ -1674,13 +1687,13 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   // the rank range: the filled span (and its two knobs) slide to the new grades instead of jumping
   function slideFill(bar, fn){
     // start from where the span is drawn right now (mid-slide if a step is still moving), so dragging glides
-    const f0 = !reduceMotion && bar.querySelector('.op-range-fill'), cs = f0 && getComputedStyle(f0);
+    const f0 = !reduceMotion && !(drag && drag.moved) && bar.querySelector('.op-range-fill'), cs = f0 && getComputedStyle(f0);
     const from = f0 ? {left:cs.left, width:cs.width, end:f0.style.left + '|' + f0.style.width} : null;
     fn();
     const f = from && bar.querySelector('.op-range-fill');
     if (f && f.animate && from.end !== f.style.left + '|' + f.style.width) {
       fillRun = {kf:[{left:from.left, width:from.width}, {left:f.style.left, width:f.style.width}], t0:performance.now()};
-      f.animate(fillRun.kf, {duration:drag ? 140 : 200, easing:'cubic-bezier(.2,.8,.2,1)'});
+      f.animate(fillRun.kf, {duration:200, easing:'cubic-bezier(.2,.8,.2,1)'});
     }
   }
   // a click starts the slide, then the page re-renders with the new data: carry the slide on in the new bar
