@@ -106,11 +106,11 @@ img{display:block}
 .op-range-icon{height:auto;max-width:80%;pointer-events:none}
 .op-range-cell.is-out .op-range-icon{opacity:var(--opacity-out)}
 .op-range-cell:hover .op-range-icon{opacity:1}
-.op-range-duo{position:relative;width:48px;height:33px;display:block;pointer-events:none}
+.op-range-duo{position:relative;width:41px;height:30px;display:block;pointer-events:none}
 .op-range-duo .op-range-icon{position:absolute;max-width:none;width:auto!important;height:20px}
 .op-range-duo .op-range-icon:first-child{left:0;top:0;filter:brightness(.8)}
-.op-range-duo .op-range-icon:last-child{left:20px;top:13px;filter:drop-shadow(0 0 1.5px #17171A) drop-shadow(0 0 1px #17171A)}
-.op-range-cell.is-duo{flex-grow:1.5}
+.op-range-duo .op-range-icon:last-child{left:14px;top:10px;filter:drop-shadow(0 0 1.5px #17171A) drop-shadow(0 0 1px #17171A)}
+.op-range-cell.is-duo{flex-grow:1.4}
 .op-range-cell.is-end{cursor:ew-resize}
 .op-range-bar.is-drag,.op-range-bar.is-drag .op-range-cell{cursor:grabbing}
 .op-range-knob{position:absolute;top:50%;width:var(--knob);height:var(--knob);margin-top:-7px;border-radius:var(--radius-full);background:var(--text);box-shadow:var(--ring-knob);transition:transform .12s;pointer-events:none}
@@ -186,7 +186,13 @@ button.op-hero{cursor:pointer}
   body[data-view="home"] .page{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
   #homeView{flex:1;min-height:0;display:flex;flex-direction:column}
   .home-cols{flex:1;min-height:0}
-  .home-left{overflow-y:auto}
+  .home-left{overflow-y:auto;scrollbar-width:none}
+  .home-left::-webkit-scrollbar{display:none}
+  .home-left[data-size="3"] .op-hero-name,.home-left[data-size="4"] .op-hero-name,.home-left[data-size="5"] .op-hero-name,.home-left[data-size="6"] .op-hero-name{font-size:12px}
+  .home-left[data-size="3"] .op-hero-mi,.home-left[data-size="4"] .op-hero-mi,.home-left[data-size="5"] .op-hero-mi,.home-left[data-size="6"] .op-hero-mi{font-size:11px}
+  .home-left[data-size="4"] .hgroup,.home-left[data-size="5"] .hgroup,.home-left[data-size="6"] .hgroup{gap:6px;padding:10px 0 8px}
+  .home-left[data-size="6"] .op-hero{gap:3px}
+  .home-left[data-size="4"] .ttier,.home-left[data-size="5"] .ttier,.home-left[data-size="6"] .ttier{padding:8px 0}
   .home-right{min-height:0}
   .mlist{flex:1;min-height:0;overflow-y:auto}
 }
@@ -710,8 +716,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     : `<img class="${cls}" src="assets/maps/${esc(id)}.jpg" alt="" width="${w}" height="${h}" loading="lazy" decoding="async" onerror="window.__noimg.add('${esc(id)}');this.outerHTML='<span class=&quot;${cls} op-map-noimg&quot;>이미지 없음</span>'">`;
 
   // ---------------------------------------------------------------- rank range
-  // the grandmaster·champion cell is 1.5 units wide so both icons fit at full size
-  const cellW = g => g === TOP ? 1.5 : 1;
+  // the grandmaster·champion cell is 1.4 units wide so both icons fit at full size
+  const cellW = g => g === TOP ? 1.4 : 1;
   function rankGeom(){
     const G = visibleGrades(), at = [0];
     G.forEach(g => at.push(at[at.length - 1] + cellW(g)));
@@ -881,27 +887,45 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     return `<a class="op-hero" href="${esc(hrefOf('detail', {map:'all-maps', role, focus:H[i].id}))}" data-go-hero="${esc(H[i].id)}" style="width:${cellW}px" aria-label="${esc(H[i].name)}, ${tierOf(mi)} 티어, 지수 ${mi}">${avatar(i, size)}<span class="op-hero-label" aria-hidden="true"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi">${mi}</span></span></a>`;
   }
   const badge = t => `<span class="op-tier op-tier-${t}" aria-label="${t} 티어">${t}</span>`;
-  function renderHome(){
-    $('homeTabs').innerHTML = TABS.map(([k, l]) => `<button type="button" class="op-chip" data-tab="${k}" aria-pressed="${state.tab === k}">${l}</button>`).join('');
-    $('rkHome').innerHTML = rankBar('home');
+  // hero column sizes, largest first: [avatar, cell width, row gap, column gap]. The home screen shows the hero
+  // column without a scrollbar: on a one-screen layout the largest size whose content fits the column is used.
+  const HSIZES = [[60, 88, 12, 16], [56, 82, 10, 14], [52, 78, 8, 10], [48, 76, 6, 8], [44, 76, 4, 6], [40, 76, 4, 4], [36, 76, 2, 4]];
+  function homeLeftHTML(z){
+    const [size, cw, rg, cg] = z, gap = `${rg}px ${cg}px`;
     let left = '';
     if (state.tab === 'summary') {
       for (const [r, label] of ROLES) {
         const order = ranked('all-maps', r);
         const rows = ['S', 'A'].map(t => [t, order.filter(i => tierOf(MR[r]['all-maps'][i]) === t)]).filter(x => x[1].length);
         left += `<div class="hgroup"><h2>${label}</h2>` + (rows.length ? rows.map(([t, hs]) =>
-          `<div class="hrow">${badge(t)}<div class="hrow-heroes">${hs.map(i => heroLink(i, r, 60, 88)).join('')}</div></div>`).join('') : `<span class="none">해당 영웅 없음</span>`) + `</div>`;
+          `<div class="hrow">${badge(t)}<div class="hrow-heroes" style="gap:${gap}">${hs.map(i => heroLink(i, r, size, cw)).join('')}</div></div>`).join('') : `<span class="none">해당 영웅 없음</span>`) + `</div>`;
       }
     } else {
       const r = state.tab, order = ranked('all-maps', r);
-      const dense = order.length > 18;
-      const size = dense ? 56 : 64, cw = dense ? 78 : 88, gap = dense ? '12px 8px' : '12px 16px';
       for (const t of TIERS) {
         const hs = order.filter(i => tierOf(MR[r]['all-maps'][i]) === t);
         left += `<div class="ttier">${badge(t)}<div class="ttier-heroes" style="gap:${gap}">${hs.length ? hs.map(i => heroLink(i, r, size, cw)).join('') : '<span class="none" style="align-self:center">해당 영웅 없음</span>'}</div></div>`;
       }
     }
-    $('homeLeft').innerHTML = left;
+    return left;
+  }
+  function fitHomeLeft(){
+    const el = $('homeLeft');
+    const oneScreen = matchMedia('(min-width:1024px) and (min-height:600px)').matches;
+    let k = 0;
+    el.dataset.size = '0';
+    el.innerHTML = homeLeftHTML(HSIZES[0]);
+    if (!oneScreen) return;
+    while (el.scrollHeight > el.clientHeight + 1 && k < HSIZES.length - 1) {
+      k++;
+      el.dataset.size = String(k);
+      el.innerHTML = homeLeftHTML(HSIZES[k]);
+    }
+  }
+  function renderHome(){
+    $('homeTabs').innerHTML = TABS.map(([k, l]) => `<button type="button" class="op-chip" data-tab="${k}" aria-pressed="${state.tab === k}">${l}</button>`).join('');
+    $('rkHome').innerHTML = rankBar('home');
+    fitHomeLeft();
 
     let right = `<h2 class="hright-title" id="mapsTitle">맵별 메타</h2>`;
     if (!hasMaps()) {
@@ -1301,6 +1325,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   });
   let rz = 0, lastW = window.innerWidth;
   window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rz); rz = setTimeout(() => { if (state.view === 'detail' && D && B) lightDetail(); }, 150); });
+  // the hero column is fitted to the window's height as well, so also refit when only the height changes
+  if (document.fonts) document.fonts.ready.then(() => { if (state.view === 'home' && D && B && $('homeLeft').firstChild) fitHomeLeft(); });
+  let fitT; window.addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(() => { if (state.view === 'home' && D && B && $('homeLeft').firstChild) fitHomeLeft(); }, 120); });
   window.addEventListener('popstate', () => { readURL(); state.wOpen = false; state.srvOpen = false; sync({top:true}); });
 
   // ---------------------------------------------------------------- start
