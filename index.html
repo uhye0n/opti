@@ -3,15 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>옵티</title>
+<title>옵티 · 오버워치 메타 지수와 영웅 티어</title>
 <meta name="description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
 <meta name="theme-color" content="#0E0E10">
 <link rel="icon" type="image/svg+xml" href="assets/opti-icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="옵티">
 <meta property="og:type" content="website">
-<meta property="og:title" content="옵티">
+<meta property="og:site_name" content="옵티">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="옵티 · 오버워치 메타 지수와 영웅 티어">
 <meta property="og:description" content="공식 영웅 통계로 계산한 오버워치 경쟁전 메타 지수와 돌격·공격·지원 티어, 맵별 메타. 6시간마다 자동 갱신.">
 <meta property="og:url" content="https://uhye0n.github.io/opti/">
-<meta property="og:image" content="https://uhye0n.github.io/opti/assets/maps/lijiang-tower.jpg">
+<meta property="og:image" content="https://uhye0n.github.io/opti/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="옵티 로고와 오버워치 경쟁전 등급 아이콘">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -162,12 +172,7 @@ button.op-hero{cursor:pointer}
 .op-tab[aria-selected="true"]{border-bottom-color:var(--text);color:var(--text);font-weight:700}
 .op-tab-count{font-size:12px;font-weight:500;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-tabs-meta{margin-left:auto;align-self:center;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
-.mlist{padding:0 0 28px}
-.mlist-head{position:sticky;top:0;z-index:2;display:flex;gap:var(--space-12);height:28px;align-items:center;background:var(--bg);border-bottom:1px solid var(--line)}
-.mlist-head-img{width:167px;flex-shrink:0}
-.mlist-head .op-map-roles{height:auto}
-.mlist-head .op-map-role{padding:0;justify-content:center;font-size:12px;font-weight:500;color:var(--text-meta);border-left-color:transparent}
-.op-map + .op-map{border-top:1px solid var(--line)}
+.mlist{padding:6px 0 28px}
 .mfade{position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(rgba(14,14,16,0),var(--bg));pointer-events:none}
 .hnote{margin:12px 0 0;color:var(--text-meta);font-size:14px}
 .op-map{display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) 0;text-decoration:none;color:var(--text)}
@@ -208,6 +213,8 @@ button.op-hero{cursor:pointer}
 @media (min-width:1024px) and (min-height:600px){
   body[data-view="home"]{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
   body[data-view="home"] .page{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
+  body[data-view="home"] .site-foot{display:none}
+  body[data-view="home"] .mlist-foot{display:block}
   #homeView{flex:1;min-height:0;display:flex;flex-direction:column}
   .home-cols{flex:1;min-height:0}
   .home-left{overflow-y:auto;scrollbar-width:none}
@@ -362,7 +369,6 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 }
 @media (max-width:560px){
   .op-map-body{flex-direction:column}
-  .mlist-head-img{display:none}
   .op-map-img{width:100%;height:auto;aspect-ratio:16/9;max-height:150px}
   .op-map-noimg{height:94px}
   .op-map-more,.op-map-role:first-child .op-map-more{gap:8px}
@@ -467,6 +473,33 @@ a.pn-hero:hover .pn-name b{text-decoration:underline}
 .pn-empty{margin:0;color:var(--text-meta)}
 @media (max-width:760px){ .pn-cards{grid-template-columns:1fr} .pnart h1{font-size:26px} }
 
+
+/* ---- footer */
+.site-foot{width:100%;max-width:var(--page-max);margin:0 auto;padding:28px var(--page-pad) 40px;border-top:1px solid var(--line);font-size:12px;line-height:1.7;color:var(--text-meta)}
+.site-foot p,.mlist-foot p{margin:0}
+.site-foot p + p,.mlist-foot p + p{margin-top:4px}
+.site-foot a,.mlist-foot a{color:var(--text-secondary);text-decoration:underline;text-underline-offset:2px}
+.site-foot a:hover,.mlist-foot a:hover{color:var(--text)}
+.mlist-foot{display:none;margin-top:12px;padding:20px 0 4px;border-top:1px solid var(--line);font-size:11px;line-height:1.7;color:var(--text-meta)}
+
+/* ---- keyboard focus, skip link, loading bar */
+a:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+#main:focus{outline:none}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;padding:10px 14px;background:var(--text);color:var(--bg);border-radius:var(--radius-md);font-weight:700;text-decoration:none}
+.skip:focus{top:12px}
+.loadbar{position:fixed;left:0;top:0;z-index:90;width:100%;height:2px;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .2s}
+.loadbar.is-on{opacity:1}
+.loadbar::before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:40%;background:var(--text-secondary);animation:loadslide 1.1s ease-in-out infinite}
+@keyframes loadslide{to{left:100%}}
+
+/* ---- touch: every control gets at least a 44px tall target without changing how it looks */
+@media (pointer:coarse){
+  .op-chip,.op-range-reset,.op-tab,.pnpop-year,.op-switch,.srv-btn,.mchip,.rk-chip{position:relative}
+  .op-chip::after,.op-range-reset::after,.op-tab::after,.pnpop-year::after,.op-switch::after,.srv-btn::after,.mchip::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;min-width:44px;transform:translateY(-50%)}
+  .op-map,.op-map *{-webkit-touch-callout:none}
+}
+.tap-tip{position:absolute;z-index:95;max-width:260px;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);color:var(--text);font-size:12px;line-height:1.5;pointer-events:none}
+
 /* ---- views */
 body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailView,body:not([data-view="method"]) #methodView,body:not([data-view="patch"]) #patchView{display:none}
 @media (prefers-reduced-motion:reduce){ *{transition:none!important;scroll-behavior:auto!important} }
@@ -474,6 +507,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 </head>
 <body data-view="home">
 <noscript><p style="padding:16px">이 페이지는 자바스크립트가 켜져 있어야 볼 수 있습니다.</p></noscript>
+<a class="skip" href="#main" data-act="skip">본문으로 건너뛰기</a>
+<div class="loadbar" id="loadBar" aria-hidden="true"></div>
 <div class="topbar">
   <header class="hdr">
     <div class="hdr-l">
@@ -494,7 +529,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     </div>
   </header>
 </div>
-<div class="page">
+<div class="page" id="main" tabindex="-1">
   <p class="load-err" id="loadError" role="alert" hidden></p>
 
   <section id="homeView" aria-label="한눈에 보기">
@@ -631,6 +666,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     </article>
   </div>
 </div>
+<footer class="site-foot" id="siteFoot"></footer>
 
 <script>
 (function(){
@@ -768,6 +804,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   async function sync(opts){
     opts = opts || {};
     const tok = ++syncTok;
+    busy(true);
     try {
       const base = await loadBase(state.server);
       if (tok !== syncTok) return;
@@ -781,6 +818,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       B = data; render(opts);
       for (const r of ['all', rid(DEF_LO, DEF_HI)]) loadRange(state.server, r).catch(() => {});
     } catch (e) { fail(e); }
+    finally { busy(false); }
   }
   function fail(e){
     const el = $('loadError');
@@ -1117,9 +1155,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       }
       return `<a class="op-map" href="${esc(hrefOf('detail', {map:m.id, focus:null}))}" data-go-map="${esc(m.id)}" aria-label="${esc(m.name)} 상세 보기"><div class="op-map-head"><span class="op-map-name">${esc(m.name)}</span><span class="op-map-sub">${err ? '공식 통계 오류' : `추정 ${fmtInt(n)}경기`}</span></div><div class="op-map-body">${body}</div></a>`;
     };
-    // the role columns are otherwise unlabelled: one header, kept at the top while the list scrolls
-    const rolesHead = `<div class="mlist-head" aria-hidden="true"><span class="mlist-head-img"></span><div class="op-map-roles">${ROLES.map(([, l]) => `<span class="op-map-role">${l}</span>`).join('')}</div></div>`;
-    right += `<div class="mlist scroll" id="mlist">${rolesHead}${rows.map(card).join('')}</div><span class="mfade" aria-hidden="true"></span>`;
+    right += `<div class="mlist scroll" id="mlist">${rows.map(card).join('')}<div class="mlist-foot">${FOOT}</div></div><span class="mfade" aria-hidden="true"></span>`;
     $('homeRight').innerHTML = right;
     fitMapLabels();
   }
@@ -1494,6 +1530,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     }
     h += `</div>`;
     if (cur.loading) { el.innerHTML = h + '<p class="mnote">불러오는 중…</p>'; return; }
+    setTitle(`${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)}`);
     h += `<div class="pn-head"><h2>${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)} 패치</h2><span class="pn-sum"><span>버프 <b style="color:var(--buff)">${cnt('buff')}</b></span><span>너프 <b style="color:var(--nerf)">${cnt('nerf')}</b></span><span>기타 <b>${cnt('mixed') + cnt('rework') + cnt('change')}</b></span></span><a class="pn-src" href="${esc(cur.url)}" target="_blank" rel="noopener">블리자드 원문 ↗</a></div>`;
     const FILTERS = [['all', '전체'], ['buff', '버프'], ['nerf', '너프'], ['other', '기타']];
     h += `<div class="pn-filter" role="group" aria-label="변경 종류">${FILTERS.map(([k, l]) => `<button type="button" class="op-chip" data-pnf="${k}" aria-pressed="${pnFilter === k}">${l}</button>`).join('')}</div>`;
@@ -1564,6 +1601,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if ($('q').value) renderSearch();
     restoreFocus(fk);
     fitPops();
+    setTitle();
     saveState();
     writeURL(!!opts.push);
     if (opts.top) window.scrollTo(0, 0);
@@ -1594,6 +1632,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const d = el.dataset;
     if (el.tagName === 'A') e.preventDefault();
     if (d.nav) { go(d.nav); return; }
+    if (d.act === 'skip') { $('main').focus({preventScroll:false}); return; }
     if (d.toc) { const s = $(d.toc); if (s) { s.scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth', block:'start'}); s.querySelector('h2').setAttribute('tabindex', '-1'); s.querySelector('h2').focus({preventScroll:true}); } return; }
     if (d.goHero) { const h = H.find(x => x.id === d.goHero); if (h) { state.map = 'all-maps'; state.role = h.role; state.focus = h.id; go('detail'); } return; }
     if (d.goMap) { state.map = d.goMap; state.focus = null; go('detail'); return; }
@@ -1671,6 +1710,62 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const el = $('wDefault');
     if (el) el.textContent = `승률 ${w.wr}% + 픽률 ${w.pr}% + 밴률 ${w.br}%`;
   }
+  // ---------------------------------------------------------------- footer, page titles, loading bar
+  const REPO = 'https://github.com/uhye0n/opti';
+  const FOOT = `<p>옵티는 Blizzard Entertainment와 관련 없는 팬 사이트입니다. Overwatch는 미국 및 기타 국가에서 Blizzard Entertainment, Inc.의 상표이며, 영웅·맵·등급 이미지의 저작권은 Blizzard Entertainment에 있습니다.</p>`
+    + `<p>데이터: <a href="https://overwatch.nexon.com/hero/rate" target="_blank" rel="noopener">넥슨</a> · <a href="https://overwatch.blizzard.com/ko-kr/rates/" target="_blank" rel="noopener">블리자드</a> · <a href="https://ow.blizzard.cn/herolist/" target="_blank" rel="noopener">넷이즈</a> 공식 영웅 통계, <a href="https://overwatch.blizzard.com/ko-kr/news/patch-notes/" target="_blank" rel="noopener">블리자드 패치 노트</a>. `
+    + `화면 설정만 이 브라우저에 저장하고 다른 정보는 모으지 않습니다. 문의와 오류 제보는 <a href="${REPO}/issues" target="_blank" rel="noopener">GitHub</a>로 보내 주세요.</p>`;
+  $('siteFoot').innerHTML = FOOT;
+  function setTitle(extra){
+    const T = '옵티';
+    if (state.view === 'home') { document.title = `${T} · 오버워치 메타 지수와 영웅 티어`; return; }
+    if (state.view === 'method') { document.title = `계산 방식 · ${T}`; return; }
+    if (state.view === 'patch') { document.title = extra ? `${extra} 패치 노트 · ${T}` : `패치 노트 · ${T}`; return; }
+    const m = state.map === 'all-maps' ? '전체 맵' : ((MAPS.find(x => x.id === state.map) || {}).name || '');
+    const f = state.focus && H.find(h => h.id === state.focus);
+    document.title = f ? `${f.name} · ${m} · ${T}` : `${m} · ${ROLE_LABEL[state.role] || ''} · ${T}`;
+  }
+  // a thin bar at the very top while data is on its way (only when it takes long enough to notice)
+  let busyN = 0, busyT = 0;
+  function busy(on){
+    busyN = Math.max(0, busyN + (on ? 1 : -1));
+    clearTimeout(busyT);
+    if (busyN) busyT = setTimeout(() => $('loadBar').classList.add('is-on'), 150);
+    else $('loadBar').classList.remove('is-on');
+  }
+  // touch screens have no hover: a long press shows an element's description (title) instead
+  let tapTip = null, pressT = 0, pressed = false;
+  const hideTip = () => { if (tapTip) { tapTip.remove(); tapTip = null; } };
+  document.addEventListener('touchstart', e => {
+    hideTip(); clearTimeout(pressT); pressed = false;
+    const el = e.target.closest && e.target.closest('[title]');
+    if (!el || !el.getAttribute('title')) return;
+    pressT = setTimeout(() => {
+      pressed = true;
+      tapTip = document.createElement('div');
+      tapTip.className = 'tap-tip'; tapTip.setAttribute('role', 'tooltip');
+      tapTip.textContent = el.getAttribute('title');
+      document.body.appendChild(tapTip);
+      const r = el.getBoundingClientRect(), w = tapTip.offsetWidth, h = tapTip.offsetHeight;
+      const x = Math.max(8, Math.min(document.documentElement.clientWidth - w - 8, r.left + r.width / 2 - w / 2));
+      const y = r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8;
+      tapTip.style.left = (x + window.scrollX) + 'px'; tapTip.style.top = (y + window.scrollY) + 'px';
+    }, 450);
+  }, {passive:true});
+  const endPress = () => clearTimeout(pressT);
+  document.addEventListener('touchmove', () => { endPress(); hideTip(); }, {passive:true});
+  document.addEventListener('touchend', endPress, {passive:true});
+  document.addEventListener('scroll', hideTip, {passive:true, capture:true});
+  // the click that follows a long press only closes the description
+  document.addEventListener('click', e => { if (pressed) { pressed = false; e.preventDefault(); e.stopPropagation(); } }, true);
+  // "/" jumps to the search box
+  document.addEventListener('keydown', e => {
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.closest('input,textarea,select,[contenteditable="true"]'))) return;
+    e.preventDefault(); $('q').focus();
+  });
+
   // ---------------------------------------------------------------- start
   document.body.dataset.view = state.view;
   fetch('data/index.json?t=' + Math.floor(Date.now() / 6e5), {cache:'no-cache'})

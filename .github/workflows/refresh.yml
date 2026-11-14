@@ -124,7 +124,7 @@ jobs:
           if [ "$RESULT" = "UPDATED" ] || [ "$EVENT" = "push" ] || [ "$EVENT" = "workflow_dispatch" ]; then
             if [ ! -f data/index.json ]; then echo "no data to deploy"; exit 1; fi
             mkdir -p _site
-            cp -r index.html assets data archive meta _site/
+            cp -r index.html 404.html manifest.webmanifest assets data archive meta _site/
             touch _site/.nojekyll
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else

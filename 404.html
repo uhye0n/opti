@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>페이지를 찾을 수 없어요 · 옵티</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0E0E10">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  html{background:#0E0E10;color-scheme:dark}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#F2F2F3;word-break:keep-all}
+  main{max-width:420px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+  .logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#F2F2F3;text-decoration:none}
+  .logo img{width:36px;height:36px}
+  h1{margin:8px 0 0;font-size:24px;font-weight:800;letter-spacing:-.01em}
+  p{margin:0;color:#A1A1A8;font-size:15px;line-height:1.6}
+  .btn{margin-top:8px;height:40px;padding:0 18px;display:inline-flex;align-items:center;background:#F2F2F3;color:#0E0E10;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none}
+  .btn:focus-visible,.logo:focus-visible{outline:2px solid #F2F2F3;outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+  <a class="logo" href="./" data-home><img src="assets/opti-icon.svg" alt="" data-asset>옵티</a>
+  <h1>페이지를 찾을 수 없어요</h1>
+  <p>주소가 바뀌었거나 잘못 입력된 것 같아요. 첫 화면에서 맵과 영웅을 검색해 보세요.</p>
+  <a class="btn" href="./" data-home>옵티 첫 화면으로</a>
+</main>
+<script>
+  // GitHub Pages serves this page for any missing path; links must point at the site root, not the current folder
+  (function(){
+    var seg = location.pathname.split('/')[1];
+    var root = location.hostname.endsWith('github.io') && seg ? '/' + seg + '/' : '/';
+    document.querySelectorAll('[data-home]').forEach(function(a){ a.href = root; });
+    document.querySelectorAll('[data-asset]').forEach(function(i){ i.src = root + 'assets/opti-icon.svg'; });
+  })();
+</script>
+</body>
+</html>
