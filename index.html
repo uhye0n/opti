@@ -162,7 +162,6 @@ img{display:block}
 .op-hero-label{display:flex;align-items:baseline;justify-content:center;gap:5px;white-space:nowrap}
 .op-hero-name{font-size:13px;font-weight:500}
 .op-hero-mi{flex-shrink:0;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
-a.op-hero:hover .op-hero-name{text-decoration:underline}
 button.op-hero{cursor:pointer}
 .op-hero[aria-pressed="true"] .op-hero-name{font-weight:700}
 .home-right{position:relative;display:flex;flex-direction:column}
@@ -187,13 +186,12 @@ button.op-hero{cursor:pointer}
 .op-map:has(.op-map-name:focus-visible){outline:2px solid var(--text);outline-offset:-2px}
 .op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.035)}
 .op-map-pick,.op-map-reserve{position:relative;z-index:1;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
-.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar{transform:translateY(-2px)}
-.op-map-pick:hover .op-map-label > span:first-child{text-decoration:underline;text-underline-offset:2px}
+/* hover on a hero: the face lifts and brightens (no underlines; those are for links inside sentences) */
+a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar,a.pn-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
 .op-map-reserve:hover{color:var(--text)}
 .op-map-pick:focus-visible,.op-map-reserve:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 .op-map-head{display:flex;align-items:baseline;gap:var(--space-8)}
 .op-map-name{font-size:16px;font-weight:700}
-.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-name{text-decoration:underline}
 .op-map-sub{font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-map-body{display:flex;gap:var(--space-12)}
 .op-map-img{width:167px;height:94px;flex-shrink:0;border-radius:var(--radius-lg);object-fit:cover;background:var(--surface-thumb)}
@@ -293,7 +291,13 @@ button.op-hero{cursor:pointer}
 .op-rail-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
 .op-rail-item:hover{background:var(--surface-thumb)}
 .op-rail-item[aria-current="true"]{background:var(--surface-chip);font-weight:700}
-.op-rail-n{flex-shrink:0;font-size:12px;font-weight:400;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.op-rail-n{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:400;color:var(--text-meta);font-variant-numeric:tabular-nums}
+.relbars{display:inline-flex;align-items:flex-end;gap:2px;height:10px}
+.relbars i{width:3px;border-radius:1px;background:var(--line-strong)}
+.relbars i:nth-child(1){height:4px}.relbars i:nth-child(2){height:7px}.relbars i:nth-child(3){height:10px}
+.relbars.lv3 i{background:var(--text-secondary)}
+.relbars.lv2 i:nth-child(-n+2){background:var(--text-secondary)}
+.relbars.lv1 i:nth-child(1){background:var(--accent)}
 .op-rail-n.is-error{color:var(--error)}
 .dmain{flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:40px}
 .dsec{display:flex;flex-direction:column;gap:16px}
@@ -468,7 +472,6 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pn-name{display:flex;flex-direction:column;gap:1px;min-width:0}
 .pn-name b{font-size:15px;font-weight:700}
 .pn-name span{font-size:12px;color:var(--text-meta)}
-a.pn-hero:hover .pn-name b{text-decoration:underline}
 .pn-tag{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
 .pn-verdict{height:22px;padding:0 8px;display:inline-flex;align-items:center;border-radius:var(--radius-sm);font-size:12px;font-weight:700;background:var(--surface-chip);color:var(--text-secondary)}
 .pn-verdict.v-buff{background:rgba(92,196,137,.14);color:var(--buff)}
@@ -525,7 +528,7 @@ button,a,.op-chip,.op-tab,.srv-item,.pnpop-item,.pnpop-year,.op-rail-item,.mchip
     box-shadow var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out),filter var(--dur) var(--ease-out)}
 .op-chip:active,.srv-btn:active,.mchip:active,.op-range-reset:active,.pnpop-year:active,.op-switch:active{transform:scale(.97)}
 .op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-img{filter:brightness(1.12)}
-a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px)}
+a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
 [aria-expanded="true"] > .caret{transform:rotate(180deg)}
 .caret{transition:transform var(--dur) var(--ease-out)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -534,6 +537,7 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:160ms;animation-timing-function:var(--ease-out)}
+::view-transition-group(*){animation-duration:320ms;animation-timing-function:var(--ease-out)}
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
 
 /* ---- views */
@@ -1248,13 +1252,16 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (!hasMaps()) { rail.innerHTML = ''; return; }
     const item = (id, name) => {
       const n = B.N[id] || 0, on = state.map === id;
-      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${n ? `추정 ${fmtInt(n)}경기, 표본 신뢰도 ${rel(n)}` : '공식 통계 오류'}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${n ? fmtInt(n) : '오류'}</span></button>`;
+      const lv = n >= 600 ? 3 : n >= 150 ? 2 : 1;
+      const bars = n && id !== 'all-maps' ? `<span class="relbars lv${lv}" aria-hidden="true"><i></i><i></i><i></i></span>` : '';
+      const tip = n ? `추정 ${fmtInt(n)}경기` + (id !== 'all-maps' ? `, 표본 신뢰도 ${rel(n)}` : '') : '공식 통계 오류';
+      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${tip}" aria-label="${esc(name)}, ${tip}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${bars}${n ? fmtInt(n) : '오류'}</span></button>`;
     };
-    let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체 맵 종합')}</nav>`;
+    let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체')}</nav>`;
     for (const mode of MODES) h += `<nav class="op-rail" aria-label="${esc(mode)} 맵"><span class="op-rail-label">${esc(mode)}</span>${MAPS.filter(m => m.mode === mode).map(m => item(m.id, m.name)).join('')}</nav>`;
     // narrow screens: the same list as one drop-down
-    const opt = (id, name) => { const n = B.N[id] || 0; return `<option value="${esc(id)}"${state.map === id ? ' selected' : ''}>${esc(name)} (${n ? fmtInt(n) : '오류'})</option>`; };
-    h += `<select class="rail-select" id="railSelect" aria-label="맵 선택">${opt('all-maps', '전체 맵 종합')}${MODES.map(mode => `<optgroup label="${esc(mode)}">${MAPS.filter(m => m.mode === mode).map(m => opt(m.id, m.name)).join('')}</optgroup>`).join('')}</select>`;
+    const opt = (id, name) => { const n = B.N[id] || 0; return `<option value="${esc(id)}"${state.map === id ? ' selected' : ''}>${esc(name)} (${n ? fmtInt(n) + (id !== 'all-maps' ? ` · 신뢰도 ${rel(n)}` : '') : '오류'})</option>`; };
+    h += `<select class="rail-select" id="railSelect" aria-label="맵 선택">${opt('all-maps', '전체')}${MODES.map(mode => `<optgroup label="${esc(mode)}">${MAPS.filter(m => m.mode === mode).map(m => opt(m.id, m.name)).join('')}</optgroup>`).join('')}</select>`;
     rail.innerHTML = h;
   }
   function renderMain(){
@@ -1267,11 +1274,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     // highlights only for a hero the reader picked; the trend falls back to this map's first hero
     const shown = state.focus != null && H[hero] && H[hero].id === state.focus ? hero : -1;
     let h = `<section class="dsec" aria-label="티어">`;
-    h += `<div class="dhead">${isAll ? '' : mapImg(m.id, 'dhead-img', 240, 135)}<div class="dhead-txt"><div class="dhead-title"><h1>${isAll ? '전체 맵 종합' : esc(m.name)}</h1>${isAll ? (hasMaps() ? `<span class="mode-tag">${MAP_IDS.length}개 맵</span>` : '') : `<span class="mode-tag">${esc(m.mode)}</span>`}</div>`;
-    const parts = [esc(D.meta.label), rankLabel(), ROLE_LABEL[r]];
-    if (err) parts.push('공식 통계 오류');
-    else if (!isHidden()) parts.push(`추정 ${fmtInt(n)}경기` + (isAll ? '' : ` · 표본 신뢰도 ${rel(n)}`));
-    h += `<span class="dsample">${parts.join(' · ')}</span></div></div>`;
+    if (!isAll) h += `<div class="dhead">${mapImg(m.id, 'dhead-img', 240, 135)}<div class="dhead-txt"><div class="dhead-title"><h1>${esc(m.name)}</h1><span class="mode-tag">${esc(m.mode)}</span></div>`
+      + (err ? `<span class="dsample">공식 통계 오류</span>` : '') + `</div></div>`;
     if (err) {
       h += `<p class="notice big">이 서버의 공식 통계가 비어 있어 이 맵은 계산에서 제외했어요.</p></section>`;
       $('dMain').innerHTML = h; $('dHeat').innerHTML = ''; $('dHeat').hidden = true;
@@ -1282,8 +1286,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const up = ds.filter(x => x[1] >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
       const dn = ds.filter(x => x[1] <= -3).sort((a, b) => a[1] - b[1]).slice(0, 3);
       const mv = up.concat(dn);
-      if (mv.length) h += `<div class="moves"><span class="moves-l">종합 대비</span>${mv.map(([i, v]) => `<button type="button" class="mchip${v >= HOT ? ' is-hot' : ''}" data-hero="${i}" title="전체 맵 지수 ${Math.round(ALL[i])} → 이 맵 ${Math.round(mm[i])}">${avatar(i, 24)}${esc(H[i].name)}<b style="color:${v >= HOT ? 'var(--accent)' : v > 0 ? 'var(--text)' : 'var(--text-meta)'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</b></button>`).join('')}</div>`;
-      else h += `<p class="dline">종합 순위와 큰 차이가 없습니다.</p>`;
+      if (mv.length) h += `<div class="moves"><span class="moves-l">전체 대비</span>${mv.map(([i, v]) => `<button type="button" class="mchip${v >= HOT ? ' is-hot' : ''}" data-hero="${i}" title="전체 맵 지수 ${Math.round(ALL[i])} → 이 맵 ${Math.round(mm[i])}">${avatar(i, 24)}${esc(H[i].name)}<b style="color:${v >= HOT ? 'var(--accent)' : v > 0 ? 'var(--text)' : 'var(--text-meta)'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</b></button>`).join('')}</div>`;
+      else h += `<p class="dline">전체 순위와 큰 차이가 없습니다.</p>`;
     }
     // tier board
     const order = idx.slice().sort((a, b) => mm[b] - mm[a]);
@@ -1439,7 +1443,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---- table
   function tableHTML(idx, cells, mm, ALL, hero, isAll){
-    const COLS = [['name','영웅'],['mi','메타 지수'],['delta','종합 대비'],['pr','픽률'],['wr','승률'],['br','밴률'],['g','표본']];
+    const COLS = [['name','영웅'],['mi','메타 지수'],['delta','전체 대비'],['pr','픽률'],['wr','승률'],['br','밴률'],['g','표본']];
     if (isAll && state.sort.key === 'delta') state.sort = {key:'mi', dir:-1};
     const sk = state.sort.key, dir = state.sort.dir;
     const rows = idx.map(i => ({i, c:cells[i], v:vals(cells[i], state.smooth), mi:mm[i], dl:Math.round(mm[i]) - Math.round(ALL[i])}));
@@ -1484,7 +1488,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       }
       return r;
     };
-    h += row('all-maps', '전체 맵 종합');
+    h += row('all-maps', '전체');
     for (const mode of MODES) {
       h += `<span class="hg-group">${esc(mode)}</span>`;
       for (const m of MAPS.filter(x => x.mode === mode)) h += row(m.id, m.name);
@@ -1725,7 +1729,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     opts = opts || {};
     const changed = state.view !== view;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
-    if (D && B && changed && document.startViewTransition && !reduceMotion) document.startViewTransition(() => render({push:true, top:true}));
+    if (D && B && changed && document.startViewTransition && !reduceMotion) {
+      // the same hero's face is one element across the two screens, so it travels instead of fading
+      const tag = on => { for (const a of document.querySelectorAll('#homeLeft [data-go-hero] .op-avatar, .trow [data-hero] .op-avatar')) {
+        const el = a.closest('[data-go-hero],[data-hero]'), id = el.dataset.goHero || (H[+el.dataset.hero] || {}).id;
+        a.style.viewTransitionName = on && id && a.offsetParent ? 'hf-' + id : ''; } };
+      tag(true);
+      const t = document.startViewTransition(() => { tag(false); render({push:true, top:true}); tag(true); });
+      t.finished.finally(() => tag(false));
+    }
     else if (D && B) render({push:changed || opts.push, top:changed});
     else writeURL(changed);
   }
