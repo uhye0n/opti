@@ -262,7 +262,7 @@ button.op-hero{cursor:pointer}
 .selchip .op-avatar{width:24px;height:24px}
 .tr-metrics{margin-left:auto;display:flex;gap:4px}
 .panel{padding:16px 16px 12px;background:var(--surface-panel);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:8px}
-.panel svg{display:block;width:100%;height:auto}
+.panel svg{display:block;max-width:100%;height:auto}
 .tr-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .tr-empty{padding:24px 0;color:var(--text-meta)}
 .tr-plot{position:relative}
@@ -271,7 +271,7 @@ button.op-hero{cursor:pointer}
 .tr-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
 .tr-tip b{margin-right:6px;color:var(--text)}
 .tr-tip .op-tier{margin-right:6px;vertical-align:-3px}
-.scatter svg{display:block;width:100%;height:auto}
+.scatter svg{display:block;max-width:100%;height:auto}
 .scatter circle{cursor:pointer}
 .twrap{overflow-x:auto}
 table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums}
@@ -1030,7 +1030,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (!svg || !TR) return;
     const tip = box.querySelector('.tr-tip'), cross = svg.querySelector('.tr-x'), dot = svg.querySelector('.tr-dot');
     const show = ev => {
-      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * 720;
+      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * TR.W;
       let best = -1;
       TR.rows.forEach((v, k) => { if (v && (best < 0 || Math.abs(TR.X(k) - sx) < Math.abs(TR.X(best) - sx))) best = k; });
       if (best < 0) return;
@@ -1040,7 +1040,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const t = tierOf(v[0]);
       tip.innerHTML = `<b>${md(TR.days[best].d)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${Math.round(v[0])}<br>픽률 ${v[1].toFixed(1)}% · 승률 ${v[2] == null ? '—' : v[2].toFixed(1) + '%'} · 밴률 ${v[3].toFixed(1)}%`;
       tip.hidden = false;
-      const left = px / 720 * r.width, top = py / 150 * r.height;
+      const left = px / TR.W * r.width, top = py / 150 * r.height;
       tip.style.left = Math.min(Math.max(0, left + 14), r.width - tip.offsetWidth) + 'px';
       tip.style.top = Math.max(0, top - tip.offsetHeight - 12) + 'px';
     };
@@ -1061,7 +1061,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const vs = tr.filter(v => v != null);
     if (vs.length < 2) return `<div class="tr-empty">기록이 쌓이는 중이에요. 하루에 한 번 기록되고 이틀째부터 선으로 이어져요.</div>`;
     const vLo = Math.min(...vs), vHi = Math.max(...vs), pad = vHi === vLo ? 1 : 0;
-    const X = k => 10 + k * 700 / (tr.length - 1), Y = v => 16 + (vHi + pad - v) * 108 / (vHi - vLo + 2 * pad);
+    const W = Math.max(300, plotW() - 32);
+    const X = k => 10 + k * (W - 20) / (tr.length - 1), Y = v => 16 + (vHi + pad - v) * 108 / (vHi - vLo + 2 * pad);
     const pts = []; let firstK = -1, lastK = 0;
     tr.forEach((v, k) => { if (v != null) { pts.push(X(k).toFixed(1) + ',' + Y(v).toFixed(1)); lastK = k; if (firstK < 0) firstK = k; } });
     const num = v => K === 0 ? String(Math.round(v)) : v.toFixed(1) + '%';
@@ -1070,50 +1071,54 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const ps = (D.meta.patchStart || [...(meta.patches || [])].pop() || '').slice(0, 10);
     let pk = -1;
     if (ps && days.length && ps > days[0].d && ps <= days[days.length - 1].d) days.forEach((d, k) => { if (d.d < ps) pk = k + 0.5; });
-    TR = {days, K, X, Y, rows:days.map(d => (d.h && d.h[H[hero].id]) || null)};
-    let g = `<div class="tr-plot"><svg viewBox="0 0 720 150" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
-    g += `<line x1="0" y1="${Y(vHi)}" x2="720" y2="${Y(vHi)}" stroke="#26262B" stroke-width="1"/><line x1="0" y1="${Y(vLo)}" x2="720" y2="${Y(vLo)}" stroke="#26262B" stroke-width="1"/>`;
+    TR = {days, K, X, Y, W, rows:days.map(d => (d.h && d.h[H[hero].id]) || null)};
+    let g = `<div class="tr-plot"><svg viewBox="0 0 ${W} 150" width="${W}" height="150" style="max-width:100%;height:auto" role="img" aria-label="${esc(H[hero].name)} ${label} 추이. ${md(days[firstK].d)} ${num(tr[firstK])}에서 ${md(days[lastK].d)} ${num(tr[lastK])}">`;
+    g += `<line x1="0" y1="${Y(vHi)}" x2="${W}" y2="${Y(vHi)}" stroke="#26262B" stroke-width="1"/><line x1="0" y1="${Y(vLo)}" x2="${W}" y2="${Y(vLo)}" stroke="#26262B" stroke-width="1"/>`;
     if (pk >= 0) g += `<line x1="${X(pk)}" y1="6" x2="${X(pk)}" y2="132" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/>`;
     g += `<polyline points="${pts.join(' ')}" fill="none" stroke="#F2F2F3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
     g += `<circle cx="${X(lastK)}" cy="${Y(tr[lastK])}" r="5" fill="var(--accent)" stroke="#151518" stroke-width="2"/>`;
     g += `<line class="tr-x" x1="0" x2="0" y1="6" y2="132" stroke="#A1A1A8" stroke-width="1" style="opacity:0"/><circle class="tr-dot" r="4" fill="#F2F2F3" stroke="#151518" stroke-width="2" style="opacity:0"/>`;
-    g += `<rect x="0" y="0" width="720" height="150" fill="transparent"/></svg><div class="tr-tip" hidden></div></div>`;
+    g += `<rect x="0" y="0" width="${W}" height="150" fill="transparent"/></svg><div class="tr-tip" hidden></div></div>`;
     g += `<div class="tr-foot"><span>${md(days[firstK].d)} · ${show(tr[firstK])}</span><span>${pk >= 0 ? `점선 = 패치 시작 ${md(ps)} · ` : ''}범위 ${num(vLo)}~${num(vHi)}</span><span>${md(days[lastK].d)} · ${show(tr[lastK])}</span></div>`;
     return g;
   }
 
   // ---- meta map (scatter)
+  // drawn at the width it is shown at, so text and dots keep their real size on any screen
+  const plotW = () => Math.max(320, Math.round(($('dMain') && $('dMain').clientWidth) || 900));
   function scatterHTML(idx, cells, mm, hero){
     const vs = {}; for (const i of idx) vs[i] = vals(cells[i], state.smooth);
+    const W = plotW(), HH = 380, L = 44, R = W - 12, T = 30, Bt = 344;
     const prs = idx.map(i => Math.max(vs[i].pr, 0.2)), wrs = idx.map(i => vs[i].wr);
     const lx0 = Math.log(Math.max(0.2, Math.min(...prs) * 0.7)), lx1 = Math.log(Math.max(...prs) * 1.4);
     const wy0 = Math.floor((Math.min(...wrs) - 2) / 5) * 5, wy1 = Math.ceil((Math.max(...wrs) + 2) / 5) * 5;
-    const SX = p => 56 + (Math.log(Math.max(p, 0.2)) - lx0) / (lx1 - lx0) * 828, SY = v => 356 - (v - wy0) / (wy1 - wy0) * 340;
+    const SX = p => L + (Math.log(Math.max(p, 0.2)) - lx0) / (lx1 - lx0) * (R - L), SY = v => Bt - (v - wy0) / (wy1 - wy0) * (Bt - T);
     const F = 'font-family="Pretendard Variable, Pretendard, sans-serif"';
-    let s = `<svg viewBox="0 0 900 400" role="img" aria-label="픽률과 승률 산점도">`;
-    for (let wv = wy0; wv <= wy1; wv += 5) s += `<line x1="56" x2="884" y1="${SY(wv).toFixed(1)}" y2="${SY(wv).toFixed(1)}" stroke="#1F1F23" stroke-width="1"/><text x="48" y="${(SY(wv) + 4).toFixed(1)}" fill="#8A8A92" font-size="12" text-anchor="end" ${F}>${wv}%</text>`;
-    for (const p of [0.2, 0.5, 1, 2, 5, 10, 20, 50]) { const x = SX(p); if (x >= 56 && x <= 884) s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="16" y2="356" stroke="#1F1F23" stroke-width="1"/><text x="${x.toFixed(1)}" y="376" fill="#8A8A92" font-size="12" text-anchor="middle" ${F}>${p}%</text>`; }
+    let s = `<svg viewBox="0 0 ${W} ${HH}" width="${W}" height="${HH}" style="max-width:100%;height:auto" role="img" aria-label="픽률과 승률 산점도">`;
+    for (let wv = wy0; wv <= wy1; wv += 5) s += `<line x1="${L}" x2="${R}" y1="${SY(wv).toFixed(1)}" y2="${SY(wv).toFixed(1)}" stroke="#1F1F23" stroke-width="1"/><text x="${L - 8}" y="${(SY(wv) + 4).toFixed(1)}" fill="#8A8A92" font-size="11" text-anchor="end" ${F}>${wv}%</text>`;
+    for (const p of [0.2, 0.5, 1, 2, 5, 10, 20, 50]) { const x = SX(p); if (x >= L && x <= R) s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#1F1F23" stroke-width="1"/><text x="${x.toFixed(1)}" y="${Bt + 18}" fill="#8A8A92" font-size="11" text-anchor="middle" ${F}>${p}%</text>`; }
     const avg = D.roles[state.role].avg, ax = SX(avg);
-    if (ax >= 56 && ax <= 884) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="16" y2="356" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="12" dx="6" fill="#8A8A92" font-size="12" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
-    s += `<text x="470" y="396" fill="#A1A1A8" font-size="12" text-anchor="middle" ${F}>픽률</text><text x="12" y="186" fill="#A1A1A8" font-size="12" text-anchor="middle" transform="rotate(-90 12 186)" ${F}>승률</text>`;
+    if (ax >= L && ax <= R) s += `<line x1="${ax.toFixed(1)}" x2="${ax.toFixed(1)}" y1="${T}" y2="${Bt}" stroke="#5A5A62" stroke-width="1" stroke-dasharray="3 4"/><text x="${ax.toFixed(1)}" y="${T - 8}" fill="#8A8A92" font-size="11" text-anchor="middle" ${F}>평균 픽률 ${avg.toFixed(1)}%</text>`;
+    // axis names at the axis ends: win rate above the value column, pick rate after the last tick
+    s += `<text x="${L - 8}" y="${T - 12}" fill="#A1A1A8" font-size="11" font-weight="700" text-anchor="end" ${F}>승률</text><text x="${R}" y="${Bt + 34}" fill="#A1A1A8" font-size="11" font-weight="700" text-anchor="end" ${F}>픽률</text>`;
     const COL = {S:'var(--tier-s)', A:'#C4C4CA', B:'#8A8A92', C:'#4A4A50', D:'#2C2C31'};
-    const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:5 + Math.sqrt(Math.max(0, v.br)) * 1.9, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
+    const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:4 + Math.sqrt(Math.max(0, v.br)) * 1.6, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
     for (const p of pts) {
       const on = p.i === hero;
       s += `<circle data-hero="${p.i}" cx="${p.cx.toFixed(1)}" cy="${p.cy.toFixed(1)}" r="${p.rr.toFixed(1)}" fill="${COL[p.t]}" fill-opacity=".9" stroke="${on ? '#F2F2F3' : '#0E0E10'}" stroke-width="${on ? 3 : 1}"><title>${esc(H[p.i].name)}: 픽률 ${p.v.pr.toFixed(1)}%, 승률 ${p.v.wr.toFixed(1)}%, 밴률 ${p.v.br.toFixed(1)}%, 지수 ${Math.round(mm[p.i])} (${p.t})</title></circle>`;
     }
     // labels: try spots around each circle, skipping ones that cover another label or circle
-    const tw = str => { let w = 0; for (const ch of str) w += /[\u0000-ÿ]/.test(ch) ? 6.8 : 12; return w; };
+    const tw = str => { let w = 0; for (const ch of str) w += /[\u0000-ÿ]/.test(ch) ? 6.2 : 11; return w; };
     const placed = [];
     const hitsLabel = b => placed.some(o => !(b.x2 < o.x1 || b.x1 > o.x2 || b.y2 < o.y1 || b.y1 > o.y2));
     const hitsDot = (b, self) => pts.some(o => { if (o.i === self) return false; const nx = Math.max(b.x1, Math.min(o.cx, b.x2)), ny = Math.max(b.y1, Math.min(o.cy, b.y2)); return (nx - o.cx) ** 2 + (ny - o.cy) ** 2 < (o.rr + 1) ** 2; });
     const order = pts.slice().sort((a, b) => (b.i === hero) - (a.i === hero) || mm[b.i] - mm[a.i]);
     for (const p of order) {
-      const name = H[p.i].name, w = tw(name), hg = 13, d = p.rr + 4, dd = d * 0.72;
+      const name = H[p.i].name, w = tw(name), hg = 12, d = p.rr + 4, dd = d * 0.72;
       const cands = [[p.cx + d, p.cy + 4, 'start'], [p.cx - d, p.cy + 4, 'end'], [p.cx, p.cy - d - 1, 'middle'], [p.cx, p.cy + d + 11, 'middle'],
         [p.cx + dd, p.cy - dd, 'start'], [p.cx + dd, p.cy + dd + 10, 'start'], [p.cx - dd, p.cy - dd, 'end'], [p.cx - dd, p.cy + dd + 10, 'end']];
       const box = c => { const x1 = c[2] === 'start' ? c[0] : c[2] === 'end' ? c[0] - w : c[0] - w / 2; return {x1, x2:x1 + w, y1:c[1] - hg + 2, y2:c[1] + 2}; };
-      const inside = b => b.x1 >= 58 && b.x2 <= 898 && b.y1 >= 14 && b.y2 <= 358;
+      const inside = b => b.x1 >= L + 2 && b.x2 <= W - 2 && b.y1 >= T - 2 && b.y2 <= Bt;
       let ch = null;
       for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b) && !hitsDot(b, p.i)) { ch = [c, b]; break; } }
       if (!ch) for (const c of cands) { const b = box(c); if (inside(b) && !hitsLabel(b)) { ch = [c, b]; break; } }
@@ -1121,7 +1126,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       if (!ch) ch = [cands[0], box(cands[0])];
       placed.push(ch[1]);
       const on = p.i === hero;
-      s += `<text x="${ch[0][0].toFixed(1)}" y="${ch[0][1].toFixed(1)}" text-anchor="${ch[0][2]}" fill="${on ? '#F2F2F3' : '#A1A1A8'}" font-size="12" font-weight="${on ? 700 : 400}" stroke="#0E0E10" stroke-width="3" stroke-linejoin="round" paint-order="stroke" pointer-events="none" ${F}>${esc(name)}</text>`;
+      s += `<text x="${ch[0][0].toFixed(1)}" y="${ch[0][1].toFixed(1)}" text-anchor="${ch[0][2]}" fill="${on ? '#F2F2F3' : '#A1A1A8'}" font-size="11.5" font-weight="${on ? 700 : 400}" stroke="#0E0E10" stroke-width="3" stroke-linejoin="round" paint-order="stroke" pointer-events="none" ${F}>${esc(name)}</text>`;
     }
     return s + `</svg>`;
   }
@@ -1272,6 +1277,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (state.srvOpen) { state.srvOpen = false; renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); }
     if (state.wOpen) { state.wOpen = false; renderBar(); const b = document.querySelector('[data-act="w-toggle"]'); if (b) b.focus(); }
   });
+  let rz = 0, lastW = window.innerWidth;
+  window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rz); rz = setTimeout(() => { if (state.view === 'detail' && D && B) lightDetail(); }, 150); });
   window.addEventListener('popstate', () => { readURL(); state.wOpen = false; state.srvOpen = false; sync({top:true}); });
 
   // ---------------------------------------------------------------- start
