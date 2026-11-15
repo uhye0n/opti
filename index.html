@@ -1248,7 +1248,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   function ctlHTML(){
     const w = state.w;
-    let h = `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}" title="표본이 적은 맵의 수치를 영웅의 서버 전체 성적과 해외 같은 구간의 맵 경향 쪽으로 보정">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
+    let h = `<button type="button" class="op-switch" data-act="smooth" aria-pressed="${state.smooth}">표본 보정<span class="op-switch-track" aria-hidden="true"><span class="op-switch-knob"></span></span></button>`;
     h += `<div class="wsel"><button type="button" class="op-chip" data-act="w-toggle" aria-expanded="${state.wOpen}">지수 가중치<span class="op-chip-value" id="wLabel">${w.wr} · ${w.pr} · ${w.br}</span>${CARET}</button>`;
     if (state.wOpen) {
       h += `<div class="op-pop wpop" role="group" aria-label="지수 가중치: 손잡이 두 개로 100을 승률·픽률·밴률에 나눕니다">`
