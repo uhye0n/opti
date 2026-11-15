@@ -400,6 +400,13 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
   .op-map-img{width:100%;height:64px;aspect-ratio:auto;object-position:center 40%}
   .op-map-noimg{height:64px}
   .op-map-more,.op-map-role:first-child .op-map-more{gap:8px}
+  /* phones: the index goes under the name (a long name like 위도우메이커 keeps its full width), and the big picks
+     and the reserves get room between them */
+  .op-map-roles{height:auto}
+  .op-map-role{justify-content:flex-start;gap:12px;padding-bottom:2px}
+  .op-map-pick{gap:6px}
+  .op-map-label{height:auto;flex-direction:column;align-items:center;gap:1px;line-height:14px}
+  .op-map-mi{font-size:11px}
 }
 @media (max-width:640px){
   :root{--page-pad:16px}
@@ -434,7 +441,6 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .dtable tbody tr:hover td{background:var(--surface-panel)}
 .hg-face:hover .op-avatar{opacity:1}
 .hg-map:hover{color:var(--text)}
-.op-icon-chip:hover{background:var(--surface-selected)}
 .pnpop-year:hover{background:var(--surface-thumb);color:var(--text)}
 .pnpop-item:hover{background:var(--surface-thumb)}
 .pn-src:hover{color:var(--text)}
@@ -456,17 +462,21 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
   html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 }
 
+/* ---- phones: the weights chip drops its numbers so sample correction, weights and rank fit on one row */
+@media (max-width:640px){
+  .wsel #wLabel{display:none}
+  .home-rk,.dbar-r{column-gap:12px}
+}
+@media (max-width:400px){
+  .home-rk,.dbar-r{column-gap:8px}
+}
 /* ---- sideways scrollers: never scroll up/down, do not hand the swipe on to the page, fade at an edge with more behind it */
 .twrap,.hwrap,.pn-list,.op-tabs,.nav{overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 [data-edge="r"]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
 [data-edge="l"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px);mask-image:linear-gradient(to right,transparent,#000 36px)}
 [data-edge="lr"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
 
-/* ---- copy link, toast, screen-reader announcements */
-.op-icon-chip{width:var(--control-md);height:var(--control-md);flex:none;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-chip);border:0;border-radius:var(--radius-md);color:var(--text);cursor:pointer}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:100;padding:10px 16px;background:var(--text);color:var(--bg);border-radius:var(--radius-pill);font-size:13px;font-weight:600;
-  transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
-.toast.is-on{opacity:1;transform:translate(-50%,-4px)}
+/* ---- screen-reader announcements */
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* ---- method */
@@ -638,7 +648,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   <section id="homeView" aria-label="한눈에 보기">
     <div class="home-bar">
-      <div class="home-rk"><span class="ctl" id="homeCtl"></span><span id="rkHome"></span><button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>
+      <div class="home-rk"><span class="ctl" id="homeCtl"></span><span id="rkHome"></span></div>
     </div>
     <div class="home-cols">
       <section class="home-left scroll" id="homeLeft" aria-label="영웅 티어"></section>
@@ -765,7 +775,6 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   </div>
 </div>
 <footer class="site-foot" id="siteFoot"></footer>
-<div class="toast" id="toast" role="status"></div>
 <div class="sr-only" id="live" aria-live="polite"></div>
 
 <script>
@@ -1293,7 +1302,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       lab.style.fontSize = ''; lab.classList.remove('is-cut');
       const room = lab.parentElement.clientWidth - 2, need = lab.scrollWidth;
       if (need <= room) continue;
-      const fs = Math.max(10, Math.floor(12 * room / need * 2) / 2);
+      const fs = Math.max(9.5, Math.floor(parseFloat(getComputedStyle(lab).fontSize) * room / need * 2) / 2);
       lab.style.fontSize = fs + 'px';
       if (lab.scrollWidth > room) lab.classList.add('is-cut');
     }
@@ -1318,7 +1327,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   function renderBar(){
     let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
-    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}<button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>`;
+    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}</div>`;
     $('homeCtl').innerHTML = '';
     $('dBar').innerHTML = h;
     if (state.wOpen) paintWeights();
@@ -1700,7 +1709,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       }
       h += `</div>`;
     }
-    h += `<button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>`;
+    h += `</div>`;
     if (cur.loading) { el.innerHTML = h + '<p class="mnote">불러오는 중…</p>'; return; }
     setTitle(`${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)}`);
     h += `<div class="pn-head"><h2>${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)} 패치</h2><span class="pn-sum"><span>버프 <b style="color:var(--buff)">${cnt('buff')}</b></span><span>너프 <b style="color:var(--nerf)">${cnt('nerf')}</b></span><span>기타 <b>${cnt('mixed') + cnt('rework') + cnt('change')}</b></span></span><a class="pn-src" href="${esc(cur.url)}" target="_blank" rel="noopener">블리자드 원문 ↗</a></div>`;
@@ -1748,23 +1757,10 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     el.innerHTML = h;
   }
 
-  // ---------------------------------------------------------------- small helpers: search bar, link, toast, announcements
+  // ---------------------------------------------------------------- small helpers: search bar, announcements
   function closeSearchBar(){ document.querySelector('.hdr').classList.remove('is-searching'); $('searchPop').hidden = true; }
-  let toastT = 0, lastAnn = '';
-  function toast(msg){
-    const t = $('toast'); t.textContent = msg; t.classList.add('is-on');
-    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('is-on'), 1600);
-  }
+  let lastAnn = '';
   function announce(msg){ const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = msg; }, 60); }
-  function copyLink(){
-    const url = location.href, ok = () => toast('링크를 복사했어요');
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, () => fallback());
-    else fallback();
-    function fallback(){
-      const ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch(e) { toast('복사하지 못했어요'); } ta.remove();
-    }
-  }
   // sideways scrollers: mark which edges have more content, so the fade shows only there
   const HS = '.twrap,.hwrap,.pn-list,.op-tabs,.nav';
   function edgeOf(el){ const l = el.scrollLeft > 2, r = el.scrollLeft + el.clientWidth < el.scrollWidth - 2; const v = (l ? 'l' : '') + (r ? 'r' : ''); if (v) el.dataset.edge = v; else delete el.dataset.edge; }
@@ -1984,7 +1980,6 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
     if (d.act === 'search-open') { document.querySelector('.hdr').classList.add('is-searching'); $('q').focus(); return; }
     if (d.act === 'search-close') { closeSearchBar(); return; }
-    if (d.act === 'copy-link') { copyLink(); return; }
     if (d.act === 'smooth') {
       state.smooth = !state.smooth; render();
       if (!reduceMotion) for (const sw of document.querySelectorAll('[data-act="smooth"]')) {
