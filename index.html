@@ -1342,19 +1342,32 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     h += `<section class="dsec tight" aria-labelledby="scTitle"><h2 id="scTitle">메타 지도</h2><div class="scatter">${scatterHTML(idx, cells, mm, shown)}</div></section>`;
     // table
     h += `<section class="dsec tight" aria-labelledby="tbTitle"><h2 id="tbTitle">세부 수치</h2><div class="twrap">${tableHTML(idx, cells, mm, ALL, shown, isAll)}</div></section>`;
-    const hadTrend = !!$('trendBox');
+    // opening / closing the trend: the sections below glide to their new place on the compositor (transform only,
+    // no per-frame layout), the trend itself fades and slides 6px; 220ms in, 180ms out
+    const hadTrend = !!$('trendBox'), anim = !reduceMotion && hadTrend !== (shown >= 0);
+    const below = () => [...$('dMain').children].filter(e => e.querySelector('#scTitle, #tbTitle')).concat($('dHeat') ? [$('dHeat')] : []);
+    const tops = anim ? below().map(e => e.getBoundingClientRect().top) : null;
+    const oldTrend = anim && hadTrend ? $('trendBox').closest('section') : null;
+    const oldBox = oldTrend && {r:oldTrend.getBoundingClientRect(), m:$('dMain').getBoundingClientRect()};
     $('dMain').innerHTML = h;
     renderHeat(idx, shown);
+    if (anim) {
+      const E = {duration:220, easing:'cubic-bezier(.2,.8,.2,1)'};
+      below().forEach((e, k) => { const d = tops[k] - e.getBoundingClientRect().top; if (Math.abs(d) > 1 && e.animate) e.animate([{transform:`translateY(${d}px)`}, {transform:'none'}], E); });
+      if (oldTrend) {                       // a copy of the closing trend fades out where it was, outside the layout
+        const ghost = oldTrend.cloneNode(true);
+        ghost.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+        ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
+        Object.assign(ghost.style, {position:'absolute', left:'0', right:'0', top:(oldBox.r.top - oldBox.m.top) + 'px', pointerEvents:'none'});
+        $('dMain').style.position = 'relative'; $('dMain').appendChild(ghost);
+        const a = ghost.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'translateY(-6px)'}], {duration:180, easing:'ease-out'});
+        a.onfinish = a.oncancel = () => ghost.remove();
+      }
+    }
     if (shown >= 0) {
       bindTrend(hero); drawIn(hero); loadTrend(hero);
       const sec = $('trendBox').closest('section');
-      if (!hadTrend && sec && sec.animate && !reduceMotion) {
-        const h = sec.offsetHeight, gap = parseFloat(getComputedStyle(sec.parentElement).rowGap) || 0;
-        sec.style.overflow = 'hidden';
-        const a = sec.animate([{height:'0px', marginTop:-gap + 'px', opacity:0, transform:'translateY(-12px)'}, {height:h + 'px', marginTop:'0px', opacity:1, transform:'none'}],
-                              {duration:300, easing:'cubic-bezier(.2,.8,.2,1)'});
-        a.onfinish = a.oncancel = () => { sec.style.overflow = ''; };
-      }
+      if (anim && sec.animate) sec.animate([{opacity:0, transform:'translateY(-6px)'}, {opacity:1, transform:'none'}], {duration:220, easing:'cubic-bezier(.2,.8,.2,1)'});
     } else { trendKey = ''; loadArchive(); }      // fetch the trend record ahead, so a picked hero's chart opens at full size
   }
 
@@ -1400,7 +1413,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const k = `${hero}|${state.metric}|${arcKey()}`, pl = box.querySelector('polyline');
     if (pl && k !== trendKey && !reduceMotion && pl.getTotalLength) {
       const len = pl.getTotalLength();
-      pl.animate([{strokeDasharray:`${len}`, strokeDashoffset:len}, {strokeDasharray:`${len}`, strokeDashoffset:0}], {duration:520, easing:'cubic-bezier(.2,.8,.2,1)'});
+      pl.animate([{strokeDasharray:`${len}`, strokeDashoffset:len}, {strokeDasharray:`${len}`, strokeDashoffset:0}], {duration:380, easing:'cubic-bezier(.2,.8,.2,1)'});
     }
     if (pl) trendKey = k;
   }
