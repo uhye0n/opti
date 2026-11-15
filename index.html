@@ -1789,7 +1789,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     else if (state.view === 'detail') { renderBar(); renderRail(); renderMain(); }
     else if (state.view === 'patch') renderPatch();
     else renderMethod();
-    if ($('q').value) renderSearch();
+    if ($('q').value && !$('searchPop').hidden) renderSearch();   // refresh open results only; never reopen them
     restoreFocus(fk);
     fitPops();
     flipPlay(flip); resumeFill();
@@ -1802,6 +1802,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function go(view, opts){
     opts = opts || {};
     const changed = state.view !== view, prevView = state.view;
+    $('searchPop').hidden = true;
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
     const pair = (state.view === 'detail' || state.view === 'home') && (prevView === 'detail' || prevView === 'home');
     if (D && B && changed && pair && !reduceMotion) {
