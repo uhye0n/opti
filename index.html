@@ -152,7 +152,7 @@ img{display:block}
 .home-cols{display:flex;gap:48px;padding-top:8px}
 .home-left,.home-right{flex:1 1 0;min-width:0}
 .home-left{display:flex;flex-direction:column}
-.hgroup{flex:1 0 auto;display:flex;flex-direction:column;gap:10px;padding:16px 0 14px;border-top:1px solid var(--line)}
+.hgroup{flex:none;display:flex;flex-direction:column;gap:10px;padding:16px 0 14px;border-top:1px solid var(--line)}
 .hgroup:first-child{padding-top:0;border-top:0}
 .hgroup h2,.hright-title{margin:0;font-size:16px;font-weight:700}
 .hrow{display:flex;align-items:center;gap:16px}
@@ -679,7 +679,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       <section class="msec" id="ms6">
         <h2>화면 표시</h2>
         <dl class="mdl">
-          <dt>한눈에 보기</dt><dd>역할마다 S·A 티어 영웅만 보여 줍니다. 모든 티어는 맵·영웅 상세에 있습니다.</dd>
+          <dt>한눈에 보기</dt><dd>역할마다 S·A 티어 영웅을 보여 주고, 화면 높이에 여유가 있으면 B·C 티어까지 보여 줍니다. 모든 티어는 맵·영웅 상세에 있습니다.</dd>
           <dt>맵 카드</dt><dd>큰 얼굴은 그 맵에서 역할별 지수가 가장 높은 돌격 1명·공격 2명·지원 2명이고, 작은 얼굴은 그다음 두 명입니다. 역할마다 따로 뽑으므로 실제로 함께 쓰인 조합은 아닙니다.</dd>
           <dt>주황 표시</dt><dd>그 맵 지수가 전체 맵 지수보다 6 이상 높은 영웅입니다(둘 다 반올림해 비교). 지수가 가장 높은 영웅이 아니라, 평소보다 이 맵에서 유독 강한 영웅을 뜻합니다. 얼굴에 주황 테두리와 작은 표식이 붙고, 지수가 주황색으로 바뀝니다.<br>
           6은 0.6 표준편차로 A 티어 폭(7점)에 가까워 "한 티어쯤 올라간다"는 뜻입니다. 2026년 11월 데이터에서 영웅·맵 칸의 약 3~13%가 이 기준을 넘어, 맵 카드마다 많아야 한두 명에게 붙습니다. 3이면 칸의 10~27%에 붙어 너무 흔하고, 9면 1~6%뿐이라 놓치는 맵이 많습니다.</dd>
@@ -1147,13 +1147,14 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   // hero column sizes, largest first: [avatar, cell width, row gap, column gap]. The home screen shows the hero
   // column without a scrollbar: on a one-screen layout the largest size whose content fits the column is used.
   const HSIZES = [[60, 88, 12, 16], [56, 82, 10, 14], [52, 78, 8, 10], [48, 76, 6, 8], [44, 76, 4, 6], [40, 76, 4, 4], [36, 76, 2, 4]];
-  function homeLeftHTML(z){
+  function homeLeftHTML(z, tiers){
     const [size, cw, rg, cg] = z, gap = `${rg}px ${cg}px`;
+    tiers = tiers || ['S', 'A'];
     let left = '';
     {
       for (const [r, label] of ROLES) {
         const order = ranked('all-maps', r);
-        const rows = ['S', 'A'].map(t => [t, order.filter(i => tierOf(MR[r]['all-maps'][i]) === t)]).filter(x => x[1].length);
+        const rows = tiers.map(t => [t, order.filter(i => tierOf(MR[r]['all-maps'][i]) === t)]).filter(x => x[1].length);
         left += `<div class="hgroup"><h2>${label}</h2>` + (rows.length ? rows.map(([t, hs]) =>
           `<div class="hrow">${badge(t)}<div class="hrow-heroes" style="gap:${gap}">${hs.map(i => heroLink(i, r, size, cw)).join('')}</div></div>`).join('') : `<span class="none">해당 영웅 없음</span>`) + `</div>`;
       }
@@ -1163,15 +1164,17 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function fitHomeLeft(){
     const el = $('homeLeft');
     const oneScreen = matchMedia('(min-width:1024px) and (min-height:600px)').matches;
-    let k = 0;
-    el.dataset.size = '0';
-    el.innerHTML = homeLeftHTML(HSIZES[0]);
+    const fits = () => el.scrollHeight <= el.clientHeight + 1;
+    const put = (k, tiers) => { el.dataset.size = String(k); el.innerHTML = homeLeftHTML(HSIZES[k], tiers); };
+    put(0);
     if (!oneScreen) return;
-    while (el.scrollHeight > el.clientHeight + 1 && k < HSIZES.length - 1) {
-      k++;
-      el.dataset.size = String(k);
-      el.innerHTML = homeLeftHTML(HSIZES[k]);
-    }
+    // a tall screen shows more tiers (B, then C) while the faces can stay at the two largest sizes;
+    // otherwise S and A only, at the largest size that fits
+    for (const tiers of [['S', 'A', 'B', 'C'], ['S', 'A', 'B']])
+      for (const k of [0, 1]) { put(k, tiers); if (fits()) return; }
+    let k = 0;
+    put(0);
+    while (!fits() && k < HSIZES.length - 1) put(++k);
   }
   function renderHome(){
     $('dBar').innerHTML = '';                     // one set of controls in the page at a time (they carry ids)
