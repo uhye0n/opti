@@ -1957,7 +1957,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   document.addEventListener('click', e => {
     const t = e.target;
     if (state.srvOpen && !t.closest('#srvBox')) { state.srvOpen = false; renderHeader(); }
-    if (state.wOpen && !t.closest('.wsel')) { state.wOpen = false; if (state.view === 'detail') renderBar(); }
+    if (state.wOpen && !t.closest('.wsel')) { state.wOpen = false; paintCtl(); }     // home and detail alike
     if (state.rkOpen && !t.closest('.rksel') && !drag) { state.rkOpen = null; paintRank(); }
     if (state.pnOpen && !t.closest('.pnsel')) { state.pnOpen = false; if (state.view === 'patch') renderPatch(); }
     if (!t.closest('#searchBox')) { $('searchPop').hidden = true; $('q').setAttribute('aria-expanded', 'false'); }
@@ -2028,7 +2028,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
     if (state.srvOpen) { state.srvOpen = false; renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); }
-    if (state.wOpen) { state.wOpen = false; renderBar(); const b = document.querySelector('[data-act="w-toggle"]'); if (b) b.focus(); }
+    if (state.wOpen) { state.wOpen = false; paintCtl(); const b = document.querySelector('[data-act="w-toggle"]'); if (b) b.focus(); }
     if (state.pnOpen) { state.pnOpen = false; renderPatch(); const b = document.querySelector('[data-act="pn-toggle"]'); if (b) b.focus(); }
     if (state.rkOpen) { const w = state.rkOpen; state.rkOpen = null; paintRank(); const b = document.querySelector(`.rksel[data-rk="${w}"] [data-act="rk-toggle"]`); if (b) b.focus(); }
   });
