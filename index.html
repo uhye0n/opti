@@ -77,7 +77,12 @@ img{display:block}
 .op-chip-value{color:var(--text-secondary);font-variant-numeric:tabular-nums}
 
 /* ---- header */
-.topbar{width:100%;max-width:var(--page-max);margin:0 auto;padding:0 var(--page-pad)}
+.topbar{position:sticky;top:0;z-index:60;width:100%;padding:0 max(var(--page-pad), calc((100% - var(--page-max)) / 2 + var(--page-pad)));background:var(--bg);
+  transition:box-shadow var(--dur) var(--ease-out)}
+.topbar.is-scrolled{box-shadow:0 1px 0 var(--line)}
+.hdr-icon{width:var(--control-md);height:var(--control-md);flex:none;padding:0;display:none;align-items:center;justify-content:center;background:transparent;border:0;border-radius:var(--radius-full);color:var(--text);cursor:pointer}
+.hdr-icon:hover{background:var(--surface-chip)}
+.srch-close{display:none;flex:none;height:var(--control-md);padding:0 4px;background:transparent;border:0;color:var(--text-secondary);font:inherit;font-size:14px;cursor:pointer}
 .hdr{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
 .hdr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px}
 .logo{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;text-decoration:none}
@@ -169,13 +174,14 @@ button.op-hero{cursor:pointer}
 .op-hero[aria-pressed="true"] .op-hero-name{font-weight:700}
 .home-right{position:relative;display:flex;flex-direction:column}
 .hright-title{padding-bottom:2px}
-.op-tabs{position:relative;display:flex;flex-wrap:wrap;column-gap:var(--space-20);border-bottom:1px solid var(--line)}
-.op-tab{height:var(--control-md);margin-bottom:-1px;padding:0;display:flex;align-items:center;gap:5px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer}
+.op-tabs{position:relative;display:flex;flex-wrap:wrap;column-gap:var(--space-20);box-shadow:inset 0 -1px 0 var(--line)}
+@media (max-width:640px){ .op-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none} .op-tabs::-webkit-scrollbar{display:none} .op-tab,.op-tabs-meta{flex:none;white-space:nowrap} .op-tabs-meta{padding-left:16px} }
+.op-tab{height:var(--control-md);padding:0;display:flex;align-items:center;gap:5px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer}
 .op-tab:hover{color:var(--text)}
 .op-tab[aria-selected="true"]{border-bottom-color:var(--text);color:var(--text);font-weight:700}
 .op-tab.ink-moving{border-bottom-color:transparent}
 .op-tabs .op-tab{transition:color var(--dur-fast) var(--ease-out)}   /* the underline must switch at once, or it blinks while the ink slides */
-.op-tab-ink{position:absolute;bottom:-1px;height:2px;background:var(--text);transform-origin:left center;pointer-events:none}
+.op-tab-ink{position:absolute;bottom:0;height:2px;background:var(--text);transform-origin:left center;pointer-events:none}
 .op-tab-count{font-size:12px;font-weight:500;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .op-tabs-meta{margin-left:auto;align-self:center;font-size:12px;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .mlist{margin:0 calc(-1 * var(--space-8));padding:6px var(--space-8) 28px 0}
@@ -385,15 +391,25 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .hg-cell.is-na{background:var(--surface-track);color:var(--text-faint)}
 .hg-cell.is-low{opacity:var(--opacity-low)}
 .hg-cell.is-here{box-shadow:inset 0 0 0 2px var(--text)}
-@media (max-width:760px){
-  .hdr{padding:10px 0;gap:10px}
-  .hdr-r{width:100%}
-  .op-search{flex:1 1 auto;width:auto;min-width:0}
+@media (max-width:900px){
+  .hdr{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:8px 0 0}
+  .hdr-l{display:contents}
+  .logo{grid-column:1;grid-row:1}
+  .hdr-r{grid-column:2;grid-row:1;gap:6px}
+  .nav{grid-column:1 / -1;grid-row:2;height:40px;align-items:center;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+  .nav::-webkit-scrollbar{display:none}
+  .hdr-icon{display:flex}
+  .op-search{display:none}
+  /* searching: the field takes the whole first row */
+  .hdr.is-searching .logo,.hdr.is-searching .srv,.hdr.is-searching .srch-open{display:none}
+  .hdr.is-searching .hdr-r{grid-column:1 / -1}
+  .hdr.is-searching .op-search{display:block;flex:1 1 auto;width:auto;min-width:0}
+  .hdr.is-searching .srch-close{display:block}
 }
 @media (max-width:560px){
   .op-map-body{flex-direction:column}
-  .op-map-img{width:100%;height:auto;aspect-ratio:16/9;max-height:150px}
-  .op-map-noimg{height:94px}
+  .op-map-img{width:100%;height:64px;aspect-ratio:auto;object-position:center 40%}
+  .op-map-noimg{height:64px}
   .op-map-more,.op-map-role:first-child .op-map-more{gap:8px}
 }
 @media (max-width:640px){
@@ -402,16 +418,34 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
   .op-range-duo .op-range-icon{height:15px}
   .op-range-duo .op-range-icon:last-child{left:10px;top:7px}
 
-  .dhead-img{width:100%;height:auto;aspect-ratio:16/9}
+  .dhead{flex-wrap:nowrap;gap:14px}
+  .dhead-img{width:112px;height:63px;border-radius:var(--radius-lg)}
+  .dhead-title h1{font-size:24px}
+  .trow{gap:10px}
+  .trow .op-hero{width:70px}
+  .trow .op-hero .op-avatar{width:48px!important;height:48px!important}
   .tr-metrics{margin-left:0}
 }
+
+/* ---- sideways scrollers fade at an edge that has more content behind it */
+[data-edge="r"]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
+[data-edge="l"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px);mask-image:linear-gradient(to right,transparent,#000 36px)}
+[data-edge="lr"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
+
+/* ---- copy link, toast, screen-reader announcements */
+.op-icon-chip{width:var(--control-md);height:var(--control-md);flex:none;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-chip);border:0;border-radius:var(--radius-md);color:var(--text);cursor:pointer}
+.op-icon-chip:hover{background:var(--surface-selected)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:100;padding:10px 16px;background:var(--text);color:var(--bg);border-radius:var(--radius-pill);font-size:13px;font-weight:600;
+  transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
+.toast.is-on{opacity:1;transform:translate(-50%,-4px)}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* ---- method */
 .mart{max-width:760px;margin:0 auto;padding:24px 0 80px;display:flex;flex-direction:column;gap:28px;font-size:15px;line-height:1.6}
 .mart h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
 .mlead{margin:0;font-size:16px;color:var(--text-body)}
 .mtoc{display:flex;flex-wrap:wrap;gap:8px}
-.msec{display:flex;flex-direction:column;gap:14px;padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:16px}
+.msec{display:flex;flex-direction:column;gap:14px;padding-top:28px;border-top:1px solid var(--line);scroll-margin-top:calc(var(--hdr-h, 60px) + 16px)}   /* clear the sticky header */
 .msec h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
 .formula{padding:16px 18px;background:var(--surface-panel);border-radius:var(--radius-xl);display:flex;flex-direction:column;gap:8px;font-size:14px;font-variant-numeric:tabular-nums}
 .mlist-ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--text-body)}
@@ -561,10 +595,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       </nav>
     </div>
     <div class="hdr-r">
+      <button type="button" class="hdr-icon srch-open" data-act="search-open" aria-label="검색 열기"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3.5 3.5"/></svg></button>
       <div class="op-search" id="searchBox">
         <label class="op-search-field"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3.5 3.5"/></svg><input type="search" id="q" placeholder="맵·영웅 검색" aria-label="맵과 영웅 검색" role="combobox" aria-expanded="false" aria-controls="searchPop" aria-autocomplete="list" autocomplete="off" spellcheck="false"></label>
         <div class="op-pop op-search-pop" id="searchPop" role="listbox" aria-label="검색 결과" hidden></div>
       </div>
+      <button type="button" class="srch-close" data-act="search-close">취소</button>
       <div class="srv" id="srvBox"></div>
       <!-- draw the server chip right away (the app redraws it later), so the search box never starts wider and jumps -->
       <script>(function(){var L={kr:'한국',asia:'아시아',americas:'아메리카',europe:'유럽',china:'중국'},s=new URLSearchParams(location.search).get('server');
@@ -578,7 +614,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   <section id="homeView" aria-label="한눈에 보기">
     <div class="home-bar">
-      <div class="home-rk"><span class="ctl" id="homeCtl"></span><span id="rkHome"></span></div>
+      <div class="home-rk"><span class="ctl" id="homeCtl"></span><span id="rkHome"></span><button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>
     </div>
     <div class="home-cols">
       <section class="home-left scroll" id="homeLeft" aria-label="영웅 티어"></section>
@@ -705,6 +741,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   </div>
 </div>
 <footer class="site-foot" id="siteFoot"></footer>
+<div class="toast" id="toast" role="status"></div>
+<div class="sr-only" id="live" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -793,10 +831,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     return q ? '?' + q : '';
   }
   const hrefOf = (view, over) => location.pathname + query(over, view) + (VIEW_HASH[view] || '');
-  function writeURL(push){
+  function writeURL(push, yBefore){
     const url = hrefOf(state.view);
     if (url === location.pathname + location.search + location.hash) return;
-    history[push ? 'pushState' : 'replaceState']({view:state.view}, '', url);
+    // the entry we leave keeps the scroll position it had before this render changed the page
+    if (push) { try { history.replaceState(Object.assign({}, history.state, {y:yBefore != null ? yBefore : window.scrollY}), ''); } catch(e) {} }
+    history[push ? 'pushState' : 'replaceState']({view:state.view, y:push ? 0 : window.scrollY}, '', url);
   }
 
   // ---------------------------------------------------------------- data
@@ -1118,6 +1158,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function clearSearch(){ $('q').value = ''; hitSel = 0; renderSearch(); }
   function pick(hit){
     if (!hit) return;
+    closeSearchBar();
     if (hit.kind === 'map') { state.map = hit.id; state.focus = null; }
     else { const h = H.find(x => x.id === hit.id); if (h) { state.role = h.role; state.focus = h.id; } }
     clearSearch();
@@ -1135,7 +1176,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     } else if (e.key === 'Enter') {
       if (!hits.length) return;
       e.preventDefault(); pick(hits[hitSel]);
-    } else if (e.key === 'Escape') { clearSearch(); }
+    } else if (e.key === 'Escape') { clearSearch(); closeSearchBar(); }
   });
 
   // ---------------------------------------------------------------- home
@@ -1167,7 +1208,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const fits = () => el.scrollHeight <= el.clientHeight + 1;
     const put = (k, tiers) => { el.dataset.size = String(k); el.innerHTML = homeLeftHTML(HSIZES[k], tiers); };
     put(0);
-    if (!oneScreen) return;
+    if (!oneScreen) { if (window.innerWidth <= 480) { el.dataset.size = 'm'; el.innerHTML = homeLeftHTML([48, 70, 10, 4]); } return; }
     // a tall screen shows more tiers (B, then C) while the faces can stay at the two largest sizes;
     // otherwise S and A only, at the largest size that fits
     for (const tiers of [['S', 'A', 'B', 'C'], ['S', 'A', 'B']])
@@ -1253,7 +1294,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   function renderBar(){
     let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
-    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}</div>`;
+    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}<button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>`;
     $('homeCtl').innerHTML = '';
     $('dBar').innerHTML = h;
     if (state.wOpen) paintWeights();
@@ -1634,7 +1675,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       }
       h += `</div>`;
     }
-    h += `</div>`;
+    h += `<button type="button" class="op-icon-chip" data-act="copy-link" aria-label="이 화면 링크 복사"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6.6 9.4a2.6 2.6 0 0 0 3.7 0l2.1-2.1a2.6 2.6 0 0 0-3.7-3.7l-.9.9"/><path d="M9.4 6.6a2.6 2.6 0 0 0-3.7 0L3.6 8.7a2.6 2.6 0 0 0 3.7 3.7l.9-.9"/></svg></button></div>`;
     if (cur.loading) { el.innerHTML = h + '<p class="mnote">불러오는 중…</p>'; return; }
     setTitle(`${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)}`);
     h += `<div class="pn-head"><h2>${Number(cur.date.slice(0, 4))}년 ${mdK(cur.date)} 패치</h2><span class="pn-sum"><span>버프 <b style="color:var(--buff)">${cnt('buff')}</b></span><span>너프 <b style="color:var(--nerf)">${cnt('nerf')}</b></span><span>기타 <b>${cnt('mixed') + cnt('rework') + cnt('change')}</b></span></span><a class="pn-src" href="${esc(cur.url)}" target="_blank" rel="noopener">블리자드 원문 ↗</a></div>`;
@@ -1681,6 +1722,38 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     h += `<p class="mnote" style="font-size:13px">▲ 영웅에게 유리한 변경, ▼ 불리한 변경, • 방향을 단정하기 어려운 변경입니다. 정해 둔 문장 규칙으로 자동 분류하므로 틀릴 수 있으니 정확한 내용은 원문을 확인해 주세요.</p>`;
     el.innerHTML = h;
   }
+
+  // ---------------------------------------------------------------- small helpers: search bar, link, toast, announcements
+  function closeSearchBar(){ document.querySelector('.hdr').classList.remove('is-searching'); $('searchPop').hidden = true; }
+  let toastT = 0, lastAnn = '';
+  function toast(msg){
+    const t = $('toast'); t.textContent = msg; t.classList.add('is-on');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('is-on'), 1600);
+  }
+  function announce(msg){ const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = msg; }, 60); }
+  function copyLink(){
+    const url = location.href, ok = () => toast('링크를 복사했어요');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, () => fallback());
+    else fallback();
+    function fallback(){
+      const ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch(e) { toast('복사하지 못했어요'); } ta.remove();
+    }
+  }
+  // sideways scrollers: mark which edges have more content, so the fade shows only there
+  const HS = '.twrap,.hwrap,.pn-list,.op-tabs,.nav';
+  function edgeOf(el){ const l = el.scrollLeft > 2, r = el.scrollLeft + el.clientWidth < el.scrollWidth - 2; const v = (l ? 'l' : '') + (r ? 'r' : ''); if (v) el.dataset.edge = v; else delete el.dataset.edge; }
+  function markEdges(){ for (const el of document.querySelectorAll(HS)) if (el.offsetParent) edgeOf(el); }
+  document.addEventListener('scroll', e => { const t = e.target; if (t && t.matches && t.matches(HS)) edgeOf(t); }, {passive:true, capture:true});
+  // the header gets a hairline once the page scrolls under it; the current history entry remembers where we are
+  let scrT = 0;
+  window.addEventListener('scroll', () => {
+    document.querySelector('.topbar').classList.toggle('is-scrolled', window.scrollY > 4);
+    clearTimeout(scrT); scrT = setTimeout(() => { try { history.replaceState(Object.assign({}, history.state, {y:window.scrollY}), ''); } catch(e) {} }, 150);
+  }, {passive:true});
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  // sticky header height, for anchors that must land below it
+  if (window.ResizeObserver) new ResizeObserver(([e]) => document.documentElement.style.setProperty('--hdr-h', Math.round(e.target.offsetHeight) + 'px')).observe(document.querySelector('.topbar'));
 
   // ---------------------------------------------------------------- motion helpers
   // a popup grows out of the control that opened it; only on opening (re-renders while open stay still)
@@ -1782,7 +1855,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function render(opts){
     opts = opts || {};
     if (!D || !B) return;
-    const fk = focusKey();
+    const fk = focusKey(), yBefore = window.scrollY;
     const flip = (document.body.dataset.view === state.view && !opts.top) ? flipFirst() : null;
     $('loadError').hidden = true;
     document.body.dataset.view = state.view;
@@ -1799,13 +1872,18 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (!(state.view === 'patch' && !PATCHES)) document.body.classList.add('rendered');
     setTitle();
     saveState();
-    writeURL(!!opts.push);
-    if (opts.top) window.scrollTo(0, 0);
+    writeURL(!!opts.push, yBefore);
+    if (opts.y != null) window.scrollTo(0, opts.y);
+    else if (opts.top) window.scrollTo(0, 0);
+    markEdges();
+    const ann = state.view === 'detail' ? [state.map === 'all-maps' ? '전체 맵' : (MAP_BY_ID[state.map] || {}).name, ROLE_LABEL[state.role], state.focus && (H.find(h => h.id === state.focus) || {}).name].filter(Boolean).join(' · ')
+      : {home:'한눈에 보기', patch:'패치 노트', method:'계산 방식'}[state.view];
+    if (ann && ann !== lastAnn) { lastAnn = ann; announce(ann); }
   }
   function go(view, opts){
     opts = opts || {};
     const changed = state.view !== view, prevView = state.view;
-    $('searchPop').hidden = true;
+    closeSearchBar();
     state.view = view; state.wOpen = false; state.srvOpen = false; state.rkOpen = null; state.pnOpen = false;
     const pair = (state.view === 'detail' || state.view === 'home') && (prevView === 'detail' || prevView === 'home');
     if (D && B && changed && pair && !reduceMotion) {
@@ -1873,6 +1951,9 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (d.serverPick) { state.srvOpen = false; if (d.serverPick !== state.server) { state.server = d.serverPick; sync(); } else renderHeader(); $('srvBox').querySelector('.srv-btn').focus(); return; }
     if (d.act === 'srv-toggle') { state.srvOpen = !state.srvOpen; renderHeader(); if (state.srvOpen) { popIn('.srv-pop'); const b = $('srvBox').querySelector('[aria-pressed="true"]'); if (b) b.focus(); } return; }
     if (d.act === 'rk-reset') { state.lo = DEF_LO; state.hi = DEF_HI; sync(); return; }
+    if (d.act === 'search-open') { document.querySelector('.hdr').classList.add('is-searching'); $('q').focus(); return; }
+    if (d.act === 'search-close') { closeSearchBar(); return; }
+    if (d.act === 'copy-link') { copyLink(); return; }
     if (d.act === 'smooth') {
       state.smooth = !state.smooth; render();
       if (!reduceMotion) for (const sw of document.querySelectorAll('[data-act="smooth"]')) {
@@ -1920,7 +2001,8 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   // the hero column is fitted to the window's height as well, so also refit when only the height changes
   if (document.fonts) document.fonts.ready.then(() => { if (state.view === 'home' && D && B && $('homeLeft').firstChild) { fitHomeLeft(); fitMapLabels(); } });
   let fitT; window.addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(() => { if (state.view === 'home' && D && B && $('homeLeft').firstChild) { fitHomeLeft(); fitMapLabels(); } }, 120); });
-  window.addEventListener('popstate', () => { readURL(); state.wOpen = false; state.srvOpen = false; state.rkOpen = null; sync({top:true}); });
+  window.addEventListener('popstate', e => { readURL(); state.wOpen = false; state.srvOpen = false; state.rkOpen = null; closeSearchBar();
+    sync({top:true, y:e.state && typeof e.state.y === 'number' ? e.state.y : 0}); });
 
   function applyWeights(w){
     if (!w || !['wr','pr','br'].every(k => typeof w[k] === 'number') || w.wr + w.pr + w.br !== 100) return;
