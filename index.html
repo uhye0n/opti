@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>옵티 · 오버워치 경쟁전 영웅 티어</title>
 <meta name="description" content="이번 패치에 강한 영웅을 랭크와 맵별로. 공식 통계로 6시간마다 갱신합니다.">
 <meta name="theme-color" content="#0E0E10">
@@ -53,7 +53,7 @@
 *{box-sizing:border-box}
 html{background:var(--bg);scrollbar-gutter:stable}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:13px;line-height:1.45;word-break:keep-all;-webkit-font-smoothing:antialiased}
-a{color:var(--text)}a:hover{color:var(--text-hover)}
+a{color:var(--text)}
 button{font:inherit;color:inherit}
 img{display:block}
 [hidden]{display:none!important}
@@ -61,7 +61,7 @@ img{display:block}
 .scroll{scrollbar-width:thin;scrollbar-color:var(--line-field) transparent}
 .scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:var(--line-field);border-radius:4px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.page{flex:1 0 auto;width:100%;max-width:var(--page-max);margin:0 auto;padding:0 var(--page-pad)}
+.page{flex:1 0 auto;width:100%;max-width:var(--page-max);margin:0 auto;padding:0 max(var(--page-pad), env(safe-area-inset-right)) 0 max(var(--page-pad), env(safe-area-inset-left))}
 
 /* ---- portrait, tier badge, chip */
 .op-avatar{display:block;flex-shrink:0;border-radius:var(--radius-full);object-fit:cover;background:var(--surface-thumb)}
@@ -80,8 +80,9 @@ img{display:block}
 .topbar{position:sticky;top:0;z-index:60;width:100%;padding:0 max(var(--page-pad), calc((100% - var(--page-max)) / 2 + var(--page-pad)));background:var(--bg);
   transition:box-shadow var(--dur) var(--ease-out)}
 .topbar.is-scrolled{box-shadow:0 1px 0 var(--line)}
+/* phones: the header slides away while scrolling down and comes back on any scroll up (more room for content) */
+@media (max-width:900px){ .topbar{transition:box-shadow var(--dur) var(--ease-out),transform 220ms var(--ease-out)} .topbar.is-away{transform:translateY(-100%)} }
 .hdr-icon{width:var(--control-md);height:var(--control-md);flex:none;padding:0;display:none;align-items:center;justify-content:center;background:transparent;border:0;border-radius:var(--radius-full);color:var(--text);cursor:pointer}
-.hdr-icon:hover{background:var(--surface-chip)}
 .srch-close{display:none;flex:none;height:var(--control-md);padding:0 4px;background:transparent;border:0;color:var(--text-secondary);font:inherit;font-size:14px;cursor:pointer}
 .hdr{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
 .hdr-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px 32px}
@@ -89,7 +90,6 @@ img{display:block}
 .logo svg{flex:none}
 .nav{display:flex;gap:22px;font-size:14px}
 .nav a{color:var(--text-secondary);text-decoration:none;font-weight:500}
-.nav a:hover{color:var(--text)}
 .nav a[aria-current="page"]{color:var(--text);font-weight:700}
 .hdr-r{display:flex;align-items:center;gap:10px}
 .op-search{position:relative;width:320px;max-width:100%}
@@ -102,7 +102,7 @@ img{display:block}
 .op-search-pop{position:absolute;left:0;right:0;top:42px;z-index:40;padding:var(--space-8) 0}
 .op-search-group{padding:var(--space-4) var(--space-14);font-size:12px;color:var(--text-meta)}
 .op-search-hit{width:100%;min-height:var(--row-pop);padding:0 var(--space-14);display:flex;align-items:center;gap:var(--space-10);background:transparent;border:0;color:var(--text);text-align:left;cursor:pointer}
-.op-search-hit:hover,.op-search-hit.is-kb{background:var(--surface-chip)}
+.op-search-hit.is-kb{background:var(--surface-chip)}
 .op-search-hit .op-avatar{width:var(--avatar-32);height:var(--avatar-32)}
 .op-search-thumb{width:48px;height:32px;flex-shrink:0;border-radius:var(--radius-sm);object-fit:cover;background:var(--line-strong)}
 .op-search-name{font-size:14px;font-weight:500}
@@ -112,7 +112,6 @@ img{display:block}
 .srv-btn{height:var(--control-md);padding:0 var(--space-14);background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-pill);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
 .srv-pop{position:absolute;right:0;top:42px;z-index:40;min-width:160px;padding:var(--space-6)}
 .srv-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;font-weight:500;text-align:left;cursor:pointer}
-.srv-item:hover{background:var(--surface-thumb)}
 .srv-item[aria-pressed="true"]{background:var(--surface-chip);font-weight:700}
 .load-err{margin:8px 0 0;padding:10px 14px;background:var(--surface-panel);border-radius:var(--radius-lg);color:var(--text-body)}
 
@@ -136,7 +135,6 @@ img{display:block}
 .op-range-cell{position:relative;flex:1 1 0;min-width:0;height:var(--control-md);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .op-range-icon{height:auto;max-width:80%;pointer-events:none}
 .op-range-cell.is-out .op-range-icon{opacity:var(--opacity-out)}
-.op-range-cell:hover .op-range-icon{opacity:1}
 .op-range-cell.is-duo .op-range-duo{margin-right:3px}
 .op-range-duo{position:relative;width:39px;height:28px;display:block;pointer-events:none}
 .op-range-duo .op-range-icon{position:absolute;max-width:none;width:auto!important;height:19px}
@@ -147,7 +145,6 @@ img{display:block}
 .op-range-knob-l{left:calc(var(--knob) / -2)}
 .op-range-knob-r{right:calc(var(--knob) / -2)}
 .op-range-knobs{position:absolute;top:0;bottom:0;pointer-events:none}
-.op-range-bar:not(.is-drag):has([data-end~="l"]:hover) .op-range-knob-l,.op-range-bar:not(.is-drag):has([data-end~="r"]:hover) .op-range-knob-r{transform:scale(1.15)}
 .op-range-slider{position:absolute;top:0;width:16px;height:100%;margin-left:-8px;padding:0;background:transparent;border:0;border-radius:var(--radius-md);pointer-events:none}
 
 /* ---- home */
@@ -177,7 +174,6 @@ button.op-hero{cursor:pointer}
 .op-tabs{position:relative;display:flex;flex-wrap:wrap;column-gap:var(--space-20);box-shadow:inset 0 -1px 0 var(--line)}
 @media (max-width:640px){ .op-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none} .op-tabs::-webkit-scrollbar{display:none} .op-tab,.op-tabs-meta{flex:none;white-space:nowrap} .op-tabs-meta{padding-left:16px} }
 .op-tab{height:var(--control-md);padding:0;display:flex;align-items:center;gap:5px;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer}
-.op-tab:hover{color:var(--text)}
 .op-tab[aria-selected="true"]{border-bottom-color:var(--text);color:var(--text);font-weight:700}
 .op-tab.ink-moving{border-bottom-color:transparent}
 .op-tabs .op-tab{transition:color var(--dur-fast) var(--ease-out)}   /* the underline must switch at once, or it blinks while the ink slides */
@@ -194,12 +190,9 @@ button.op-hero{cursor:pointer}
 .op-map-name::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit}   /* above the picture, which gets a filter (its own layer) on hover */          /* the map link covers the card */
 .op-map-name:focus-visible{outline:none}
 .op-map:has(.op-map-name:focus-visible){outline:2px solid var(--text);outline-offset:-2px}
-.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.1)}   /* YouTube's dark-mode hover layer: white at 10% */
 .op-map-pick,.op-map-reserve{position:relative;z-index:2;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
 .op-hero .op-avatar,.op-map-pick .op-avatar,.op-map-reserve .op-avatar,.pn-hero .op-avatar{transition:transform 240ms cubic-bezier(.2,.8,.2,1),filter 240ms cubic-bezier(.2,.8,.2,1),opacity var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 /* hover on a hero: the face lifts and brightens (no underlines; those are for links inside sentences) */
-a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar,a.pn-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
-.op-map-reserve:hover{color:var(--text)}
 .op-map-pick:focus-visible,.op-map-reserve:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 .op-map-head{display:flex;align-items:baseline;gap:var(--space-8)}
 .op-map-name{font-size:16px;font-weight:700}
@@ -300,7 +293,6 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .op-rail{display:flex;flex-direction:column;gap:var(--space-2);padding-bottom:10px}
 .op-rail-label{padding:var(--space-6) var(--space-10) var(--space-2);font-size:12px;font-weight:700;color:var(--text-meta)}
 .op-rail-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-.op-rail-item:hover{background:var(--surface-thumb)}
 .op-rail-item[aria-current="true"]{background:var(--surface-chip);font-weight:700}
 .op-rail-n{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:400;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .relbars{display:inline-flex;align-items:flex-end;gap:2px;height:10px}
@@ -353,7 +345,6 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .scatter{position:relative}
 .scatter svg{display:block;max-width:100%;height:auto}
 .sc-pt{cursor:pointer}
-.sc-pt:hover circle:last-child{stroke:#F2F2F3}
 .twrap{overflow-x:auto}
 table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .dtable th{height:40px;padding:0 8px;border-bottom:1px solid var(--line-strong);font-size:12px;font-weight:500;color:var(--text-meta);text-align:right;white-space:nowrap}
@@ -362,7 +353,6 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .dtable th[aria-sort]{color:var(--text);font-weight:700}
 .dtable td{height:48px;padding:4px 8px;border-bottom:1px solid var(--line-row);text-align:right;white-space:nowrap}
 .dtable tbody tr{cursor:pointer}
-.dtable tbody tr:hover td{background:var(--surface-panel)}
 .dtable tbody tr.is-sel td{background:var(--surface-thumb)}
 .dtable tbody tr.is-sel td:first-child{border-radius:8px 0 0 8px}
 .dtable tbody tr.is-sel td:last-child{border-radius:0 8px 8px 0}
@@ -380,12 +370,11 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .hgrid{display:grid;gap:2px;align-items:center}
 .hg-face{height:34px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:0;border-bottom:2px solid transparent;cursor:pointer}
 .hg-face .op-avatar{opacity:.85}
-.hg-face:hover .op-avatar,.hg-face.is-sel .op-avatar{opacity:1}
+.hg-face.is-sel .op-avatar{opacity:1}
 .hg-face.is-sel{border-bottom-color:var(--text)}
 .hg-face.is-sel .op-avatar{box-shadow:0 0 0 2px var(--text)}
 .hg-group{grid-column:1/-1;margin-top:10px;padding:0 0 4px;border-bottom:1px solid var(--line-group);font-size:11px;font-weight:700;color:var(--text-body)}
 .hg-map{height:24px;padding:0 8px 0 0;background:transparent;border:0;color:var(--text-secondary);font-size:12px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-.hg-map:hover{color:var(--text)}
 .hg-map.is-cur{color:var(--text);font-weight:700}
 .hg-cell{height:24px;min-width:0;padding:0;border:0;border-radius:var(--radius-xs);font-size:11px;font-weight:800;cursor:pointer}
 .hg-cell.is-na{background:var(--surface-track);color:var(--text-faint)}
@@ -427,14 +416,54 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
   .tr-metrics{margin-left:0}
 }
 
-/* ---- sideways scrollers fade at an edge that has more content behind it */
+/* ---- hover feedback only for a mouse or trackpad (on touch it stuck after a tap); touch gets a press state */
+@media (hover:hover){
+a:hover{color:var(--text-hover)}
+.hdr-icon:hover{background:var(--surface-chip)}
+.nav a:hover{color:var(--text)}
+.op-search-hit:hover{background:var(--surface-chip)}
+.srv-item:hover{background:var(--surface-thumb)}
+.op-range-cell:hover .op-range-icon{opacity:1}
+.op-range-bar:not(.is-drag):has([data-end~="l"]:hover) .op-range-knob-l,.op-range-bar:not(.is-drag):has([data-end~="r"]:hover) .op-range-knob-r{transform:scale(1.15)}
+.op-tab:hover{color:var(--text)}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.1)}   /* YouTube's dark-mode hover layer: white at 10% */
+a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar,a.pn-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
+.op-map-reserve:hover{color:var(--text)}
+.op-rail-item:hover{background:var(--surface-thumb)}
+.sc-pt:hover circle:last-child{stroke:#F2F2F3}
+.dtable tbody tr:hover td{background:var(--surface-panel)}
+.hg-face:hover .op-avatar{opacity:1}
+.hg-map:hover{color:var(--text)}
+.op-icon-chip:hover{background:var(--surface-selected)}
+.pnpop-year:hover{background:var(--surface-thumb);color:var(--text)}
+.pnpop-item:hover{background:var(--surface-thumb)}
+.pn-src:hover{color:var(--text)}
+.site-foot a:hover,.mlist-foot a:hover{color:var(--text)}
+.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-img{filter:brightness(1.12)}
+a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
+}
+@media (hover:none){
+  .op-map:active:not(:has(.op-map-pick:active,.op-map-reserve:active)){background:rgba(255,255,255,.1)}
+  .op-rail-item:active,.srv-item:active,.pnpop-item:active,.op-search-hit:active{background:var(--surface-thumb)}
+  a.op-hero:active .op-avatar,button.op-hero:active .op-avatar,.op-map-pick:active .op-avatar,.op-map-reserve:active .op-avatar{transform:scale(.96)}
+}
+/* ---- touch screens: 40px chips and 44px controls (Apple 44pt / Material 48dp), 16px text in the search field (no zoom
+   on focus in iOS Safari), no grey tap flash, no double-tap zoom delay */
+@media (pointer:coarse){
+  :root{--control-sm:40px;--control-md:44px}
+  .op-search-field input{font-size:16px}
+  .nav a{display:flex;align-items:center;height:44px}
+  html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+}
+
+/* ---- sideways scrollers: never scroll up/down, do not hand the swipe on to the page, fade at an edge with more behind it */
+.twrap,.hwrap,.pn-list,.op-tabs,.nav{overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 [data-edge="r"]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
 [data-edge="l"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px);mask-image:linear-gradient(to right,transparent,#000 36px)}
 [data-edge="lr"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
 
 /* ---- copy link, toast, screen-reader announcements */
 .op-icon-chip{width:var(--control-md);height:var(--control-md);flex:none;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-chip);border:0;border-radius:var(--radius-md);color:var(--text);cursor:pointer}
-.op-icon-chip:hover{background:var(--surface-selected)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:100;padding:10px 16px;background:var(--text);color:var(--bg);border-radius:var(--radius-pill);font-size:13px;font-weight:600;
   transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
 .toast.is-on{opacity:1;transform:translate(-50%,-4px)}
@@ -465,7 +494,8 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pn-top{display:flex;flex-direction:column;gap:12px}
 #pnBody{display:flex;flex-direction:column;gap:20px}
 .pnart h1{margin:0;font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
-.pn-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.pn-list{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.pn-list::-webkit-scrollbar{display:none}
 .pn-list .op-chip{flex:none}
 .pn-bar{display:flex;align-items:flex-start;gap:8px}
 .pn-bar .pn-list{flex:0 1 auto;min-width:0}
@@ -475,11 +505,9 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pnpop{position:absolute;right:0;top:40px;z-index:30;width:296px;max-width:calc(100vw - 16px);padding:10px;display:flex;flex-direction:column;gap:8px}
 .pnpop-years{display:flex;flex-wrap:wrap;gap:4px;padding-bottom:8px;border-bottom:1px solid var(--line-field)}
 .pnpop-year{height:28px;padding:0 9px;background:transparent;border:0;border-radius:var(--radius-sm);color:var(--text-secondary);font:inherit;font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;cursor:pointer}
-.pnpop-year:hover{background:var(--surface-thumb);color:var(--text)}
 .pnpop-year[aria-pressed="true"]{background:var(--text);color:var(--bg);font-weight:700}
 .pnpop-list{max-height:288px;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--line-field) transparent}
 .pnpop-item{min-height:var(--control-md);padding:0 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font:inherit;font-size:14px;font-weight:500;text-align:left;cursor:pointer}
-.pnpop-item:hover{background:var(--surface-thumb)}
 .pnpop-item[aria-pressed="true"]{background:var(--surface-chip);font-weight:700}
 .pnpop-cnt{display:flex;gap:8px;font-size:12px;font-weight:500;color:var(--text-meta);font-variant-numeric:tabular-nums}
 .pnpop-cnt .pn-b{color:var(--buff)}
@@ -489,7 +517,6 @@ table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-nu
 .pn-sum{display:flex;gap:12px;font-size:14px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
 .pn-sum b{font-weight:700}
 .pn-src{margin-left:auto;font-size:13px;color:var(--text-secondary)}
-.pn-src:hover{color:var(--text)}
 .pn-filter{display:flex;flex-wrap:wrap;gap:8px}
 .pn-group{display:flex;flex-direction:column;gap:12px}
 .pn-group h3{margin:0;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
@@ -537,7 +564,6 @@ body:not(.rendered) .site-foot{visibility:hidden}     /* the footer waits for th
 .site-foot p,.mlist-foot p{margin:0}
 .site-foot p + p,.mlist-foot p + p{margin-top:4px}
 .site-foot a,.mlist-foot a{color:var(--text-secondary);text-decoration:underline;text-underline-offset:2px}
-.site-foot a:hover,.mlist-foot a:hover{color:var(--text)}
 .mlist-foot{display:none;margin-top:12px;padding:20px 0 4px;border-top:1px solid var(--line);font-size:11px;line-height:1.7;color:var(--text-meta)}
 
 /* ---- keyboard focus, skip link, loading bar */
@@ -564,8 +590,6 @@ button,a,.op-chip,.op-tab,.srv-item,.pnpop-item,.pnpop-year,.op-rail-item,.mchip
   transition:background-color var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out),filter var(--dur) var(--ease-out)}
 .op-chip:active,.srv-btn:active,.mchip:active,.op-range-reset:active,.pnpop-year:active,.op-switch:active{transform:scale(.97)}
-.op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)) .op-map-img{filter:brightness(1.12)}
-a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
 [aria-expanded="true"] > .caret{transform:rotate(180deg)}
 .caret{transition:transform var(--dur) var(--ease-out)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -1515,10 +1539,11 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
 
   // ---- meta map (scatter)
   // drawn at the width it is shown at, so text and dots keep their real size on any screen
-  const plotW = () => Math.max(320, Math.round(($('dMain') && $('dMain').clientWidth) || 900));
+  const plotW = () => Math.max(300, Math.round(($('dMain') && $('dMain').clientWidth) || 900));
   function scatterHTML(idx, cells, mm, hero){
     const vs = {}; for (const i of idx) vs[i] = vals(cells[i], state.smooth);
-    const W = plotW(), HH = 384, L = 40, R = W - 24, T = 34, Bt = 360;
+    // 384 high on wide screens; on narrow ones the plot keeps roughly a 3:2 shape (never under 250)
+    const W = plotW(), HH = Math.round(Math.min(384, Math.max(250, W * 0.66))), L = 40, R = W - 24, T = 34, Bt = HH - 24;
     const prs = idx.map(i => Math.max(vs[i].pr, 0.2)), wrs = idx.map(i => vs[i].wr);
     const lx0 = Math.log(Math.max(0.2, Math.min(...prs) * 0.7)), lx1 = Math.log(Math.max(...prs) * 1.35);
     const wy0 = Math.floor((Math.min(...wrs) - 2) / 5) * 5, wy1 = Math.ceil((Math.max(...wrs) + 2) / 5) * 5;
@@ -1746,9 +1771,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   function markEdges(){ for (const el of document.querySelectorAll(HS)) if (el.offsetParent) edgeOf(el); }
   document.addEventListener('scroll', e => { const t = e.target; if (t && t.matches && t.matches(HS)) edgeOf(t); }, {passive:true, capture:true});
   // the header gets a hairline once the page scrolls under it; the current history entry remembers where we are
-  let scrT = 0;
+  let scrT = 0, lastY = 0;
   window.addEventListener('scroll', () => {
-    document.querySelector('.topbar').classList.toggle('is-scrolled', window.scrollY > 4);
+    const tb = document.querySelector('.topbar'), y = window.scrollY;
+    tb.classList.toggle('is-scrolled', y > 4);
+    // hide on the way down (past the header itself), show on the way up; never while searching or a popup is open
+    const busyHdr = document.querySelector('.hdr.is-searching') || state.srvOpen;
+    if (y < tb.offsetHeight || busyHdr || y < lastY - 6) tb.classList.remove('is-away');
+    else if (y > lastY + 6) tb.classList.add('is-away');
+    if (Math.abs(y - lastY) > 6) lastY = y;
     clearTimeout(scrT); scrT = setTimeout(() => { try { history.replaceState(Object.assign({}, history.state, {y:window.scrollY}), ''); } catch(e) {} }, 150);
   }, {passive:true});
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
