@@ -185,11 +185,11 @@ button.op-hero{cursor:pointer}
 .op-map{position:relative;display:flex;flex-direction:column;gap:var(--space-8);padding:var(--space-12) var(--space-8);border-radius:var(--radius-lg);color:var(--text);
   transition:background-color var(--dur) var(--ease-out)}
 .op-map-name{color:inherit;text-decoration:none}
-.op-map-name::after{content:"";position:absolute;inset:0;border-radius:inherit}          /* the map link covers the card */
+.op-map-name::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit}   /* above the picture, which gets a filter (its own layer) on hover */          /* the map link covers the card */
 .op-map-name:focus-visible{outline:none}
 .op-map:has(.op-map-name:focus-visible){outline:2px solid var(--text);outline-offset:-2px}
 .op-map:hover:not(:has(.op-map-pick:hover,.op-map-reserve:hover)){background:rgba(255,255,255,.1)}   /* YouTube's dark-mode hover layer: white at 10% */
-.op-map-pick,.op-map-reserve{position:relative;z-index:1;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
+.op-map-pick,.op-map-reserve{position:relative;z-index:2;color:inherit;text-decoration:none;border-radius:var(--radius-md)}
 .op-hero .op-avatar,.op-map-pick .op-avatar,.op-map-reserve .op-avatar,.pn-hero .op-avatar{transition:transform 240ms cubic-bezier(.2,.8,.2,1),filter 240ms cubic-bezier(.2,.8,.2,1),opacity var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 /* hover on a hero: the face lifts and brightens (no underlines; those are for links inside sentences) */
 a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .op-avatar,a.pn-hero:hover .op-avatar{transform:translateY(-2px);filter:brightness(1.12)}
@@ -345,16 +345,10 @@ a.op-hero:hover .op-avatar,.op-map-pick:hover .op-avatar,.op-map-reserve:hover .
 .tr-plot{position:relative}
 .tr-plot svg{touch-action:pan-y;cursor:crosshair}
 .tr-x,.tr-dot{pointer-events:none}
-.tr-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
-.tr-tip b{margin-right:6px;color:var(--text)}
-.tr-tip .op-tier{margin-right:6px;vertical-align:-3px}
 .scatter{position:relative}
 .scatter svg{display:block;max-width:100%;height:auto}
 .sc-pt{cursor:pointer}
 .sc-pt:hover circle:last-child{stroke:#F2F2F3}
-.sc-tip{position:absolute;z-index:5;pointer-events:none;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);font-size:12px;line-height:1.6;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--text-body)}
-.sc-tip b{margin-right:6px;color:var(--text)}
-.sc-tip .op-tier{margin-right:6px;vertical-align:-3px}
 .twrap{overflow-x:auto}
 table.dtable{width:100%;min-width:660px;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .dtable th{height:40px;padding:0 8px;border-bottom:1px solid var(--line-strong);font-size:12px;font-weight:500;color:var(--text-meta);text-align:right;white-space:nowrap}
@@ -529,7 +523,6 @@ a:focus-visible,button:focus-visible,select:focus-visible,summary:focus-visible,
   .op-chip::after,.op-range-reset::after,.op-tab::after,.pnpop-year::after,.op-switch::after,.srv-btn::after,.mchip::after{content:"";position:absolute;left:0;right:0;top:50%;height:44px;min-width:44px;transform:translateY(-50%)}
   .op-map,.op-map *{-webkit-touch-callout:none}
 }
-.tap-tip{position:absolute;z-index:95;max-width:260px;padding:8px 10px;background:var(--surface-pop);border:1px solid var(--line-field);border-radius:var(--radius-md);box-shadow:var(--shadow-pop);color:var(--text);font-size:12px;line-height:1.5;pointer-events:none}
 
 
 /* ---- motion: short, calm, transform / opacity / colour only; off when the system asks for less motion */
@@ -544,7 +537,6 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 .caret{transition:transform var(--dur) var(--ease-out)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes riseIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.sc-tip:not([hidden]),.tap-tip{animation:fadeIn var(--dur-fast) var(--ease-out)}
 #searchPop:not([hidden]){animation:riseIn var(--dur) var(--ease-out)}
 details[open] > :not(summary){animation:riseIn var(--dur) var(--ease-out)}
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important} ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important} }
@@ -955,7 +947,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const inR = g >= state.lo && g <= state.hi, end = p === pL || p === pH;
       const art = g === TOP ? `<span class="op-range-duo">${icon(7)}${icon(8)}</span>` : icon(g);
       const ends = [p === pL ? 'l' : '', p === pH ? 'r' : ''].filter(Boolean).join(' ');
-      h += `<span class="op-range-cell${inR ? '' : ' is-out'}${end ? ' is-end' : ''}${g === TOP ? ' is-duo' : ''}"${ends ? ` data-end="${ends}"` : ''} title="${GRADE_NAME[g]}">${art}</span>`;
+      h += `<span class="op-range-cell${inR ? '' : ' is-out'}${end ? ' is-end' : ''}${g === TOP ? ' is-duo' : ''}"${ends ? ` data-end="${ends}"` : ''}>${art}</span>`;
     });
     // the two knobs ride on their own layer, drawn over the icons and moved together with the filled span
     h += `<span class="op-range-knobs" style="left:${pct(pL)}%;width:${pct(pH + 1) - pct(pL)}%"><span class="op-range-knob op-range-knob-l"></span><span class="op-range-knob op-range-knob-r"></span></span>`;
@@ -964,7 +956,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     return {html:h, n, total};
   }
   // round "back to default" button. Its slot keeps its width when the button is hidden, so nothing beside it moves
-  const resetIcon = (act, label) => `<button type="button" class="op-range-reset" data-act="${act}" aria-label="${label}" title="${label}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
+  const resetIcon = (act, label) => `<button type="button" class="op-range-reset" data-act="${act}" aria-label="${label}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"/><path d="M2.5 2.5v3h3"/></svg></button>`;
   const resetBtn = () => (state.lo === DEF_LO && state.hi === DEF_HI) ? '' : resetIcon('rk-reset', '기본 구간(마스터~챔피언)으로 되돌리기');
   const wIsDefault = () => state.w.wr === DEFAULT_W.wr && state.w.pr === DEFAULT_W.pr && state.w.br === DEFAULT_W.br;
   const wResetBtn = () => wIsDefault() ? '' : resetIcon('w-reset', `기본 가중치(${DEFAULT_W.wr} · ${DEFAULT_W.pr} · ${DEFAULT_W.br})로 되돌리기`);
@@ -976,7 +968,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   const chipArt = () => state.lo === state.hi ? rkIcon(state.lo) : `${rkIcon(state.lo)}<span class="rk-sep">~</span>${rkIcon(state.hi)}`;
   function rankBar(where){
     const r = rankInner(), open = state.rkOpen === where;
-    let h = `<div class="rksel" data-rk="${where}"><button type="button" class="op-chip rk-chip" data-act="rk-toggle" data-where="${where}" aria-expanded="${open}" aria-label="랭크 구간: ${esc(rankLabel())}" title="${esc(rankLabel())}"><span class="rk-art">${chipArt()}</span>${CARET}</button>`;
+    let h = `<div class="rksel" data-rk="${where}"><button type="button" class="op-chip rk-chip" data-act="rk-toggle" data-where="${where}" aria-expanded="${open}" aria-label="랭크 구간: ${esc(rankLabel())}"><span class="rk-art">${chipArt()}</span>${CARET}</button>`;
     if (open) h += `<div class="op-pop rkpop" role="group" aria-label="랭크 구간">`
       + `<div class="op-range"><span class="rk-reset reset-slot">${resetBtn()}</span><div class="op-range-bar" role="group" aria-label="랭크 구간. 양쪽 손잡이를 끌거나 화살표 키로 옮기세요" style="width:${r.total * 50}px">${r.html}</div></div></div>`;
     return h + `</div>`;
@@ -1214,7 +1206,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
             const low = !isHidden() && B.cells[m.id][i][6] < 100;
             return {here, usual, hot, low, tip:`${H[i].name} · 이 맵 지수 ${here}` + (hot ? ` (전체 맵 지수 ${usual}보다 ${here - usual} 높음)` : '') + (low ? ' · 표본이 적어요' : '')}; };
           const heroHref = i => esc(hrefOf('detail', {map:m.id, role:r, focus:H[i].id}));
-          const heroAttrs = (i, x) => `href="${heroHref(i)}" data-go-hero="${esc(H[i].id)}" data-hero-map="${esc(m.id)}" title="${esc(x.tip)}" aria-label="${esc(x.tip)}"`;
+          const heroAttrs = (i, x) => `href="${heroHref(i)}" data-go-hero="${esc(H[i].id)}" data-hero-map="${esc(m.id)}" aria-label="${esc(x.tip)}"`;
           return `<div class="op-map-role"><div class="op-map-top">${top.map(i => { const x = info(i);
               return `<a class="op-map-pick${x.hot ? ' is-hot' : ''}${x.low ? ' is-low' : ''}" ${heroAttrs(i, x)}><span class="op-map-face">${avatar(i, 40)}${x.hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-map-label"><span>${esc(H[i].name)}</span><span class="op-map-mi">${x.here}</span></span></a>`; }).join('')}</div>`
             + `<div class="op-map-more">${more.map(i => { const x = info(i);
@@ -1287,7 +1279,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const lv = n >= 600 ? 3 : n >= 150 ? 2 : 1;
       const bars = n && id !== 'all-maps' ? `<span class="relbars lv${lv}" aria-hidden="true"><i></i><i></i><i></i></span>` : '';
       const tip = n ? `추정 ${fmtInt(n)}경기` + (id !== 'all-maps' ? `, 표본 신뢰도 ${rel(n)}` : '') : '공식 통계 오류';
-      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" title="${tip}" aria-label="${esc(name)}, ${tip}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${bars}<span class="rail-num">${n ? fmtInt(n) : '오류'}</span></span></button>`;
+      return `<button type="button" class="op-rail-item" data-map="${esc(id)}" aria-current="${on}" aria-label="${esc(name)}, ${tip}"><span>${esc(name)}</span><span class="op-rail-n${n ? '' : ' is-error'}">${bars}<span class="rail-num">${n ? fmtInt(n) : '오류'}</span></span></button>`;
     };
     let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체')}</nav>`;
     for (const mode of MODES) h += `<nav class="op-rail" aria-label="${esc(mode)} 맵"><span class="op-rail-label">${esc(mode)}</span>${MAPS.filter(m => m.mode === mode).map(m => item(m.id, m.name)).join('')}</nav>`;
@@ -1318,7 +1310,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const up = ds.filter(x => x[1] >= 3).sort((a, b) => b[1] - a[1]).slice(0, 3);
       const dn = ds.filter(x => x[1] <= -3).sort((a, b) => a[1] - b[1]).slice(0, 3);
       const mv = up.concat(dn);
-      if (mv.length) h += `<div class="moves"><span class="moves-l">전체 대비</span>${mv.map(([i, v]) => `<button type="button" class="mchip${v >= HOT ? ' is-hot' : ''}" data-hero="${i}" title="전체 맵 지수 ${Math.round(ALL[i])} → 이 맵 ${Math.round(mm[i])}">${avatar(i, 24)}${esc(H[i].name)}<b style="color:${v >= HOT ? 'var(--accent)' : v > 0 ? 'var(--text)' : 'var(--text-meta)'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</b></button>`).join('')}</div>`;
+      if (mv.length) h += `<div class="moves"><span class="moves-l">전체 대비</span>${mv.map(([i, v]) => `<button type="button" class="mchip${v >= HOT ? ' is-hot' : ''}" data-hero="${i}">${avatar(i, 24)}${esc(H[i].name)}<b style="color:${v >= HOT ? 'var(--accent)' : v > 0 ? 'var(--text)' : 'var(--text-meta)'}">${v > 0 ? '+' : '−'}${Math.abs(v)}</b></button>`).join('')}</div>`;
       else h += `<p class="dline">전체 순위와 큰 차이가 없습니다.</p>`;
     }
     // tier board
@@ -1330,7 +1322,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
         const hot = !isAll && delta(i) >= HOT, sel = i === shown, low = !isHidden() && cells[i][6] < 100;
         const ring = hot || sel ? `;box-shadow:${hot ? '0 0 0 2px var(--accent)' : '0 0 0 2px var(--bg)'}${sel ? ',0 0 0 4px var(--text)' : ''}` : '';
         const tip = `${H[i].name} · 지수 ${Math.round(mm[i])}` + (hot ? ` (전체 맵보다 ${delta(i)} 높음)` : '') + (low ? ' · 표본이 적어요' : '');
-        return `<button type="button" class="op-hero" data-hero="${i}" aria-pressed="${sel}" title="${esc(tip)}"><span class="hot-face${sel ? ' is-sel' : ''}">${avatar(i, 56, ring + (low ? ';opacity:.45' : ''))}${hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-hero-label"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi${hot ? ' is-hot' : ''}">${Math.round(mm[i])}</span></span></button>`;
+        return `<button type="button" class="op-hero" data-hero="${i}" aria-pressed="${sel}" aria-label="${esc(tip)}"><span class="hot-face${sel ? ' is-sel' : ''}">${avatar(i, 56, ring + (low ? ';opacity:.45' : ''))}${hot ? '<span class="hot-pin" aria-hidden="true"></span>' : ''}</span><span class="op-hero-label"><span class="op-hero-name">${esc(H[i].name)}</span><span class="op-hero-mi${hot ? ' is-hot' : ''}">${Math.round(mm[i])}</span></span></button>`;
       }).join('') : `<span class="none" style="align-self:center">해당 영웅 없음</span>`) + `</div></div>`;
     }
     h += `</div></section>`;
@@ -1503,12 +1495,12 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const pts = idx.map(i => { const v = vs[i]; return {i, v, cx:SX(v.pr), cy:SY(v.wr), rr:11 + Math.sqrt(Math.max(0, v.br)) * 1.25, t:tierOf(mm[i])}; }).sort((a, b) => b.rr - a.rr);
     for (const p of pts) {
       const on = p.i === hero, r = p.rr, img = H[p.i].img;
-      s += `<g class="sc-pt" data-hero="${p.i}" data-tip="${esc(`${H[p.i].name}|${p.t}|${Math.round(mm[p.i])}|${p.v.pr.toFixed(1)}|${p.v.wr.toFixed(1)}|${p.v.br.toFixed(1)}`)}" transform="translate(${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">`
+      s += `<g class="sc-pt" data-hero="${p.i}" transform="translate(${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">`
         + `<circle r="${(r + 2).toFixed(1)}" fill="#0E0E10"/>`
         + (img ? `<image href="${esc(img)}" x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(2 * r).toFixed(1)}" height="${(2 * r).toFixed(1)}" clip-path="url(#scClip)" preserveAspectRatio="xMidYMid slice"/>` : `<circle r="${r.toFixed(1)}" fill="#1C1C20"/>`)
         + `<circle r="${r.toFixed(1)}" fill="none" stroke="${on ? '#F2F2F3' : RING[p.t]}" stroke-width="${on ? 3 : 2}"/></g>`;
     }
-    return s + `</svg><div class="sc-tip" id="scTip" hidden></div>`;
+    return s + `</svg>`;
   }
 
   // ---- table
@@ -1546,15 +1538,15 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     const n = cols.length;
     let h = `<h2 id="heatTitle">맵별 티어 비교</h2>`;
     h += `<div class="hwrap scroll"><div class="hgrid" style="grid-template-columns:150px repeat(${n}, minmax(26px, 1fr));min-width:${150 + n * 30}px"><span></span>`;
-    for (const i of cols) h += `<button type="button" class="hg-face${i === hero ? ' is-sel' : ''}" data-hero="${i}" title="${esc(H[i].name)}" aria-label="${esc(H[i].name)}">${avatar(i, 24)}</button>`;
+    for (const i of cols) h += `<button type="button" class="hg-face${i === hero ? ' is-sel' : ''}" data-hero="${i}" aria-label="${esc(H[i].name)}">${avatar(i, 24)}</button>`;
     const row = (id, name) => {
       const on = id === state.map;
-      let r = `<button type="button" class="hg-map${on ? ' is-cur' : ''}" data-map="${esc(id)}" title="${esc(name)}">${esc(name)}</button>`;
+      let r = `<button type="button" class="hg-map${on ? ' is-cur' : ''}" data-map="${esc(id)}">${esc(name)}</button>`;
       for (const i of cols) {
-        if (mapErr(id)) { r += `<button type="button" class="hg-cell is-na" data-cell="${esc(id)}|${i}" aria-label="${esc(H[i].name)} · ${esc(name)} · 공식 통계 오류" title="${esc(H[i].name)} · ${esc(name)} · 공식 통계 오류">–</button>`; continue; }
+        if (mapErr(id)) { r += `<button type="button" class="hg-cell is-na" data-cell="${esc(id)}|${i}" aria-label="${esc(H[i].name)} · ${esc(name)} · 공식 통계 오류">–</button>`; continue; }
         const t = tierOf(MR[state.role][id][i]), low = !isHidden() && B.cells[id][i][6] < 100, here = on && i === hero;
         const label = `${H[i].name} · ${name} · ${t} 티어 (${Math.round(MR[state.role][id][i])})`;
-        r += `<button type="button" class="hg-cell op-tier-${t}${low ? ' is-low' : ''}${here ? ' is-here' : ''}${i === hero ? ' is-col' : ''}" data-cell="${esc(id)}|${i}" aria-label="${esc(label)}" title="${esc(label)}">${t}</button>`;
+        r += `<button type="button" class="hg-cell op-tier-${t}${low ? ' is-low' : ''}${here ? ' is-here' : ''}${i === hero ? ' is-col' : ''}" data-cell="${esc(id)}|${i}" aria-label="${esc(label)}">${t}</button>`;
       }
       return r;
     };
@@ -1653,7 +1645,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
       const ix = x.id ? pnIndex(x.id, cur.date) : null;
       let mi = '';
       if (ix) { const d = Math.round(ix.post) - Math.round(ix.pre);
-        mi = `<span class="pn-mi" title="${esc(D.meta.label)} · ${esc(rankLabel())} · 패치 전날 지수 → ${ix.full ? '패치 10일 뒤' : '지금'}">${Math.round(ix.pre)} → <b>${Math.round(ix.post)}</b> <span class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : d < 0 ? '−' : '±'}${Math.abs(d)}</span></span>`; }
+        mi = `<span class="pn-mi">${Math.round(ix.pre)} → <b>${Math.round(ix.post)}</b> <span class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : d < 0 ? '−' : '±'}${Math.abs(d)}</span></span>`; }
       const head = `${face}<span class="pn-name"><b>${name}</b><span>${role}${x.section && !/^(돌격|공격|지원|영웅 업데이트)/.test(x.section) ? ' · ' + esc(x.section.split(' · ')[0]) : ''}</span></span>`;
       const link = i != null ? `<a class="pn-hero" href="${esc(hrefOf('detail', {map:'all-maps', role:x.role, focus:x.id}))}" data-go-hero="${esc(x.id)}">${head}</a>` : `<span class="pn-hero">${head}</span>`;
       const ab = g => `<div class="pn-ab">${g.name && g.name !== '일반' ? `<span class="pn-ab-name">${esc(g.name)}</span>` : ''}<ul class="pn-lines">${g.lines.map(l => `<li class="${l.d > 0 ? 'd-up' : l.d < 0 ? 'd-dn' : ''}">${esc(l.t)}</li>`).join('')}</ul></div>`;
@@ -1920,18 +1912,6 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (state.pnOpen) { state.pnOpen = false; renderPatch(); const b = document.querySelector('[data-act="pn-toggle"]'); if (b) b.focus(); }
     if (state.rkOpen) { const w = state.rkOpen; state.rkOpen = null; paintRank(); const b = document.querySelector(`.rksel[data-rk="${w}"] [data-act="rk-toggle"]`); if (b) b.focus(); }
   });
-  document.addEventListener('pointerover', e => {
-    const g = e.target.closest && e.target.closest('.sc-pt'), tip = $('scTip');
-    if (!tip) return;
-    if (!g) { tip.hidden = true; return; }
-    const [name, t, mi, pr, wr, br] = g.dataset.tip.split('|');
-    tip.innerHTML = `<b>${esc(name)}</b><span class="op-tier op-tier-sm op-tier-${t}">${t}</span>지수 ${mi}<br>픽률 ${pr}% · 승률 ${wr}% · 밴률 ${br}%`;
-    tip.hidden = false;
-    const box = tip.parentElement.getBoundingClientRect(), r = g.getBoundingClientRect();
-    const left = r.left - box.left + r.width / 2 + 14, top = r.top - box.top - tip.offsetHeight - 6;
-    tip.style.left = Math.min(Math.max(0, left), box.width - tip.offsetWidth) + 'px';
-    tip.style.top = Math.max(0, top) + 'px';
-  });
   let rz = 0, lastW = window.innerWidth;
   window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rz); rz = setTimeout(() => { if (state.view === 'detail' && D && B) lightDetail(); }, 150); });
   // the hero column is fitted to the window's height as well, so also refit when only the height changes
@@ -1969,31 +1949,6 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     if (busyN) busyT = setTimeout(() => $('loadBar').classList.add('is-on'), 150);
     else $('loadBar').classList.remove('is-on');
   }
-  // touch screens have no hover: a long press shows an element's description (title) instead
-  let tapTip = null, pressT = 0, pressed = false;
-  const hideTip = () => { if (tapTip) { tapTip.remove(); tapTip = null; } };
-  document.addEventListener('touchstart', e => {
-    hideTip(); clearTimeout(pressT); pressed = false;
-    const el = e.target.closest && e.target.closest('[title]');
-    if (!el || !el.getAttribute('title')) return;
-    pressT = setTimeout(() => {
-      pressed = true;
-      tapTip = document.createElement('div');
-      tapTip.className = 'tap-tip'; tapTip.setAttribute('role', 'tooltip');
-      tapTip.textContent = el.getAttribute('title');
-      document.body.appendChild(tapTip);
-      const r = el.getBoundingClientRect(), w = tapTip.offsetWidth, h = tapTip.offsetHeight;
-      const x = Math.max(8, Math.min(document.documentElement.clientWidth - w - 8, r.left + r.width / 2 - w / 2));
-      const y = r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8;
-      tapTip.style.left = (x + window.scrollX) + 'px'; tapTip.style.top = (y + window.scrollY) + 'px';
-    }, 450);
-  }, {passive:true});
-  const endPress = () => clearTimeout(pressT);
-  document.addEventListener('touchmove', () => { endPress(); hideTip(); }, {passive:true});
-  document.addEventListener('touchend', endPress, {passive:true});
-  document.addEventListener('scroll', hideTip, {passive:true, capture:true});
-  // the click that follows a long press only closes the description
-  document.addEventListener('click', e => { if (pressed) { pressed = false; e.preventDefault(); e.stopPropagation(); } }, true);
   // "/" jumps to the search box
   document.addEventListener('keydown', e => {
     if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
