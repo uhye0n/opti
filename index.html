@@ -289,7 +289,14 @@ button.op-hero{cursor:pointer}
 .drail{flex:1 1 232px;max-width:320px;min-width:0;display:flex;flex-direction:column;gap:4px}
 .rail-select{display:none;width:100%;height:var(--control-md);padding:0 12px;background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-md);font:inherit;font-size:14px;font-weight:500}
 @media (min-width:901px){ .drail{order:2} }
-@media (max-width:900px){ .drail{max-width:none;flex-basis:100%} .drail .op-rail{display:none} .rail-select{display:block} }
+/* up to 900px: no side list; the bar is two rows - sample correction · weights · rank on top, then the role chips with the
+   map drop-down filling the rest of their row */
+@media (max-width:900px){
+  .drail{display:none}
+  .dbar{row-gap:10px}
+  .dbar .rail-select{display:block;flex:1 1 120px;width:auto;min-width:0;height:var(--control-sm)}
+  .dbar-r{order:-1;flex-basis:100%;margin-left:0;justify-content:flex-start}
+}
 .op-rail{display:flex;flex-direction:column;gap:var(--space-2);padding-bottom:10px}
 .op-rail-label{padding:var(--space-6) var(--space-10) var(--space-2);font-size:12px;font-weight:700;color:var(--text-meta)}
 .op-rail-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
@@ -457,7 +464,7 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
    on focus in iOS Safari), no grey tap flash, no double-tap zoom delay */
 @media (pointer:coarse){
   :root{--control-sm:40px;--control-md:44px}
-  .op-search-field input{font-size:16px}
+  .op-search-field input,.rail-select{font-size:16px}
   .nav a{display:flex;align-items:center;height:44px}
   html{-webkit-text-size-adjust:100%;touch-action:manipulation}
 }
@@ -1327,7 +1334,7 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
   }
   function renderBar(){
     let h = ROLES.map(([k, l]) => `<button type="button" class="op-chip" data-role="${k}" aria-pressed="${state.role === k}">${l}</button>`).join('');
-    h += `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}</div>`;
+    h += railSelectHTML() + `<div class="dbar-r">${ctlHTML()}${rankBar('detail')}</div>`;
     $('homeCtl').innerHTML = '';
     $('dBar').innerHTML = h;
     if (state.wOpen) paintWeights();
@@ -1359,10 +1366,13 @@ body:not([data-view="home"]) #homeView,body:not([data-view="detail"]) #detailVie
     };
     let h = `<nav class="op-rail" aria-label="전체">${item('all-maps', '전체')}</nav>`;
     for (const mode of MODES) h += `<nav class="op-rail" aria-label="${esc(mode)} 맵"><span class="op-rail-label">${esc(mode)}</span>${MAPS.filter(m => m.mode === mode).map(m => item(m.id, m.name)).join('')}</nav>`;
-    // narrow screens: the same list as one drop-down
-    const opt = (id, name) => { const n = B.N[id] || 0; return `<option value="${esc(id)}"${state.map === id ? ' selected' : ''}>${esc(name)} (${n ? fmtInt(n) + (id !== 'all-maps' ? ` · 신뢰도 ${rel(n)}` : '') : '오류'})</option>`; };
-    h += `<select class="rail-select" id="railSelect" aria-label="맵 선택">${opt('all-maps', '전체')}${MODES.map(mode => `<optgroup label="${esc(mode)}">${MAPS.filter(m => m.mode === mode).map(m => opt(m.id, m.name)).join('')}</optgroup>`).join('')}</select>`;
     rail.innerHTML = h;
+    const sel = $('railSelect'); if (sel) sel.outerHTML = railSelectHTML();
+  }
+  // narrow screens: the map list as one drop-down, in the bar next to the role chips
+  function railSelectHTML(){
+    const opt = (id, name) => { const n = B.N[id] || 0; return `<option value="${esc(id)}"${state.map === id ? ' selected' : ''}>${esc(name)} (${n ? fmtInt(n) + (id !== 'all-maps' ? ` · 신뢰도 ${rel(n)}` : '') : '오류'})</option>`; };
+    return `<select class="rail-select" id="railSelect" aria-label="맵 선택">${opt('all-maps', '전체')}${MODES.map(mode => `<optgroup label="${esc(mode)}">${MAPS.filter(m => m.mode === mode).map(m => opt(m.id, m.name)).join('')}</optgroup>`).join('')}</select>`;
   }
   function renderMain(){
     const r = state.role, mi = MR[r], isAll = state.map === 'all-maps', m = MAP_BY_ID[state.map];
