@@ -474,6 +474,16 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
   .wsel #wLabel{display:none}
   .home-rk,.dbar-r{column-gap:12px}
 }
+/* phones: the top rows span the full width evenly - the four menu items spread edge to edge, and in the control row the
+   weights and rank chips share the space left after the sample-correction switch */
+@media (max-width:640px){
+  .nav{justify-content:space-between;gap:0}
+  .home-rk,.dbar-r{width:100%;flex-wrap:nowrap}
+  .home-rk > .wsel,.dbar-r > .wsel,#rkHome,.dbar-r > .rksel{flex:1 1 0;min-width:0}
+  #rkHome{display:flex}
+  #rkHome .rksel{flex:1;min-width:0}
+  .wsel > .op-chip,.rksel > .rk-chip{width:100%;justify-content:center}
+}
 @media (max-width:400px){
   .home-rk,.dbar-r{column-gap:8px}
 }
