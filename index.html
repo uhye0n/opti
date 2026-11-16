@@ -480,9 +480,8 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
   .nav{justify-content:space-between;gap:0}
   .home-rk,.dbar-r{width:100%;flex-wrap:nowrap}
   .home-rk .wsel,.dbar-r > .wsel,#rkHome,.dbar-r > .rksel,.home-rk .op-switch,.dbar-r > .op-switch{flex:1 1 0;min-width:0}
-  /* three chips of one kind: sample correction gets the same filled box (label + a smaller switch), all centred,
-     same weight; the rank icons one step larger so that chip looks as full as the others */
-  .home-rk .op-switch,.dbar-r > .op-switch{justify-content:center;gap:8px;padding:0;background:var(--surface-chip);border-radius:var(--radius-md);font-weight:500}
+  /* three equal thirds: sample correction (no box, label + a smaller switch) centred in its third like the chips' contents; the rank icons one step larger so that chip looks as full as the others */
+  .home-rk .op-switch,.dbar-r > .op-switch{justify-content:center;gap:8px;padding:0;font-weight:500}
   .home-rk .op-switch-track,.dbar-r .op-switch-track{width:30px;height:18px;border-radius:9px}
   .home-rk .op-switch-knob,.dbar-r .op-switch-knob{width:14px;height:14px}
   .home-rk .op-switch[aria-pressed="true"] .op-switch-knob,.dbar-r .op-switch[aria-pressed="true"] .op-switch-knob{left:14px}
