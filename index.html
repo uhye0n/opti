@@ -99,7 +99,7 @@ img{display:block}
 .op-search-field input::placeholder{color:var(--text-meta)}
 .op-search-field input::-webkit-search-cancel-button{filter:invert(.6)}
 .op-pop{background:var(--surface-pop);border:1px solid var(--line-field);border-radius:16px;box-shadow:var(--shadow-pop)}
-.op-search-pop{position:absolute;left:0;right:0;top:42px;z-index:40;padding:var(--space-8) 0}
+.op-search-pop{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;padding:var(--space-8) 0}
 .op-search-group{padding:var(--space-4) var(--space-14);font-size:12px;color:var(--text-meta)}
 .op-search-hit{width:100%;min-height:var(--row-pop);padding:0 var(--space-14);display:flex;align-items:center;gap:var(--space-10);background:transparent;border:0;color:var(--text);text-align:left;cursor:pointer}
 .op-search-hit.is-kb{background:var(--surface-chip)}
@@ -110,7 +110,7 @@ img{display:block}
 .op-search-empty{padding:var(--space-10) var(--space-14);color:var(--text-meta)}
 .srv{position:relative}
 .srv-btn{height:var(--control-md);padding:0 var(--space-14);background:var(--surface-chip);color:var(--text);border:0;border-radius:var(--radius-pill);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
-.srv-pop{position:absolute;right:0;top:42px;z-index:40;min-width:160px;padding:var(--space-6)}
+.srv-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:160px;padding:var(--space-6)}
 .srv-item{width:100%;min-height:var(--control-md);padding:0 var(--space-10);display:flex;align-items:center;background:transparent;border:0;border-radius:var(--radius-md);color:var(--text);font-size:14px;font-weight:500;text-align:left;cursor:pointer}
 .srv-item[aria-pressed="true"]{background:var(--surface-chip);font-weight:700}
 .load-err{margin:8px 0 0;padding:10px 14px;background:var(--surface-panel);border-radius:var(--radius-lg);color:var(--text-body)}
@@ -126,7 +126,7 @@ img{display:block}
 .rk-duo img:first-child{left:0;top:0;filter:brightness(.8)}
 .rk-duo img:last-child{left:10px;top:7px;filter:drop-shadow(0 0 1.5px #222226) drop-shadow(0 0 1px #222226)}
 .rk-sep{color:var(--text-meta);font-size:13px}
-.rkpop{position:absolute;right:0;top:40px;z-index:30;padding:8px;border-radius:14px;max-width:calc(100vw - 16px)}
+.rkpop{position:absolute;right:0;top:calc(100% + 6px);z-index:30;padding:8px;border-radius:14px;max-width:calc(100vw - 16px)}
 .rkpop .op-range{gap:6px}
 .rkpop .op-range-bar{max-width:calc(100vw - 80px)}
 .op-range-reset{width:var(--control-sm);height:var(--control-sm);flex:none;padding:0;display:flex;align-items:center;justify-content:center;background:var(--surface-chip);border:0;border-radius:var(--radius-pill-sm);color:var(--text);cursor:pointer}
@@ -265,7 +265,7 @@ button.op-hero{cursor:pointer}
 .reset-slot{width:var(--control-sm);height:var(--control-sm);flex:none;display:flex}
 .op-pop .reset-slot:empty{display:none}
 .op-chip-value{display:inline-block;min-width:6.2em;text-align:center}
-.wpop{position:absolute;right:0;top:40px;z-index:30;max-width:calc(100vw - 32px);padding:16px;display:flex;flex-direction:column;gap:12px}
+.wpop{position:absolute;right:0;top:calc(100% + 6px);z-index:30;max-width:calc(100vw - 32px);padding:16px;display:flex;flex-direction:column;gap:12px}
 .wpop p{margin:0;color:var(--text-body)}
 .wrow{display:flex;align-items:center;gap:14px;height:16px}
 .wrow .reset-slot{margin:-8px 0}   /* the 32px button hangs over the 16px slider row instead of making it taller */
@@ -535,7 +535,7 @@ a.op-hero:hover .op-avatar,button.op-hero:hover .op-avatar{transform:translateY(
 .pnsel{position:relative;flex:none;margin-left:auto}
 .pnsel .op-chip.is-on{background:var(--text);color:var(--bg);font-weight:700}
 .pnsel .op-chip.is-on .caret{color:var(--bg)}
-.pnpop{position:absolute;right:0;top:40px;z-index:30;width:296px;max-width:calc(100vw - 16px);padding:10px;display:flex;flex-direction:column;gap:8px}
+.pnpop{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:296px;max-width:calc(100vw - 16px);padding:10px;display:flex;flex-direction:column;gap:8px}
 .pnpop-years{display:flex;flex-wrap:wrap;gap:4px;padding-bottom:8px;border-bottom:1px solid var(--line-field)}
 .pnpop-year{height:28px;padding:0 9px;background:transparent;border:0;border-radius:var(--radius-sm);color:var(--text-secondary);font:inherit;font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;cursor:pointer}
 .pnpop-year[aria-pressed="true"]{background:var(--text);color:var(--bg);font-weight:700}
